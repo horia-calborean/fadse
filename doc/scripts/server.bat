@@ -1,0 +1,1 @@
+java -jar FADSE.jar gapdistsimin_lab.xml 1> output 2>&1

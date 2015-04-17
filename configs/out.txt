@@ -1,0 +1,473 @@
+; Report for caches, TLBs, and main memory
+;    Accesses - Total number of accesses
+;    Hits, Misses - Accesses resulting in hits/misses
+;    HitRatio - Hits divided by accesses
+;    Evictions - Invalidated or replaced cache blocks
+;    Retries - For L1 caches, accesses that were retried
+;    ReadRetries, WriteRetries - Read/Write retried accesses
+;    NoRetryAccesses - Number of accesses that were not retried
+;    NoRetryHits, NoRetryMisses - Hits and misses for not retried accesses
+;    NoRetryHitRatio - NoRetryHits divided by NoRetryAccesses
+;    NoRetryReads, NoRetryWrites - Not retried reads and writes
+;    Reads, Writes - Total read/write accesses
+;    BlockingReads, BlockingWrites - Reads/writes coming from lower-level cache
+;    NonBlockingReads, NonBlockingWrites - Coming from upper-level cache
+
+
+[ dl1-0 ]
+
+Accesses = 4137
+Hits = 3867
+Misses = 270
+HitRatio = 0.9347
+Evictions = 7
+Retries = 76
+ReadRetries = 44
+WriteRetries = 32
+
+NoRetryAccesses = 4061
+NoRetryHits = 3862
+NoRetryMisses = 199
+NoRetryHitRatio = 0.951
+NoRetryReads = 2190
+NoRetryReadHits = 2074
+NoRetryReadMisses = 116
+NoRetryWrites = 1871
+NoRetryWriteHits = 1788
+NoRetryWriteMisses = 83
+
+Reads = 2234
+BlockingReads = 33
+NonBlockingReads = 2201
+ReadHits = 2074
+ReadMisses = 160
+
+Writes = 1903
+BlockingWrites = 32
+NonBlockingWrites = 1871
+WriteHits = 1793
+WriteMisses = 110
+
+
+[ dl1-1 ]
+
+Accesses = 893
+Hits = 820
+Misses = 73
+HitRatio = 0.9183
+Evictions = 0
+Retries = 30
+ReadRetries = 19
+WriteRetries = 11
+
+NoRetryAccesses = 863
+NoRetryHits = 816
+NoRetryMisses = 47
+NoRetryHitRatio = 0.9455
+NoRetryReads = 479
+NoRetryReadHits = 451
+NoRetryReadMisses = 28
+NoRetryWrites = 384
+NoRetryWriteHits = 365
+NoRetryWriteMisses = 19
+
+Reads = 498
+BlockingReads = 21
+NonBlockingReads = 477
+ReadHits = 452
+ReadMisses = 46
+
+Writes = 395
+BlockingWrites = 20
+NonBlockingWrites = 375
+WriteHits = 368
+WriteMisses = 27
+
+
+[ dl1-2 ]
+
+Accesses = 578
+Hits = 517
+Misses = 61
+HitRatio = 0.8945
+Evictions = 0
+Retries = 15
+ReadRetries = 15
+WriteRetries = 0
+
+NoRetryAccesses = 563
+NoRetryHits = 517
+NoRetryMisses = 46
+NoRetryHitRatio = 0.9183
+NoRetryReads = 308
+NoRetryReadHits = 280
+NoRetryReadMisses = 28
+NoRetryWrites = 255
+NoRetryWriteHits = 237
+NoRetryWriteMisses = 18
+
+Reads = 323
+BlockingReads = 18
+NonBlockingReads = 305
+ReadHits = 280
+ReadMisses = 43
+
+Writes = 255
+BlockingWrites = 20
+NonBlockingWrites = 235
+WriteHits = 237
+WriteMisses = 18
+
+
+[ il1-0 ]
+
+Accesses = 2700
+Hits = 2132
+Misses = 568
+HitRatio = 0.7896
+Evictions = 135
+Retries = 26
+ReadRetries = 26
+WriteRetries = 0
+
+NoRetryAccesses = 2674
+NoRetryHits = 2132
+NoRetryMisses = 542
+NoRetryHitRatio = 0.7973
+NoRetryReads = 2668
+NoRetryReadHits = 2126
+NoRetryReadMisses = 542
+NoRetryWrites = 6
+NoRetryWriteHits = 6
+NoRetryWriteMisses = 0
+
+Reads = 2694
+BlockingReads = 26
+NonBlockingReads = 2668
+ReadHits = 2126
+ReadMisses = 568
+
+Writes = 6
+BlockingWrites = 6
+NonBlockingWrites = 0
+WriteHits = 6
+WriteMisses = 0
+
+
+[ il1-1 ]
+
+Accesses = 734
+Hits = 567
+Misses = 167
+HitRatio = 0.7725
+Evictions = 5
+Retries = 0
+ReadRetries = 0
+WriteRetries = 0
+
+NoRetryAccesses = 734
+NoRetryHits = 567
+NoRetryMisses = 167
+NoRetryHitRatio = 0.7725
+NoRetryReads = 734
+NoRetryReadHits = 567
+NoRetryReadMisses = 167
+NoRetryWrites = 0
+NoRetryWriteHits = 0
+NoRetryWriteMisses = 0
+
+Reads = 734
+BlockingReads = 122
+NonBlockingReads = 612
+ReadHits = 567
+ReadMisses = 167
+
+Writes = 0
+BlockingWrites = 0
+NonBlockingWrites = 0
+WriteHits = 0
+WriteMisses = 0
+
+
+[ il1-2 ]
+
+Accesses = 602
+Hits = 469
+Misses = 133
+HitRatio = 0.7791
+Evictions = 0
+Retries = 0
+ReadRetries = 0
+WriteRetries = 0
+
+NoRetryAccesses = 602
+NoRetryHits = 469
+NoRetryMisses = 133
+NoRetryHitRatio = 0.7791
+NoRetryReads = 602
+NoRetryReadHits = 469
+NoRetryReadMisses = 133
+NoRetryWrites = 0
+NoRetryWriteHits = 0
+NoRetryWriteMisses = 0
+
+Reads = 602
+BlockingReads = 125
+NonBlockingReads = 477
+ReadHits = 469
+ReadMisses = 133
+
+Writes = 0
+BlockingWrites = 0
+NonBlockingWrites = 0
+WriteHits = 0
+WriteMisses = 0
+
+
+[ dl1-3 ]
+
+Accesses = 584
+Hits = 492
+Misses = 92
+HitRatio = 0.8425
+Evictions = 2
+Retries = 48
+ReadRetries = 32
+WriteRetries = 16
+
+NoRetryAccesses = 536
+NoRetryHits = 492
+NoRetryMisses = 44
+NoRetryHitRatio = 0.9179
+NoRetryReads = 288
+NoRetryReadHits = 257
+NoRetryReadMisses = 31
+NoRetryWrites = 248
+NoRetryWriteHits = 235
+NoRetryWriteMisses = 13
+
+Reads = 320
+BlockingReads = 9
+NonBlockingReads = 311
+ReadHits = 257
+ReadMisses = 63
+
+Writes = 264
+BlockingWrites = 13
+NonBlockingWrites = 251
+WriteHits = 235
+WriteMisses = 29
+
+
+[ il1-3 ]
+
+Accesses = 547
+Hits = 325
+Misses = 222
+HitRatio = 0.5941
+Evictions = 0
+Retries = 89
+ReadRetries = 89
+WriteRetries = 0
+
+NoRetryAccesses = 458
+NoRetryHits = 325
+NoRetryMisses = 133
+NoRetryHitRatio = 0.7096
+NoRetryReads = 458
+NoRetryReadHits = 325
+NoRetryReadMisses = 133
+NoRetryWrites = 0
+NoRetryWriteHits = 0
+NoRetryWriteMisses = 0
+
+Reads = 547
+BlockingReads = 3
+NonBlockingReads = 544
+ReadHits = 325
+ReadMisses = 222
+
+Writes = 0
+BlockingWrites = 0
+NonBlockingWrites = 0
+WriteHits = 0
+WriteMisses = 0
+
+
+[ l2-0 ]
+
+Accesses = 1438
+Hits = 676
+Misses = 762
+HitRatio = 0.4701
+Evictions = 0
+Retries = 0
+ReadRetries = 0
+WriteRetries = 0
+
+NoRetryAccesses = 1438
+NoRetryHits = 676
+NoRetryMisses = 762
+NoRetryHitRatio = 0.4701
+NoRetryReads = 1100
+NoRetryReadHits = 435
+NoRetryReadMisses = 665
+NoRetryWrites = 338
+NoRetryWriteHits = 241
+NoRetryWriteMisses = 97
+
+Reads = 1100
+BlockingReads = 159
+NonBlockingReads = 941
+ReadHits = 435
+ReadMisses = 665
+
+Writes = 338
+BlockingWrites = 15
+NonBlockingWrites = 323
+WriteHits = 241
+WriteMisses = 97
+
+
+[ l2-1 ]
+
+Accesses = 549
+Hits = 347
+Misses = 202
+HitRatio = 0.6321
+Evictions = 0
+Retries = 0
+ReadRetries = 0
+WriteRetries = 0
+
+NoRetryAccesses = 549
+NoRetryHits = 347
+NoRetryMisses = 202
+NoRetryHitRatio = 0.6321
+NoRetryReads = 472
+NoRetryReadHits = 299
+NoRetryReadMisses = 173
+NoRetryWrites = 77
+NoRetryWriteHits = 48
+NoRetryWriteMisses = 29
+
+Reads = 472
+BlockingReads = 11
+NonBlockingReads = 461
+ReadHits = 299
+ReadMisses = 173
+
+Writes = 77
+BlockingWrites = 17
+NonBlockingWrites = 60
+WriteHits = 48
+WriteMisses = 29
+
+
+[ mm ]
+
+Accesses = 987
+Hits = 987
+Misses = 0
+HitRatio = 1
+Evictions = 0
+Retries = 0
+ReadRetries = 0
+WriteRetries = 0
+
+NoRetryAccesses = 987
+NoRetryHits = 987
+NoRetryMisses = 0
+NoRetryHitRatio = 1
+NoRetryReads = 838
+NoRetryReadHits = 838
+NoRetryReadMisses = 0
+NoRetryWrites = 149
+NoRetryWriteHits = 149
+NoRetryWriteMisses = 0
+
+Reads = 838
+BlockingReads = 0
+NonBlockingReads = 838
+ReadHits = 838
+ReadMisses = 0
+
+Writes = 149
+BlockingWrites = 0
+NonBlockingWrites = 149
+WriteHits = 149
+WriteMisses = 0
+
+
+[ dtlb.0.0 ]
+
+Accesses = 3996
+Hits = 3970
+Misses = 26
+HitRatio = 0.9935
+Evictions = 0
+
+
+[ itlb.0.0 ]
+
+Accesses = 2642
+Hits = 2607
+Misses = 35
+HitRatio = 0.9868
+Evictions = 0
+
+
+[ dtlb.0.1 ]
+
+Accesses = 822
+Hits = 811
+Misses = 11
+HitRatio = 0.9866
+Evictions = 0
+
+
+[ itlb.0.1 ]
+
+Accesses = 612
+Hits = 591
+Misses = 21
+HitRatio = 0.9657
+Evictions = 0
+
+
+[ dtlb.1.0 ]
+
+Accesses = 525
+Hits = 516
+Misses = 9
+HitRatio = 0.9829
+Evictions = 0
+
+
+[ itlb.1.0 ]
+
+Accesses = 477
+Hits = 459
+Misses = 18
+HitRatio = 0.9623
+Evictions = 0
+
+
+[ dtlb.1.1 ]
+
+Accesses = 514
+Hits = 504
+Misses = 10
+HitRatio = 0.9805
+Evictions = 0
+
+
+[ itlb.1.1 ]
+
+Accesses = 455
+Hits = 437
+Misses = 18
+HitRatio = 0.9604
+Evictions = 0
+
+

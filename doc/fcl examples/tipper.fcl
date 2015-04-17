@@ -1,0 +1,104 @@
+// Block definition (there may be more than one block per file)
+FUNCTION_BLOCK l2resizer
+
+// Define input variables
+VAR_INPUT
+    l1size : REAL;
+    l1assoc : REAL;
+    l2size : REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT
+    outl2size : REAL;
+    outl3size : REAL;
+END_VAR
+
+// Fuzzify input variable 'l1size'
+FUZZIFY l1size
+    TERM small := (4, 1) (16, 0) ;
+    TERM medium := (8, 0) (16,1) (32,1) (64,0);
+    TERM large := (32, 0) (128, 1);
+END_FUZZIFY
+
+// Fuzzify input variable 'l1assoc'
+FUZZIFY l1assoc
+    TERM small := (0, 1) (1, 1) (3,0) ;
+    TERM medium := (3,0) (5,1) (7,0);
+    TERM large := (7,0) (8,1);
+END_FUZZIFY
+
+// Fuzzify input variable 'l2size'
+FUZZIFY l2size
+    TERM small := (64,0) (128,1) (256,0);
+    TERM medium := (256,0) (512,1) (1024,0);
+    TERM large := (1024,0) (2048,1);
+END_FUZZIFY
+
+// Defzzzify output variable 'l2size'
+DEFUZZIFY outl2size
+    TERM small := (64,0) (128,1) (256,0);
+    TERM medium := (256,0) (512,1) (1024,0);
+    TERM large := (1024,0) (2048,1);
+    // Use 'Center Of Gravity' defuzzification method
+    METHOD : COG;
+    // Default value is 15 (if no rule activates defuzzifier)
+    DEFAULT := 15;
+END_DEFUZZIFY
+
+DEFUZZIFY outl3size
+    TERM small := (1024,0) (2048,1) (4096,0);
+    TERM medium := (4096,0) (8192,1) (16384,0);
+    TERM large := (8192,0) (16384,1);
+    // Use 'Center Of Gravity' defuzzification method
+    METHOD : COG;
+    // Default value is 35 (if no rule activates defuzzifier)
+    DEFAULT := 8192;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+    // Use 'min' for 'and' (also implicit use 'max'
+    // for 'or' to fulfill DeMorgan's Law)
+    AND : MIN;
+    // Use 'min' activation method
+    ACT : MIN;
+    // Use 'max' accumulation method
+    ACCU : MAX;
+
+    RULE 1 : IF l1size IS small OR l1assoc IS small 
+                THEN outl2size IS large;
+
+    RULE 2 : IF l1size IS large AND l1assoc IS small
+                THEN outl2size IS medium;
+
+    RULE 3 : IF l1size IS small AND l1assoc IS large
+                THEN outl2size IS medium;
+
+    RULE 4 : IF l1size IS medium AND l1assoc IS medium
+                THEN outl2size is medium;
+    RULE 5 : IF l1size IS medium AND l1assoc IS large
+                THEN outl2size is medium;
+    RULE 6 : IF l1size IS large AND l1assoc IS medium
+                THEN outl2size is small;
+    RULE 7 : IF l1size IS large AND l1assoc IS large
+                THEN outl2size is small;
+
+
+
+    RULE 8 : IF l2size IS small
+                THEN outl3size IS large;
+
+    RULE 9 : IF l2size IS large
+                THEN outl3size IS small;
+
+    RULE 10 : IF l2size IS medium
+                THEN outl3size IS medium;
+
+    RULE 11 : IF l2size IS medium AND l1size is small
+                THEN outl3size IS large;
+
+    RULE 12 : IF l2size IS large AND l1size is small
+                THEN outl3size IS medium;
+
+END_RULEBLOCK
+END_FUNCTION_BLOCK

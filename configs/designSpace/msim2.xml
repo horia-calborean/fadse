@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : msimin.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Camil
+-->
+<design_space>
+    <simulator name="ServerSimulator" type="simulator" ><!--type="synthetic"--><!--type can be synthetic or simulator-->
+        <parameter name="maximumTimeOfASimulation" value="420"/><!--in minutes-->
+<!--        <parameter name="realSimulator" value="Msim2Simulator"/>        -->
+        <parameter name="realSimulator" value = "FalseSimulator"/>
+	<parameter name="simulator_executable" value="/opt/acaps/fadse/m-sim_v2.0/sim-outorder" />
+        <parameter name="simulator_output_file" value="/opt/acaps/fadse/m-sim_v2.0/out#.txt"/>
+	<parameter name="forceFeasibleFirstGeneration" value="true"/>
+	<parameter name="forceMinimumPercentageFeasibleIndividuals" value="80"/>
+    </simulator>
+    <database ip="zamolxe.hpc.ulbsibiu.ro" port="3306" name="fadse" user="fadse" password="fadse"/>
+    <benchmarks>		
+    <!--    <item name="/home/hcalborean/benchmarks/arg/parser.arg"/>-->
+        <item name="/opt/acaps/fadse/benchmarks/arg/twolf.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/vpr.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/applu.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/bzip2.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/equake.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/galgel.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/gcc.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/gzip.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/lucas.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/mcf.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/mesa.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/mgrid.arg"/>
+    </benchmarks>
+    <metaheuristic name="NSGAII" config_path="nsgaii.properties" />
+    <parameters>
+	  <parameter name="max_inst" type="integer" min="500000000" max="500000000"/>
+	  <parameter name="fastfwd" type="integer" min="300000000" max="300000000"/>
+	  <parameter name="num_cores" type="integer" min="1" max="1"/>
+	    <!-- CacheDL1 -->
+    <parameter name="dl1_type" type="string">
+		    <item value="dl1"/>
+	    </parameter>
+	    <parameter name="dl1_nsets" type="exp2" min="2" max="32768"/> <!-- 15 -->
+	    <parameter name="dl1_bsize" type="exp2" min="8" max="256"/><!-- 6 -->
+	    <parameter name="dl1_assoc" type="exp2" min="1" max="8"/><!-- 4 -->
+	    <parameter name="dl1_repl" type="string">
+			<item value="l"/>
+	    </parameter>
+    
+	    <!-- end CacheDL1 -->
+
+		<!-- CacheIL1 -->
+	
+	    <parameter name="il1_type" type="string">
+		    <item value="il1"/>
+	    </parameter>
+	    <parameter name="il1_nsets" type="exp2" min="2" max="32768"/><!-- 15 -->
+	    <parameter name="il1_bsize" type="exp2" min="8" max="256"/><!-- 6 -->
+	    <parameter name="il1_assoc" type="exp2" min="1" max="8"/><!-- 4 -->
+	    <parameter name="il1_repl" type="string">
+			<item value="l"/>
+	    </parameter>
+
+	    <!-- end CacheIL1 -->
+	
+		<!-- CacheUL2 -->
+
+	    <parameter name="dl2_type" type="string">
+		    <item value="ul2"/>
+	    </parameter>
+	    <parameter name="dl2_nsets" type="exp2" min="256" max="2097152"/><!-- 21-8+1 = 14 -->
+	    <parameter name="dl2_bsize" type="exp2" min="64" max="256"/><!-- 3 -->
+	    <parameter name="dl2_assoc" type="exp2" min="2" max="16"/><!-- 4 -->
+	    <parameter name="dl2_repl" type="string">
+			<item value="l"/>
+	    </parameter>
+
+	    <!-- end CacheUL2 -->
+	
+		<parameter name="issue_width" type="exp2" min="2" max="32"/><!-- 5 -->
+		<parameter name="commit_width" type="exp2" min="2" max="32"/><!-- 5 -->
+	    <parameter name="decode_width" type="exp2" min="2" max="32"/><!-- 5 -->
+		
+	    <parameter name="lsq_size" type="exp2" min="32" max="1024"/><!-- 6 -->		
+	    <parameter name="rob_size" type="exp2" min="32" max="1024"/><!-- 6 -->		
+	    <parameter name="iq_size" type="exp2" min="32" max="1024"/><!-- 6 -->
+		<parameter name="rf_size" type="exp2" min="64" max="256"/><!-- 3 -->
+		
+		
+		<parameter name="res_ialu" type="exp2" min="2" max="8"/><!-- 3 -->
+		<parameter name="res_imult" type="exp2" min="1" max="8"/><!-- 4 -->
+		<parameter name="res_fpalu" type="exp2" min="2" max="8"/><!-- 3 -->
+		<parameter name="res_fpmult" type="exp2" min="1" max="8"/><!-- 4 -->
+		
+		<parameter name="lvpt_size" type="exp2" min="16" max="8192"/><!-- 10 -->
+		<!-- TOTAL =  2539579392000000 ~ 2*10^15 ~ 2^51-->
+    </parameters>
+    <system_metrics>
+        <system_metric name="CPI" type="float" unit="" desired="small"/>
+        <system_metric name="singlecore_energy" type="float" unit="" desired="small"/>
+    </system_metrics>
+	<virtual_parameters>
+        <parameter name="dl1_size" value="dl1_nsets*dl1_bsize*dl1_assoc"/>
+    </virtual_parameters>
+    <rules>
+    
+	<rule name="l2 maximum size">
+		<less>
+            <parameter name="dl2_nsets*dl2_bsize*dl2_assoc"/>
+            <parameter name="16777216"/>
+        </less>
+	</rule>
+	 
+	<rule name="l2 mminimum size">
+	<greater-equal>
+            <parameter name="dl2_nsets*dl2_bsize*dl2_assoc"/>
+            <parameter name="262144"/>
+        </greater-equal>
+	</rule>
+	<rule name="l2 larger than l1">
+	    <greater>
+		<parameter name="dl2_nsets*dl2_bsize*dl2_assoc"/>
+		<parameter name="dl1_nsets*dl1_bsize*dl1_assoc+il1_nsets*il1_bsize*il1_assoc"/>
+	    </greater>
+	</rule>
+	<rule name="dl1 maximum size">
+		<less>
+            <parameter name="dl1_nsets*dl1_bsize*dl1_assoc"/>
+            <parameter name="2097152"/>
+        </less>
+	</rule>
+	 
+	<rule name="dl1 minimum size">
+		<greater-equal>
+            <parameter name="dl1_nsets*dl1_bsize*dl1_assoc"/>
+            <parameter name="4096"/>
+        </greater-equal>
+	</rule>
+	
+	<rule name="il1 maximum size">
+		<less>
+            <parameter name="il1_nsets*il1_bsize*il1_assoc"/>
+            <parameter name="2097152"/>
+        </less>
+	</rule>
+	 
+	<rule name="il1 mminimum size">
+	    <greater-equal>
+        	<parameter name="il1_nsets*il1_bsize*il1_assoc"/>
+        	<parameter name="8192"/>
+    	    </greater-equal>
+	</rule>
+	
+	<rule name="block size">
+	    <greater-equal>
+		<parameter name="dl2_bsize"/>
+		<parameter name="dl1_bsize"/>
+	    </greater-equal>
+	</rule>
+	
+	<rule name="block size">
+	    <greater-equal>
+		<parameter name="dl2_bsize"/>
+		<parameter name="il1_bsize"/>
+	    </greater-equal>
+	</rule>
+
+    </rules>
+    <relations/>
+</design_space>

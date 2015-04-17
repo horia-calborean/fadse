@@ -1,0 +1,115 @@
+// Block definition (there may be more than one block per file)
+// 2011-05-16 11:50:48
+FUNCTION_BLOCK gap
+
+// Define input variables
+VAR_INPUT
+    PARA1 : REAL;
+    PARA2 : REAL;
+    PARA4 : REAL;
+    PARA5 : REAL;
+END_VAR
+
+// Define output variables
+VAR_OUTPUT
+    OUTPARA1 : REAL;
+    OUTPARA2 : REAL;
+    OUTPARA4 : REAL;
+    OUTPARA5 : REAL;
+END_VAR
+
+// Fuzzify input variable 'PARA1'
+FUZZIFY PARA1
+    TERM IminTO20of4TO31 := (4,1) (20,1) (21,0) ; // Interval ]MIN{4}; 20]
+    TERM I11TO18of4TO31 := (11,0) (12,1) (18,1) (19,0) ; // Interval ]11; 18]
+    TERM IminTO20of4TO31 := (4,1) (20,1) (21,0) ; // Interval ]MIN{4}; 20]
+    TERM IminTO20of4TO31 := (4,1) (20,1) (21,0) ; // Interval ]MIN{4}; 20]
+    TERM IminTO8of4TO31 := (4,1) (8,1) (9,0) ; // Interval ]MIN{4}; 8]
+END_FUZZIFY
+
+// Defuzzify output variable 'PARA1'
+DEFUZZIFY OUTPARA1
+    TERM IminTO20of4TO31 := (4,1) (20,1) (21,0) ;
+    TERM I11TO18of4TO31 := (11,0) (12,1) (18,1) (19,0) ;
+    TERM IminTO20of4TO31 := (4,1) (20,1) (21,0) ;
+    TERM IminTO20of4TO31 := (4,1) (20,1) (21,0) ;
+    TERM IminTO8of4TO31 := (4,1) (8,1) (9,0) ;
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+// Fuzzify input variable 'PARA2'
+FUZZIFY PARA2
+    TERM I5TOmaxof0TO6 := (5,0) (6,1) (6,1) ; // Interval ]5; MAX{6}]
+    TERM I3TOmaxof0TO6 := (3,0) (4,1) (6,1) ; // Interval ]3; MAX{6}]
+    TERM I3TOmaxof0TO6 := (3,0) (4,1) (6,1) ; // Interval ]3; MAX{6}]
+    TERM IminTO3of0TO6 := (0,1) (3,1) (4,0) ; // Interval ]MIN{0}; 3]
+    TERM I3TO5of0TO6 := (3,0) (4,1) (5,1) (6,0) ; // Interval ]3; 5]
+END_FUZZIFY
+
+// Defuzzify output variable 'PARA2'
+DEFUZZIFY OUTPARA2
+    TERM I5TOmaxof0TO6 := (5,0) (6,1) (6,1) ;
+    TERM I3TOmaxof0TO6 := (3,0) (4,1) (6,1) ;
+    TERM I3TOmaxof0TO6 := (3,0) (4,1) (6,1) ;
+    TERM IminTO3of0TO6 := (0,1) (3,1) (4,0) ;
+    TERM I3TO5of0TO6 := (3,0) (4,1) (5,1) (6,0) ;
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+// Fuzzify input variable 'PARA4'
+FUZZIFY PARA4
+    TERM I7TO10of5TO13 := (7,0) (8,1) (10,1) (11,0) ; // Interval ]7; 10]
+    TERM I8TOmaxof5TO13 := (8,0) (9,1) (13,1) ; // Interval ]8; MAX{13}]
+    TERM I11TOmaxof5TO13 := (11,0) (12,1) (13,1) ; // Interval ]11; MAX{13}]
+    TERM I11TOmaxof5TO13 := (11,0) (12,1) (13,1) ; // Interval ]11; MAX{13}]
+    TERM I7TO8of5TO13 := (7,0) (8,1) (8,1) (9,0) ; // Interval ]7; 8]
+END_FUZZIFY
+
+// Defuzzify output variable 'PARA4'
+DEFUZZIFY OUTPARA4
+    TERM I7TO10of5TO13 := (7,0) (8,1) (10,1) (11,0) ;
+    TERM I8TOmaxof5TO13 := (8,0) (9,1) (13,1) ;
+    TERM I11TOmaxof5TO13 := (11,0) (12,1) (13,1) ;
+    TERM I11TOmaxof5TO13 := (11,0) (12,1) (13,1) ;
+    TERM I7TO8of5TO13 := (7,0) (8,1) (8,1) (9,0) ;
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+// Fuzzify input variable 'PARA5'
+FUZZIFY PARA5
+    TERM IminTO2of0TO7 := (0,1) (2,1) (3,0) ; // Interval ]MIN{0}; 2]
+    TERM I0TO1of0TO7 := (0,0) (1,1) (1,1) (2,0) ; // Interval ]0; 1]
+    TERM IminTO1of0TO7 := (0,1) (1,1) (2,0) ; // Interval ]MIN{0}; 1]
+    TERM I1TO4of0TO7 := (1,0) (2,1) (4,1) (5,0) ; // Interval ]1; 4]
+    TERM IminTO4of0TO7 := (0,1) (4,1) (5,0) ; // Interval ]MIN{0}; 4]
+END_FUZZIFY
+
+// Defuzzify output variable 'PARA5'
+DEFUZZIFY OUTPARA5
+    TERM IminTO2of0TO7 := (0,1) (2,1) (3,0) ;
+    TERM I0TO1of0TO7 := (0,0) (1,1) (1,1) (2,0) ;
+    TERM IminTO1of0TO7 := (0,1) (1,1) (2,0) ;
+    TERM I1TO4of0TO7 := (1,0) (2,1) (4,1) (5,0) ;
+    TERM IminTO4of0TO7 := (0,1) (4,1) (5,0) ;
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+    // Use 'min' for 'and' (also implicit use 'max'
+    // for 'or' to fulfill DeMorgan's Law)
+    AND : MIN;
+    // Use 'min' activation method
+    ACT : MIN;
+    // Use 'max' accumulation method
+    ACCU : MAX;
+    Rule 0 : IF PARA1 IS IminTO20of4TO31 AND PARA2 IS I3TOmaxof0TO6 AND PARA4 IS I8TOmaxof5TO13 THEN OUTPARA5 IS IminTO4of0TO7;
+    Rule 1 : IF PARA1 IS IminTO20of4TO31 AND PARA2 IS I5TOmaxof0TO6 AND PARA4 IS I11TOmaxof5TO13 THEN OUTPARA5 IS IminTO1of0TO7;
+    Rule 2 : IF PARA1 IS IminTO20of4TO31 AND PARA2 IS I3TOmaxof0TO6 AND PARA4 IS I7TO8of5TO13 THEN OUTPARA5 IS I1TO4of0TO7;
+    Rule 3 : IF PARA1 IS IminTO8of4TO31 AND PARA2 IS IminTO3of0TO6 AND PARA4 IS I7TO10of5TO13 THEN OUTPARA5 IS I0TO1of0TO7;
+    Rule 4 : IF PARA1 IS I11TO18of4TO31 AND PARA2 IS I3TO5of0TO6 AND PARA4 IS I11TOmaxof5TO13 THEN OUTPARA5 IS IminTO2of0TO7;
+END_RULEBLOCK
+END_FUNCTION_BLOCK

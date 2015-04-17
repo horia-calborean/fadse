@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+Document : unimap-telecom.xml
+Author : Ciprian Radu 
+Description: UniMap configuration file for FADSE. Application: telecom (all CTGs), best mapping 9
+-->
+<design_space>
+	<simulator name="ServerSimulator" type="simulator">
+		<!-- <simulator name="FalseSimulator" type="simulator" > -->
+		<parameter name="simulator_executable" value="/home/cradu/workspace/ns3dev/examples/noc/ns-3-noc-unimap.sh" />
+		<parameter name="simulator_output_file" value="/home/cradu/workspace/ns3dev/fadse-unimap-output/ns-3-noc-output#.txt" />
+		<parameter name="realSimulator" value="UniMapSimulator" />
+		<parameter name="maximumTimeOfASimulation" value="30" /><!--in minutes -->
+		<parameter name="forceMinimumPercentageFeasibleIndividuals" value="0" />
+	</simulator>
+	<database ip="10.10.10.1" port="3306" name="fadse_unimap"
+		user="fadse_unimap" password="fadse_unimap" />
+	<benchmarks>
+		<item
+			name="/home/cradu/workspace/CTG-XML/xml/e3s/telecom-mocsyn.tgff/ctg-0+1+2+3+4+5+6+7+8/mapping-0+1+2+3+4+5+6+7+8_best-mapping-9.xml" />
+	</benchmarks>
+	<metaheuristic name="OMOPSO" config_path="configs/unimap/omopso/omopso.properties" />
+	<parameters>
+		<!-- Below are the parameters that are not varied -->
+		<parameter name="experiment" type="string">
+			<item value="UniMap_with_FADSE_Application_telecom_all_CTGs" />
+		</parameter>
+		<parameter name="strategy" type="string">
+			<item value="FADSE" />
+		</parameter>
+		<parameter name="input" type="string">
+			<item value="input" />
+		</parameter>
+		<parameter name="run" type="string">
+			<item value="runID" />
+		</parameter>
+		<parameter name="redirect-stdout" description="stdout is redirected to a file" type="integer" min="1" max="1" />
+		<parameter name="redirect-stderr" description="stderr is redirected to a file" type="integer" min="1" max="1" />			
+		<parameter name="nodes" description="number of NoC nodes" type="integer" min="30" max="30" />
+		<parameter name="h-size" description="how many NoC nodes are placed horizontally" type="integer" min="6" max="6" />
+		<parameter name="ctg-iterations" description="how many times a CTG is iterated" type="integer" min="10" max="10" step="1" />
+		<parameter name="channel-length" description="The NoC channels length, in micrometers" type="integer" min="50" max="50" />
+		<!-- End of parameters that are not varied -->
+		<!-- Below are the ns-3 NoC parameters that are varied -->
+		<!-- Starting with possible core types (name is core-{CTG ID}_{APCG core UID}) -->
+		<!-- APCG core UIDs vary from 0 to 33 (see file ip-core-lib.ods) -->
+		<parameter name="core-0_0" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-0_1" type="string">
+			<!-- IP cores 0, 2..7, 9, 11, 14..17, 19..24, 26, 28, 31..33 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="9" />
+			<item value="11" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="26" /><item value="28" />
+			<item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-0_2" type="string">
+			<!-- IP cores 0, 2..11, 14..17, 19..28, 31..33 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" />
+			<item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-0_3" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-1_0" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-1_1" type="string">
+			<!-- IP cores 0, 2..7, 9, 11, 14..17, 19..24, 26, 28, 31..33 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="9" />
+			<item value="11" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="26" /><item value="28" />
+			<item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-1_2" type="string">
+			<!-- IP cores 0, 2..11, 14..17, 19..28, 31..33 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" />
+			<item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-1_3" type="string">
+			<!-- IP cores 0, 2..4, 6, 14, 15, 17, 19..21, 23, 31, 32 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="6" />
+			<item value="14" /><item value="15" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="23" />
+			<item value="31" /><item value="32" />
+		</parameter>
+		<parameter name="core-1_4" type="string">
+			<!-- IP cores 0, 2, 3, 5..11, 14..17, 19..20, 22..28, 31..33 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" />
+			<item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-1_5" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-2_0" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-2_1" type="string">
+			<!-- IP cores 0, 2..7, 9, 11, 14..17, 19..24, 26, 28, 31..33 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="9" />
+			<item value="11" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="26" /><item value="28" />
+			<item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-2_2" type="string">
+			<!-- IP cores 0, 2..11, 14..17, 19..28, 31..33 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" />
+			<item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-2_3" type="string">
+			<!-- IP cores 0, 2..4, 6, 14, 15, 17, 19..21, 23, 31, 32 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="6" />
+			<item value="14" /><item value="15" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="23" />
+			<item value="31" /><item value="32" />
+		</parameter>
+		<parameter name="core-2_4" type="string">
+			<!-- IP cores 0, 2, 3, 5..11, 14..17, 19..20, 22..28, 31..33 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" />
+			<item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-2_5" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-3_0" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-3_1" type="string">
+			<!-- IP cores 0, 2..4, 6, 14, 15, 17, 19..21, 23, 31, 32 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="6" />
+			<item value="14" /><item value="15" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="23" />
+			<item value="31" /><item value="32" />
+		</parameter>
+		<parameter name="core-3_2" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-4_0" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-4_1" type="string">
+			<!-- IP cores 0, 2, 3, 6, 14, 15, 17, 19, 20, 23, 31, 32 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="6" />
+			<item value="14" /><item value="15" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="23" />
+			<item value="31" /><item value="32" />
+		</parameter>
+		<parameter name="core-4_2" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-5_0" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-5_1" type="string">
+			<!-- IP cores 0, 2..4, 6, 14, 15, 17, 19..21, 23, 31, 32 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="6" />
+			<item value="14" /><item value="15" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="23" />
+			<item value="31" /><item value="32" />
+		</parameter>
+		<parameter name="core-6_0" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-6_1" type="string">
+			<!-- IP cores 0, 2..4, 6, 14, 15, 17, 19..21, 23, 31, 32 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="6" />
+			<item value="14" /><item value="15" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="23" />
+			<item value="31" /><item value="32" />
+		</parameter>
+		<parameter name="core-7_0" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-7_1" type="string">
+			<!-- IP cores 0, 2..4, 6, 14, 15, 17, 19..21, 23, 31, 32 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="6" />
+			<item value="14" /><item value="15" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="23" />
+			<item value="31" /><item value="32" />
+		</parameter>
+		<parameter name="core-8_0" type="string">
+			<!-- all IP cores -->
+			<item value="0" /><item value="1" /><item value="2" /><item value="3" /><item value="4" /><item value="5" /><item value="6" /><item value="7" /><item value="8" /><item value="9" />
+			<item value="10" /><item value="11" /><item value="12" /><item value="13" /><item value="14" /><item value="15" /><item value="16" /><item value="17" /><item value="18" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="22" /><item value="23" /><item value="24" /><item value="25" /><item value="26" /><item value="27" /><item value="28" /><item value="29" />
+			<item value="30" /><item value="31" /><item value="32" /><item value="33" />
+		</parameter>
+		<parameter name="core-8_1" type="string">
+			<!-- IP cores 0, 2..4, 6, 14, 15, 17, 19..21, 23, 31, 32 -->
+			<item value="0" /><item value="2" /><item value="3" /><item value="4" /><item value="6" />
+			<item value="14" /><item value="15" /><item value="17" /><item value="19" />
+			<item value="20" /><item value="21" /><item value="23" />
+			<item value="31" /><item value="32" />
+		</parameter>				
+		<!-- Ending with possible core types -->
+		<parameter name="frequency" description="The NoC operating frequency, expressed in Hertz" type="integer" min="100000000" max="1000000000" step="100000000" />
+		<parameter name="buffer-size" description="The size of the input channel buffers (measured in flits)" type="integer" min="1" max="10" step="1" />
+		<parameter name="flit-size" description="The size of a flit, in bytes" type="exp2" min="4" max="256" />
+		<parameter name="flits-per-packet" description="How many flits a packet has" type="integer" min="2" max="10" step="1" />
+		<parameter name="route-X-first" description="Route on X first, then on Y" type="integer" min="0" max="1" step="1" />
+		<!--
+		<parameter name="frequency" description="The NoC operating frequency, expressed in Hertz" type="integer" min="1000000000" max="1000000000" />
+		<parameter name="buffer-size" description="The size of the input channel buffers (measured in flits)" type="integer" min="1" max="1" />
+		<parameter name="flit-size" description="The size of a flit, in bytes" type="exp2" min="4" max="4" />
+		<parameter name="flits-per-packet" description="How many flits a packet has" type="integer" min="2" max="2" />
+		-->
+		<!-- End of ns-3 NoC parameters that are varied -->
+	</parameters>
+	<system_metrics>
+		<system_metric name="application-runtime" type="double" unit="s" desired="small" />
+		<system_metric name="soc-energy" type="double" unit="Joule" desired="small" />
+		<system_metric name="soc-area" type="double" unit="mm^2" desired="small" />
+	</system_metrics>
+	<rules>
+	</rules>
+	<relations>
+	</relations>
+</design_space>

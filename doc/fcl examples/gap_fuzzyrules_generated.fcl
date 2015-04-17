@@ -1,0 +1,135 @@
+// Block definition (there may be more than one block per file)
+// 2011-05-19 14:01:53
+FUNCTION_BLOCK gap
+
+// Define input variables
+VAR_INPUT
+    n_columns : REAL;
+    n_layers : REAL;
+    c_sets : REAL;
+    c_lines : REAL;
+END_VAR
+
+// Define output variables
+VAR_outPUT
+    outn_columns : REAL;
+    outn_layers : REAL;
+    outc_sets : REAL;
+    outc_lines : REAL;
+END_VAR
+
+// Fuzzify input variable 'n_columns'
+FUZZIFY n_columns
+    TERM I11TO18of4TO31 := (11,0) (12,1) (18,1) (19,0) ; // Interval ]11; 18]
+    TERM IminTO8of4TO31 := (4,1) (8,1) (9,0) ; // Interval ]MIN{4}; 8]
+    TERM IminTO20of4TO31 := (4,1) (20,1) (21,0) ; // Interval ]MIN{4}; 20]
+    TERM I21TOmaxof4TO31 := (21,0) (22,1) (31,1) ; // Interval ]21; MAX{31}]
+    TERM IminTO21of4TO31 := (4,1) (21,1) (22,0) ; // Interval ]MIN{4}; 21]
+END_FUZZIFY
+
+// Defuzzify output variable 'n_columns'
+DEFUZZIFY outn_columns
+    TERM I11TO18of4TO31 := (11,0) (12,1) (18,1) (19,0) ; // Interval ]11; 18]
+    TERM IminTO8of4TO31 := (4,1) (8,1) (9,0) ; // Interval ]MIN{4}; 8]
+    TERM IminTO20of4TO31 := (4,1) (20,1) (21,0) ; // Interval ]MIN{4}; 20]
+    TERM I21TOmaxof4TO31 := (21,0) (22,1) (31,1) ; // Interval ]21; MAX{31}]
+    TERM IminTO21of4TO31 := (4,1) (21,1) (22,0) ; // Interval ]MIN{4}; 21]
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+// Fuzzify input variable 'n_layers'
+FUZZIFY n_layers
+    TERM I5TOmaxof0TO6 := (5,0) (6,1) (6,1) ; // Interval ]5; MAX{6}]
+    TERM I3TO5of0TO6 := (3,0) (4,1) (5,1) (6,0) ; // Interval ]3; 5]
+    TERM IminTO3of0TO6 := (0,1) (3,1) (4,0) ; // Interval ]MIN{0}; 3]
+    TERM I3TOmaxof0TO6 := (3,0) (4,1) (6,1) ; // Interval ]3; MAX{6}]
+END_FUZZIFY
+
+// Defuzzify output variable 'n_layers'
+DEFUZZIFY outn_layers
+    TERM I5TOmaxof0TO6 := (5,0) (6,1) (6,1) ; // Interval ]5; MAX{6}]
+    TERM I3TO5of0TO6 := (3,0) (4,1) (5,1) (6,0) ; // Interval ]3; 5]
+    TERM IminTO3of0TO6 := (0,1) (3,1) (4,0) ; // Interval ]MIN{0}; 3]
+    TERM I3TOmaxof0TO6 := (3,0) (4,1) (6,1) ; // Interval ]3; MAX{6}]
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+// Fuzzify input variable 'c_sets'
+FUZZIFY c_sets
+    TERM I7TO10of5TO13 := (7,0) (8,1) (10,1) (11,0) ; // Interval ]7; 10]
+    TERM I8TOmaxof5TO13 := (8,0) (9,1) (13,1) ; // Interval ]8; MAX{13}]
+    TERM IminTO7of5TO13 := (5,1) (7,1) (8,0) ; // Interval ]MIN{5}; 7]
+    TERM I7TO8of5TO13 := (7,0) (8,1) (8,1) (9,0) ; // Interval ]7; 8]
+    TERM I7TOmaxof5TO13 := (7,0) (8,1) (13,1) ; // Interval ]7; MAX{13}]
+    TERM I11TOmaxof5TO13 := (11,0) (12,1) (13,1) ; // Interval ]11; MAX{13}]
+END_FUZZIFY
+
+// Defuzzify output variable 'c_sets'
+DEFUZZIFY outc_sets
+    TERM I7TO10of5TO13 := (7,0) (8,1) (10,1) (11,0) ; // Interval ]7; 10]
+    TERM I8TOmaxof5TO13 := (8,0) (9,1) (13,1) ; // Interval ]8; MAX{13}]
+    TERM IminTO7of5TO13 := (5,1) (7,1) (8,0) ; // Interval ]MIN{5}; 7]
+    TERM I7TO8of5TO13 := (7,0) (8,1) (8,1) (9,0) ; // Interval ]7; 8]
+    TERM I7TOmaxof5TO13 := (7,0) (8,1) (13,1) ; // Interval ]7; MAX{13}]
+    TERM I11TOmaxof5TO13 := (11,0) (12,1) (13,1) ; // Interval ]11; MAX{13}]
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+// Fuzzify input variable 'c_lines'
+FUZZIFY c_lines
+    TERM I0TO1of0TO7 := (0,0) (1,1) (1,1) (2,0) ; // Interval ]0; 1]
+    TERM IminTO1of0TO7 := (0,1) (1,1) (2,0) ; // Interval ]MIN{0}; 1]
+    TERM IminTO2of0TO7 := (0,1) (2,1) (3,0) ; // Interval ]MIN{0}; 2]
+    TERM IminTO4of0TO7 := (0,1) (4,1) (5,0) ; // Interval ]MIN{0}; 4]
+    TERM I4TOmaxof0TO7 := (4,0) (5,1) (7,1) ; // Interval ]4; MAX{7}]
+    TERM I1TO4of0TO7 := (1,0) (2,1) (4,1) (5,0) ; // Interval ]1; 4]
+END_FUZZIFY
+
+// Defuzzify output variable 'c_lines'
+DEFUZZIFY outc_lines
+    TERM I0TO1of0TO7 := (0,0) (1,1) (1,1) (2,0) ; // Interval ]0; 1]
+    TERM IminTO1of0TO7 := (0,1) (1,1) (2,0) ; // Interval ]MIN{0}; 1]
+    TERM IminTO2of0TO7 := (0,1) (2,1) (3,0) ; // Interval ]MIN{0}; 2]
+    TERM IminTO4of0TO7 := (0,1) (4,1) (5,0) ; // Interval ]MIN{0}; 4]
+    TERM I4TOmaxof0TO7 := (4,0) (5,1) (7,1) ; // Interval ]4; MAX{7}]
+    TERM I1TO4of0TO7 := (1,0) (2,1) (4,1) (5,0) ; // Interval ]1; 4]
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+    // Use 'min' for 'and' (also implicit use 'max'
+    // for 'or' to fulfill DeMorgan's Law)
+    AND : MIN;
+    // Use 'min' activation method
+    ACT : MIN;
+    // Use 'max' accumulation method
+    ACCU : MAX;
+    Rule 13 : IF n_layers IS I3TOmaxof0TO6 AND c_sets IS I8TOmaxof5TO13 AND c_lines IS IminTO4of0TO7 THEN outn_columns IS IminTO20of4TO31;
+    Rule 15 : IF n_columns IS IminTO20of4TO31 AND c_sets IS I8TOmaxof5TO13 AND c_lines IS IminTO4of0TO7 THEN outn_layers IS I3TOmaxof0TO6;
+    Rule 17 : IF n_columns IS IminTO20of4TO31 AND n_layers IS I3TOmaxof0TO6 AND c_lines IS IminTO4of0TO7 THEN outc_sets IS I8TOmaxof5TO13;
+    Rule 19 : IF n_columns IS IminTO20of4TO31 AND n_layers IS I3TOmaxof0TO6 AND c_sets IS I8TOmaxof5TO13 THEN outc_lines IS IminTO4of0TO7;
+    Rule 21 : IF n_layers IS I5TOmaxof0TO6 AND c_sets IS I11TOmaxof5TO13 AND c_lines IS IminTO1of0TO7 THEN outn_columns IS IminTO20of4TO31;
+    Rule 23 : IF n_columns IS IminTO20of4TO31 AND c_sets IS I11TOmaxof5TO13 AND c_lines IS IminTO1of0TO7 THEN outn_layers IS I5TOmaxof0TO6;
+    Rule 25 : IF n_columns IS IminTO20of4TO31 AND n_layers IS I5TOmaxof0TO6 AND c_lines IS IminTO1of0TO7 THEN outc_sets IS I11TOmaxof5TO13;
+    Rule 27 : IF n_columns IS IminTO20of4TO31 AND n_layers IS I5TOmaxof0TO6 AND c_sets IS I11TOmaxof5TO13 THEN outc_lines IS IminTO1of0TO7;
+    Rule 29 : IF n_layers IS I3TOmaxof0TO6 AND c_sets IS I7TO8of5TO13 AND c_lines IS I1TO4of0TO7 THEN outn_columns IS IminTO20of4TO31;
+    Rule 31 : IF n_columns IS IminTO20of4TO31 AND c_sets IS I7TO8of5TO13 AND c_lines IS I1TO4of0TO7 THEN outn_layers IS I3TOmaxof0TO6;
+    Rule 33 : IF n_columns IS IminTO20of4TO31 AND n_layers IS I3TOmaxof0TO6 AND c_lines IS I1TO4of0TO7 THEN outc_sets IS I7TO8of5TO13;
+    Rule 35 : IF n_columns IS IminTO20of4TO31 AND n_layers IS I3TOmaxof0TO6 AND c_sets IS I7TO8of5TO13 THEN outc_lines IS I1TO4of0TO7;
+    Rule 37 : IF n_layers IS IminTO3of0TO6 AND c_sets IS I7TO10of5TO13 AND c_lines IS I0TO1of0TO7 THEN outn_columns IS IminTO8of4TO31;
+    Rule 39 : IF n_columns IS IminTO8of4TO31 AND c_sets IS I7TO10of5TO13 AND c_lines IS I0TO1of0TO7 THEN outn_layers IS IminTO3of0TO6;
+    Rule 41 : IF n_columns IS IminTO8of4TO31 AND n_layers IS IminTO3of0TO6 AND c_lines IS I0TO1of0TO7 THEN outc_sets IS I7TO10of5TO13;
+    Rule 43 : IF n_columns IS IminTO8of4TO31 AND n_layers IS IminTO3of0TO6 AND c_sets IS I7TO10of5TO13 THEN outc_lines IS I0TO1of0TO7;
+    Rule 45 : IF n_layers IS I3TO5of0TO6 AND c_sets IS I11TOmaxof5TO13 AND c_lines IS IminTO2of0TO7 THEN outn_columns IS I11TO18of4TO31;
+    Rule 47 : IF n_columns IS I11TO18of4TO31 AND c_sets IS I11TOmaxof5TO13 AND c_lines IS IminTO2of0TO7 THEN outn_layers IS I3TO5of0TO6;
+    Rule 49 : IF n_columns IS I11TO18of4TO31 AND n_layers IS I3TO5of0TO6 AND c_lines IS IminTO2of0TO7 THEN outc_sets IS I11TOmaxof5TO13;
+    Rule 51 : IF n_columns IS I11TO18of4TO31 AND n_layers IS I3TO5of0TO6 AND c_sets IS I11TOmaxof5TO13 THEN outc_lines IS IminTO2of0TO7;
+    Rule 10 : IF n_columns IS I21TOmaxof4TO31 THEN outn_columns IS IminTO21of4TO31;
+    Rule 11 : IF c_sets IS IminTO7of5TO13 THEN outc_sets IS I7TOmaxof5TO13;
+    Rule 12 : IF c_lines IS I4TOmaxof0TO7 THEN outc_lines IS IminTO4of0TO7;
+END_RULEBLOCK
+END_FUNCTION_BLOCK

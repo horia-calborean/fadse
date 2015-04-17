@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : params.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Horia
+    Description:
+        this is the input file for the DTLZ1problem
+-->
+<design_space>
+    <simulator name="ServerSimulator" type="simulator" >
+        <parameter name="maximumTimeOfASimulation" value="20"/><!--in minutes-->
+        <parameter name="realSimulator" value = "SimpleGem5Simulator"/>
+        <!-- If you put TEMP here than the dumps are placed into the temporary folder of the OS -->
+        <parameter name="benchmark_target_directory" value="/tmp/fadse_gem5_dumps/" />
+        <parameter name="simulator_output_file" value="irrelevant"/>
+        <parameter name="simulator_executable" value="irrelevant" />
+        <parameter name="simulator_simulation_mode" value="false"/>
+        <parameter name="benchmark_yaml_file" value="/home/ralf/benchmarks/mibench_tiny/gem5_dumps_mibench.yml"/>
+        <parameter name="benchmark_repository_path" value="/home/ralf/benchmarks/mibench_tiny/"/>
+    </simulator>
+    <database ip="127.0.0.1" port="3306" name="fadse" user="root" password="root"/>
+    <metaheuristic name="NSGAII" config_path="nsgaii.properties" />
+    <benchmarks>
+		<item name="network/dijkstra" />
+        <!-- item name="consumer/jpeg-decode" /-->
+		<!-- item name="office/stringsearch" / -->
+    </benchmarks>
+    <parameters>
+        <parameter name="falign-functions" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="falign-functions=1" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="falign-functions=24" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="falign-functions=32" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="falign-jumps" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="falign-jumps=1" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="falign-labels" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="falign-labels=1" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="falign-loops" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="falign-loops=1" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fassociative-math" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fauto-inc-dec" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fbranch-count-reg" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fbranch-target-load-optimize" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fbranch-target-load-optimize2" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fbtr-bb-exclusive" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fcaller-saves" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fcheck-data-deps" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fconserve-stack" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fcprop-registers" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fcrossjumping" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fcse-follow-jumps" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fcse-skip-blocks" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fcx-fortran-rules" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fcx-limited-range" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fdata-sections" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fdce" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fdefer-pop" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fdelete-null-pointer-checks" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fdse" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fearly-inlining" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fexpensive-optimizations" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ffast-math" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ffinite-math-only" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ffloat-store" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fforward-propagate" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ffunction-cse" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ffunction-sections" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fgcse" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fgcse-after-reload" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fgcse-las" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fgcse-lm" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fgcse-sm" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fguess-branch-probability" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fif-conversion" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fif-conversion2" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="findirect-inlining" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="finline" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="finline-functions" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="finline-functions-called-once" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="finline-small-functions" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fipa-cp" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fipa-cp-clone" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fipa-matrix-reorg" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fipa-pta" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fipa-pure-const" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fipa-reference" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fipa-struct-reorg" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fipa-type-escape" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fira-algorithm=CB" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fira-algorithm=priority" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fira-coalesce" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fira-region=all" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fira-region=mixed" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fira-region=one" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fira-share-save-slots" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fira-share-spill-slots" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fivopts" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fkeep-inline-functions" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fkeep-static-consts" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="floop-block" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="floop-interchange" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="floop-strip-mine" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fmath-errno" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fmerge-all-constants" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fmerge-constants" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fmodulo-sched" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fmodulo-sched-allow-regmoves" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fmove-loop-invariants" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fno-branch-count-reg" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fno-early-inlining" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fno-keep-static-consts" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fno-peephole" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fno-split-ivs-in-unroller" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fno-tree-copyrename" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fno-tree-sra" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fno-tree-ter" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fno-tree-vect-loop-version" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fno-unit-at-a-time" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fomit-frame-pointer" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="foptimize-register-move" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="foptimize-sibling-calls" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fpeel-loops" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fpeephole" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fpeephole2" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fpredictive-commoning" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fprefetch-loop-arrays" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fprofile-arcs" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fprofile-correction" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fprofile-generate" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fprofile-values" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="freciprocal-math" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fregmove" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="frename-registers" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="freorder-blocks" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="freorder-blocks-and-partition" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="freorder-functions" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="frerun-cse-after-loop" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="freschedule-modulo-scheduled-loops" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="frounding-math" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsched-interblock" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsched-spec" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsched-spec-load" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsched-spec-load-dangerous" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsched-stalled-insns" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsched-stalled-insns-dep" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsched-stalled-insns-dep=0" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsched-stalled-insns=0" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsched2-use-superblocks" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsched2-use-traces" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fschedule-insns" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fschedule-insns2" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsee" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsel-sched-pipelining" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsel-sched-pipelining-outer-loops" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fselective-scheduling" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fselective-scheduling2" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsignaling-nans" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsigned-zeros" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsingle-precision-constant" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsplit-ivs-in-unroller" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fsplit-wide-types" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fstrict-aliasing" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fstrict-overflow" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftest-coverage" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fthread-jumps" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftoplevel-reorder" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftracer" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftrapping-math" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-builtin-call-dce" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-ccp" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-ch" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-copy-prop" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-copyrename" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-dce" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-dominator-opts" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-dse" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-fre" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-loop-distribution" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-loop-im" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-loop-ivcanon" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-loop-linear" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-loop-optimize" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-pre" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-reassoc" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-sink" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-sra" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-switch-conversion" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-ter" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-vect-loop-version" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-vectorize" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="ftree-vrp" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="funit-at-a-time" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="funroll-all-loops" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="funroll-loops" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="funsafe-loop-optimizations" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="funsafe-math-optimizations" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="funswitch-loops" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fvariable-expansion-in-unroller" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fvect-cost-model" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fvpt" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fweb" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fwhole-program" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fwrapv" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fzero-initialized-in-bss" description="param1" type="integer" min="0" max="1"/>
+    </parameters>
+    <system_metrics>
+        <system_metric name="system.cpu.numCycles" type="float" unit="" desired="small"/>
+        <system_metric name="mcpat.runtime_dynamic" type="float" unit="" desired="small" />
+    </system_metrics>
+    <rules>
+    </rules>
+	<relations>
+	</relations>
+	<virtual_parameters>
+	</virtual_parameters>
+</design_space>

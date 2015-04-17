@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<!DOCTYPE design_space SYSTEM "xmlinput.dtd">-->
+<!--
+    Document   : params.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Horia
+    Description:
+        this is the input file for the DTLZ1problem
+-->
+<design_space>
+    <simulator name="XSimulator" type="simulator" >
+        <parameter name="simulator_executable" value="/path/to/simulator/executable/executable" />
+        <parameter name="simulator_output_file" value="/path/to/output/file/out.txt"/>
+    </simulator>
+    <metaheuristic name="NSGA-II" config_path="nsgaii.properties" />
+    <parameters>
+        <parameter name="l1data_cache_size" description="" type="exp2" min="32" max="64"/>
+        <parameter name="nr_of_cores" description="" type="integer" min="1" max="8"/>
+        <parameter name="nr_of_cores" description="" type="integer" min="1" max="8" step="2"/>
+        <parameter name="benchmark" description="param3" type="string">
+            <item value="/benchmarks/fft"/>
+            <item value="/benchmarks/ocean"/>
+        </parameter>
+    </parameters>
+    <system_metrics>
+        <system_metric name="IPC" type="integer" unit="" desired="big"/>
+        <system_metric name="power_consumption" type="float" unit="" desired="small"/>
+    </system_metrics>
+    <rules>
+        <rule name="minimum cache size">
+            <greater-equal>
+                <parameter name="l2_cache_size"/>
+                <constant value="52"/>
+            </greater-equal>
+        </rule>
+        <rule name="minimum cache size">
+            <less-equal>
+                <parameter name="l2_cache_size"/>
+                <constant value="512"/>
+            </less-equal>
+        </rule>
+        <rule name="minimum cache size">
+            <less>
+                <parameter name="l2_cache_size"/>
+                <constant value="512"/>
+            </less>
+        </rule>
+        <rule name="minimum cache size">
+            <greater>
+                <parameter name="l2_cache_size"/>
+                <constant value="512"/>
+            </greater>
+        </rule>
+        <rule name="minimum cache size">
+            <equal>
+                <parameter name="l2_cache_size"/>
+                <constant value="512"/>
+            </equal>
+        </rule>
+
+
+
+
+        <rule name="minimum cache size">
+            <greater-equal>
+                <parameter name="l2_cache_size"/>
+                <parameter name="l1data_cache_size"/>
+            </greater-equal>
+        </rule>
+        <rule name="minimum cache size">
+            <less-equal>
+                <parameter name="l2_cache_size"/>
+                <parameter name="l1data_cache_size"/>
+            </less-equal>
+        </rule>
+        <rule name="minimum cache size">
+            <less>
+                <parameter name="l2_cache_size"/>
+                <parameter name="l1data_cache_size"/>
+            </less>
+        </rule>
+        <rule name="minimum cache size">
+            <greater>
+                <parameter name="l2_cache_size"/>
+                <parameter name="l1data_cache_size"/>
+            </greater>
+        </rule>
+        <rule name="minimum cache size">
+            <equal>
+                <parameter name="l2_cache_size"/>
+                <parameter name="l1data_cache_size"/>
+            </equal>
+        </rule>
+
+        <rule name="minimum cache size">
+            <not-equal>
+                <parameter name="l2_cache_size"/>
+                <parameter name="l1data_cache_size"/>
+            </not-equal>
+        </rule>
+        <rule name="minimum cache size">
+            <not-equal>
+                <parameter name="l2_cache_size"/>
+                <constant value="512"/>
+            </not-equal>
+        </rule>
+        <rule name="cache size check">
+            <and>
+                <greater-equal>
+                    <parameter name="l2_cache_size"/>
+                    <parameter name="l1data_cache_size"/>
+                </greater-equal>
+                <greater-equal>
+                    <parameter name="l2data_cache_size"/>
+                    <constant value="512"/>
+                </greater-equal>
+            </and>
+        </rule>
+        <rule name="cache size check">
+            <and>
+                <and>
+                    <greater-equal>
+                        <parameter name="l2_cache_size"/>
+                        <parameter name="l1data_cache_size"/>
+                    </greater-equal>
+                    <less-equal>
+                        <parameter name="l2_cache_size"/>
+                        <parameter name="l1data_cache_size"/>
+                    </less-equal>
+                    <equal>
+                        <parameter name="l2_cache_size"/>
+                        <parameter name="l1data_cache_size"/>
+                    </equal>
+                    <less>
+                        <parameter name="l2_cache_size"/>
+                        <parameter name="l1data_cache_size"/>
+                    </less>
+                    <greater>
+                        <parameter name="l2_cache_size"/>
+                        <parameter name="l1data_cache_size"/>
+                    </greater>
+                </and>
+                <if>
+                    <greater>
+                        <parameter name=" l2_cache_assoc "/>
+                        <constant value="1"/>
+                    </greater>
+                    <then>
+                        <equal>
+                            <parameter name=" l1_cache_assoc "/>
+                            <constant value="1"/>
+                        </equal>
+                    </then>
+                </if>
+                <greater-equal>
+                    <parameter name="l2_cache_size"/>
+                    <parameter name="l1data_cache_size"/>
+                </greater-equal>
+                <greater-equal>
+                    <parameter name="l2data_cache_size"/>
+                    <constant value="512"/>
+                </greater-equal>
+            </and>
+        </rule>
+        <rule name="cache size check">
+            <and>
+                <and>
+                    <greater-equal>
+                        <parameter name="l2_cache_size"/>
+                        <parameter name="l1data_cache_size"/>
+                    </greater-equal>
+                    <greater-equal>
+                        <parameter name="l2data_cache_size"/>
+                        <constant value="512"/>
+                    </greater-equal>
+                    <less-equal>
+                        <parameter name="l2_cache_size"/>
+                        <parameter name="l1data_cache_size"/>
+                    </less-equal>
+                    <equal>
+                        <parameter name="l2_cache_size"/>
+                        <parameter name="l1data_cache_size"/>
+                    </equal>
+                    <less>
+                        <parameter name="l2_cache_size"/>
+                        <parameter name="l1data_cache_size"/>
+                    </less>
+                    <greater>
+                        <parameter name="l2_cache_size"/>
+                        <parameter name="l1data_cache_size"/>
+                    </greater>
+                </and>
+                <if>
+                    <and>
+                        <greater-equal>
+                            <parameter name="l2_cache_size"/>
+                            <parameter name="l1data_cache_size"/>
+                        </greater-equal>
+                        <greater-equal>
+                            <parameter name="l2data_cache_size"/>
+                            <constant value="512"/>
+                        </greater-equal>
+                    </and>
+                    <then>
+                        <and>
+                            <greater-equal>
+                                <parameter name="l2_cache_size"/>
+                                <parameter name="l1data_cache_size"/>
+                            </greater-equal>
+                            <greater-equal>
+                                <parameter name="l2data_cache_size"/>
+                                <constant value="512"/>
+                            </greater-equal>
+                        </and>
+                    </then>
+                </if>
+            </and>
+        </rule>
+        <rule name="cache associativity limitation">
+            <if>
+                <greater>
+                    <parameter name=" l2_cache_assoc "/>
+                    <constant value="1"/>
+                </greater>
+                <then>
+                    <equal>
+                        <parameter name=" l1_cache_assoc "/>
+                        <constant value="1"/>
+                    </equal>
+                </then>
+            </if>
+        </rule>
+        <rule name="cache associativity limitation">
+            <if>
+                <less>
+                    <parameter name=" l2_cache_assoc "/>
+                    <constant value="1"/>
+                </less>
+                <then>
+                    <equal>
+                        <parameter name=" l1_cache_assoc "/>
+                        <constant value="1"/>
+                    </equal>
+                </then>
+            </if>
+        </rule>
+
+        <rule name="cache associativity limitation">
+            <if>
+                <less-equal>
+                    <parameter name=" l2_cache_assoc "/>
+                    <constant value="1"/>
+                </less-equal>
+                <then>
+                    <less-equal>
+                        <parameter name=" l2_cache_assoc "/>
+                        <constant value="1"/>
+                    </less-equal>
+                </then>
+            </if>
+        </rule>
+        <rule name="cache associativity limitation">
+            <if>
+                <if>
+                    <greater>
+                        <parameter name=" l2_cache_assoc "/>
+                        <constant value="1"/>
+                    </greater>
+                    <then>
+                        <equal>
+                            <parameter name=" l1_cache_assoc "/>
+                            <constant value="1"/>
+                        </equal>
+                    </then>
+                </if>
+                <then>
+                    <if>
+                        <greater>
+                            <parameter name=" l2_cache_assoc "/>
+                            <constant value="1"/>
+                        </greater>
+                        <then>
+                            <equal>
+                                <parameter name=" l1_cache_assoc "/>
+                                <constant value="1"/>
+                            </equal>
+                        </then>
+                    </if>
+                </then>
+            </if>
+        </rule>
+    </rules>
+</design_space>

@@ -1,0 +1,1 @@
+select tbl_simulation.id, tbl_simulation.parameter_string, tbl_simulation.updated_at, tbl_result.name, tbl_result.value from tbl_simulation, tbl_result where tbl_simulation.parameter_string like "benchmark=default-mibench-offi-stringsearch%" and tbl_simulation.id = tbl_result.simulation_id;

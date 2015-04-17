@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : params.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Horia
+    Description:
+        this is the input file for the DTLZ1problem
+-->
+<design_space xmlns="http://www.multicube.eu/" version="1.4">
+    <simulator name="DTLZ1" type="synthetic" ><!--type="synthetic"--><!--type can be synthetic or simulator-->
+        <simulator_executable path="/path/my_simulator_executable" />
+    </simulator>
+    <parameters>
+        <parameter name="p1" description="param1" type="float" min="0" max="1" step="0.1"/>
+        <parameter name="p2" description="param2" type="float" min="0" max="1" step="0.1"/>
+        <parameter name="p3" description="param3" type="float" min="0" max="1" step="0.1"/>
+        <parameter name="p4" description="param4" type="float" min="0" max="1" step="0.1"/>
+        <parameter name="p5" description="param5" type="float" min="0" max="1" step="0.1"/>
+        <parameter name="p6" description="param6" type="float" min="0" max="1" step="0.1"/>
+        <parameter name="p7" description="param7" type="float" min="0" max="1" step="0.1"/>      
+    </parameters>
+    <system_metrics>
+        <system_metric name="o1" type="float" unit="" desired="small"/>
+        <system_metric name="o2" type="float" unit="" desired="small"/>
+        <!--<system_metric name="o3" type="float" unit="" desired="small" />-->
+        <!--<system_metric name="o4" type="float" unit="" desired="small" />-->
+    </system_metrics>
+    <rules> 
+    </rules>
+</design_space>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : params.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Horia
+    Description:
+        this is the input file for the DTLZ1problem
+-->
+<design_space>
+    <simulator name="Multi2SimSimulator" type="simulator" >
+        <parameter name="simulator_executable" value="/home/andrei/Work/Simulatoare/Multi2Sim/m2s" />
+        <parameter name="simulator_path" value="" />
+        <parameter name="simulator_output_file" value="multi2simout.txt"/>
+    </simulator>
+    <metaheuristic name="NSGA-II" config_path="nsgaii.properties" />
+    <parameters>
+        <parameter name="issue_width" description="param1" type="exp2" min="32" max="64"/>
+        <parameter name="iq_size" description="param2" type="exp2" min="32" max="64"/>
+        <parameter name="benchmark" description="param3" type="string">
+             <item value="/home/andrei/Work/Benchmarks/v1-splash-alpha/splash2/codes/kernels/fft/FFT"/>
+        </parameter>
+
+    </parameters>
+    <system_metrics>
+        <system_metric name="global#Dispatch.Uop.nop" type="float" unit="" desired="small"/>
+        <system_metric name="global#Issue.Uop.shift" type="float" unit="" desired="small"/>
+        <system_metric name="c0#fu.IntAdd.Accesses" type="float" unit="" desired="small"/>
+    </system_metrics>
+    <rules>
+    </rules>
+</design_space>

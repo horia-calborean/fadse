@@ -1,0 +1,43 @@
+system ;total_cycles ;global  ;   Cycles
+system ;busy_cycles ;global;  Cycles
+system.core0 ;total_instructions;c0 ;Dispatch.Total
+system.core0 ;int_instructions;c0 ;Dispatch.Integer
+system.core0 ;fp_instructions ;c0 ;Dispatch.FloatingPoint
+system.core0 ;branch_instructions ;c0 ;Dispatch.Ctrl
+system.core0 ;branch_mispredictions ;c0 ;Commit.Mispred
+system.core0 ;load_instructions ;c0 ;Dispatch.Uop.load
+system.core0 ;store_instructions;c0 ;Dispatch.Uop.store
+system.core0 ;committed_instructions ;c0 ;Commit.Total
+system.core0 ;committed_int_instructions ;c0 ;  Commit.Integer
+system.core0 ;committed_fp_instructions ;c0 ; Commit.FloatingPoint
+system.core0 ;pipeline_duty_cycle ;c0(t0);Commit.DutyCycle
+system.core0 ;ROB_reads ;c0(t0) ;    ROB.Reads
+system.core0 ;ROB_writes ;c0(t0)   ;  ROB.Writes
+system.core0 ;rename_reads ;c0t0  ;     RAT.Reads
+system.core0 ;rename_writes ;c0t0  ;     RAT.Writes
+system.core0 ;inst_window_reads ;c0(t0) ;    IQ.Reads
+system.core0 ;inst_window_writes ;c0(t0) ;    IQ.Writes
+system.core0 ;inst_window_wakeup_accesses   ;   c0(t0)   ;  IQ.WakeupAccesses
+system.core0 ;int_regfile_reads; c0(t0)  ;   RF.Reads
+system.core0 ;int_regfile_writes; c0(t0)   ;  RF.Writes
+system.core0 ;function_calls ;c0  ;       Dispatch.Uop.call
+system.core0 ;context_switches ;c0 ;        Dispatch.WndSwitch
+system.core0 ;ialu_accesses ;c0 ;        Issue.SimpleInteger
+system.core0 ;fpu_accesses ;c0  ;       Issue.FloatingPoint
+system.core0 ;mul_accesses; c0  ;       Issue.ComplexInteger
+system.core0.BTB;read_accesses; c0t0;       BTB.Reads
+system.core0.BTB;write_accesses; c0t0;       BTB.Writes
+system.core0.itlb;total_accesses ;itlb.0.0 ;  Accesses
+system.core0.itlb;total_misses;itlb.0.0  ; Misses
+system.core0.itlb; conflicts ;itlb.0.0 ;  Evictions
+system.core0.icache;   read_accesses; il1-0;      Reads
+system.core0.icache; read_misses; il1-0 ;     ReadMisses
+system.core0.icache; conflicts;il1-0;      Evictions
+system.core0.dtlb;     total_accesses ;dtlb.0.0  ; Accesses
+system.core0.dtlb;total_misses; dtlb.0.0 ;  Misses
+system.core0.dtlb;conflicts; dtlb.0.0;   Evictions
+system.core0.dcache;   read_accesses; dl1-0  ;    Reads
+system.core0.dcache;write_accesses; dl1-0   ;   Writes
+system.core0.dcache;read_misses; dl1-0 ;     ReadMisses
+system.core0.dcache;write_misses ;dl1-0 ;     WriteMisses
+system.core0.dcache;conflicts; dl1-0  ;    Evictions

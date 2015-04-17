@@ -1,0 +1,133 @@
+// Block definition (there may be more than one block per file)
+FUNCTION_BLOCK gap
+
+// Define input variables
+VAR_INPUT
+    n_lines : REAL;
+    n_columns : REAL;
+    array_size : REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT
+    outn_lines	: REAL;
+    outn_columns : REAL;
+    outn_layers	: REAL;
+    outc_chunk : REAL;
+    outc_sets : REAL;
+    outc_lines : REAL;
+END_VAR
+
+FUZZIFY array_size
+    TERM c1 := (16, 1) (64, 1) (128, 0);
+    TERM c2 := (64, 0) (128,1) (256,1) (512,0);
+    TERM c3 := (256, 0) (512, 1) (1024, 1);
+END_FUZZIFY
+
+FUZZIFY n_lines
+    TERM c1 := (4, 1) (7, 1) (12, 0);
+    TERM c2 := (7, 0) (12,1) (20,1) (28,0);
+    TERM c3 := (20, 0) (28, 1) (32, 1);
+END_FUZZIFY
+
+// Fuzzify input variable 'l1assoc'
+FUZZIFY n_columns
+    TERM c1 := (4, 1) (6, 1) (8,0) ;
+    TERM c2 := (6,0) (8,1) (11, 1) (18,0);
+    TERM c3 := (11,0) (18,1) (32, 0);
+    TERM c4 := (18,0) (32,1);
+END_FUZZIFY
+
+//ARRAY
+DEFUZZIFY outn_lines
+    TERM c1 := (4, 1) (7, 1) (12, 0);
+    TERM c2 := (7, 0) (12,1) (20,1) (28,0);
+    TERM c3 := (20, 0) (28, 1) (32, 1);
+    METHOD : COG;
+    DEFAULT := 28;
+END_DEFUZZIFY
+
+DEFUZZIFY outn_columns
+    TERM c1 := (4, 1) (6, 1) (8,0) ;
+    TERM c2 := (6,0) (8,1) (11, 1) (18,0);
+    TERM c3 := (11,0) (18,1) (32, 0);
+    TERM c4 := (18,0) (32,1);
+    METHOD : COG;
+    DEFAULT := 10;
+END_DEFUZZIFY
+
+DEFUZZIFY outn_layers
+    TERM c1 := (1, 1)  (32,0) ;
+    TERM c2 := (1,0) (32,1) (64, 1);
+    METHOD : COG;
+    DEFAULT := 64;
+END_DEFUZZIFY
+
+//CACHE
+
+DEFUZZIFY outc_chunk
+    TERM c1 := (1, 1) (4, 1) (8, 0);
+    TERM c2 := (4, 0) (8,1) (16,1) (32,0);
+    TERM c3 := (16, 0)(32, 1);
+    METHOD : COG;
+    DEFAULT := 16;
+END_DEFUZZIFY
+
+DEFUZZIFY outc_sets
+    TERM c1 := (32, 1) (256,0) ;
+    TERM c2 := (32,0) (256,1) (512, 1) (1024,0);
+    TERM c3 := (512,0) (1024,1) (2048, 1) (8192, 0);
+    TERM c4 := (2048,0) (8192,1);
+    METHOD : COG;
+    DEFAULT := 2048;
+END_DEFUZZIFY
+
+DEFUZZIFY outc_lines
+     TERM c1 := (1, 1) (2, 0);
+    TERM c2 := (1, 0) (2,1) (4,1) (8,0);
+    TERM c3 := (4, 0)(128, 1);
+    METHOD : COG;
+    DEFAULT := 2;
+END_DEFUZZIFY
+
+
+RULEBLOCK No1
+    // Use 'min' for 'and' (also implicit use 'max'
+    // for 'or' to fulfill DeMorgan's Law)
+    AND : MIN;
+    // Use 'min' activation method
+    ACT : MIN;
+    // Use 'max' accumulation method
+    ACCU : MAX;
+
+    RULE 1 : IF n_lines IS c3 THEN outn_columns IS c2;
+    RULE 2 : IF n_lines IS c3 THEN outn_layers IS c2;
+    RULE 3 : IF n_lines IS c3 THEN outc_chunk IS c2;
+    RULE 4 : IF n_lines IS c3 THEN outc_sets IS c3;
+    RULE 5 : IF n_lines IS c3 THEN outc_lines IS c2;
+
+    RULE 6 : IF n_lines IS c2 THEN outn_columns IS c2;
+    RULE 7 : IF n_lines IS c2 THEN outn_layers IS c2;
+    RULE 8 : IF n_lines IS c2 THEN outc_chunk IS c2;
+    RULE 9 : IF n_lines IS c2 THEN outc_sets IS c3;
+    RULE 10 : IF n_lines IS c2 THEN outc_lines IS c2;
+
+    RULE 11 : IF n_lines IS c1 THEN outn_columns IS c1;
+    RULE 12 : IF n_lines IS c1 THEN outn_layers IS c2;
+    RULE 13 : IF n_lines IS c1 THEN outc_chunk IS c1;
+    RULE 14 : IF n_lines IS c1 THEN outc_sets IS c2;
+    RULE 15 : IF n_lines IS c1 THEN outc_lines IS c2;
+
+    RULE 16 : IF n_columns IS c4 THEN outn_lines IS c3;
+    RULE 17 : IF n_columns IS c3 THEN outn_lines IS c2;
+    RULE 18 : IF n_columns IS c2 THEN outn_lines IS c2;
+    RULE 19 : IF n_columns IS c1 THEN outn_lines IS c1;
+
+
+//Stupid test rules
+    RULE 20 : IF array_size IS c1 THEN outn_lines IS c1;
+    RULE 21 : IF array_size IS c2 THEN outn_lines IS c2;
+    RULE 22 : IF array_size IS c2 THEN outn_lines IS c3;
+
+END_RULEBLOCK
+END_FUNCTION_BLOCK

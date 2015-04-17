@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : params.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Horia
+    Description:
+        this is the input file for the DTLZ1problem
+-->
+<design_space>
+    <simulator name="ServerSimulator" type="simulator" ><!--type="synthetic"--><!--type can be synthetic or simulator-->
+		<parameter name="forceFeasibleFirstGeneration" value="true" />
+		<parameter name="realSimulator" value = "TemSimulator"/>
+		<parameter name="maximumTimeOfASimulation" value="12" />
+        <!-- If you put TEMP here than the dumps are placed into the temporary folder of the OS -->
+        <parameter name="benchmark_target_directory" value="C:\tem\benchmark" />
+        <!-- parameter name="benchmark_target_directory" value="c:\temp_fadse_gap\" / -->
+        <!-- this is not really needed because it is extracted from benchmark paths -->
+        <parameter name="simulator_output_file" value="irrelevant"/>
+        <parameter name="simulator_executable" value="D:\svn_google\SimAlu.exe" />
+        <parameter name="simulator_simulation_mode" value="false"/>
+    </simulator>
+    <!-- database ip="espresso.informatik.uni-augsburg.de" port="3306" name="fadse" user="fadse" password="fadse"/>
+    <metaheuristic name="NSGA-II" config_path="nsgaii.properties" / -->
+    <database ip="127.0.0.1" port="3306" name="fadse" user="fadse" password="fadse12345678"/>
+    <!-- metaheuristic name="NSGAII" config_path="nsgaii.properties" / -->
+    <metaheuristic name="SMPSO" config_path="smpso.properties" />
+    <parameters>
+        <parameter name="w_n" description="w_n" type="integer" min="0" max="10000"/>
+        <parameter name="w_a" description="w_a" type="integer" min="0" max="10000"/>
+        <parameter name="w_v" description="w_v" type="integer" min="0" max="10000"/>
+        <parameter name="t_n" description="t_n" type="integer" min="0" max="50"/>
+        <parameter name="t_r" description="t_r" type="integer" min="0" max="8000"/>
+        <parameter name="t_o" description="t_o" type="integer" min="0" max="8000"/>
+        <parameter name="max_results" description="w_a" type="integer" min="1" max="50"/>
+        <parameter name="t_rep_max" description="rep_max" type="integer" min="0" max="100"/>
+        <parameter name="t_rep_pos" description="rep_pos" type="integer" min="1" max="100"/>
+        <parameter name="t_rep_neg" description="rep_neg" type="integer" min="1" max="100"/>
+        <parameter name="t_rep_start" description="rep_start" type="integer" min="1" max="10"/>
+        <parameter name="t_agg_high" description="agg_high" type="integer" min="0" max="100"/>
+        <parameter name="t_agg_low" description="agg_high" type="integer" min="0" max="100"/>
+        <parameter name="evals" description="evals" type="integer" min="50" max="50"/>
+        <parameter name="selection_metric" description="selection_metric" type="integer" min="0" max="0"/>
+    </parameters>
+    <benchmarks>
+        <item name="standard"/>      
+    </benchmarks>
+    <system_metrics>
+        <system_metric name="benefit" type="float" unit="" desired="large"/>
+        <system_metric name="history_length" type="float" unit="" desired="small"/>
+    </system_metrics>
+	<rules>
+	    <rule name="tem_rule_1">
+			<less-equal>
+				<parameter name="t_n"/>
+				<parameter name="max_results"/>
+			</less-equal>
+		</rule>
+		<rule name="tem_rule_2">
+			<less-equal>
+				<parameter name="t_r"/>
+				<parameter name="t_o"/>
+			</less-equal>
+	    </rule>
+        <rule name="tem_rule_3">
+         <less-equal>
+            <parameter name="t_rep_pos"/>
+            <parameter name="t_rep_neg"/>
+         </less-equal>
+       </rule>
+       <rule name="tem_rule_4">
+         <less-equal>
+            <parameter name="t_agg_low"/>
+            <parameter name="t_agg_high"/>
+         </less-equal>
+       </rule>
+	</rules>
+    <relations>
+        <relation>
+            <if parameter="use_reputation" value="0">
+                <then_invalidate>
+                   <parameter name="t_rep_max"/>
+                   <parameter name="t_rep_pos"/>
+                   <parameter name="t_rep_neg"/>
+                   <parameter name="t_rep_start"/>
+                   <parameter name="t_agg_high"/>
+                   <parameter name="t_agg_low"/>
+                </then_invalidate>
+            </if>
+        </relation>
+    </relations>
+    <output output_path="C:\tem\server\tem_results" />  
+</design_space>

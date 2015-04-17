@@ -1,0 +1,99 @@
+Index: base/Algorithm.java
+===================================================================
+--- base/Algorithm.java	(revision 269)
++++ base/Algorithm.java	(working copy)
+@@ -124,5 +124,8 @@
+       return outPutParameters_.get(name);
+     else
+       return null ;
+-  } // getOutputParameter   
++  } // getOutputParameter
++  public SolutionSet getCurrentSolutionSet(){
++      return null;
++  }
+ } // Algorithm
+Index: metaheuristics/nsgaII/NSGAII.java
+===================================================================
+--- metaheuristics/nsgaII/NSGAII.java	(revision 269)
++++ metaheuristics/nsgaII/NSGAII.java	(working copy)
+@@ -201,5 +201,10 @@
+         Ranking ranking = new Ranking(population);
+         return ranking.getSubfront(0);
+     } // execute
++    @Override
++    public SolutionSet getCurrentSolutionSet() {
++        //SolutionSet toReturn = population.union(new SolutionSet());//FAKE clone
++        return population;
++    }
+ } // NSGA-II
+ 
+Index: metaheuristics/singleObjective/geneticAlgorithm/GA_main.java
+===================================================================
+--- metaheuristics/singleObjective/geneticAlgorithm/GA_main.java	(revision 269)
++++ metaheuristics/singleObjective/geneticAlgorithm/GA_main.java	(working copy)
+@@ -38,7 +38,7 @@
+     //problem = new Griewank("Real", 10) ;
+     
+     //algorithm = new gGA(problem) ; // Generational GA
+-    algorithm = new ssGA(problem); // Steady-state GA
++    algorithm = new SSGA(problem); // Steady-state GA
+     //algorithm = new scGA(problem) ; // Synchronous cGA
+     //algorithm = new acGA(problem) ;   // Asynchronous cGA
+     
+Index: metaheuristics/singleObjective/geneticAlgorithm/GGA.java
+===================================================================
+--- metaheuristics/singleObjective/geneticAlgorithm/GGA.java	(revision 269)
++++ metaheuristics/singleObjective/geneticAlgorithm/GGA.java	(working copy)
+@@ -14,7 +14,7 @@
+ /** 
+  * Class implementing a generational genetic algorithm
+  */
+-public class gGA extends Algorithm {
++public class GGA extends Algorithm {
+   private Problem           problem_;        
+   
+  /**
+@@ -23,7 +23,7 @@
+   * Create a new GGA instance.
+   * @param problem Problem to solve.
+   */
+-  public gGA(Problem problem){
++  public GGA(Problem problem){
+     this.problem_ = problem;                        
+   } // GGA
+   
+Index: metaheuristics/singleObjective/geneticAlgorithm/SSGA.java
+===================================================================
+--- metaheuristics/singleObjective/geneticAlgorithm/SSGA.java	(revision 269)
++++ metaheuristics/singleObjective/geneticAlgorithm/SSGA.java	(working copy)
+@@ -17,7 +17,7 @@
+ /** 
+  * Class implementing a steady state genetic algorithm
+  */
+-public class ssGA extends Algorithm {
++public class SSGA extends Algorithm {
+   private Problem           problem_;        
+   
+  /**
+@@ -27,7 +27,7 @@
+   * @param problem Problem to solve
+   *
+   */
+-  public ssGA(Problem problem){
++  public SSGA(Problem problem){
+     this.problem_ = problem;                        
+   } // SSGA
+   
+Index: metaheuristics/singleObjective/geneticAlgorithm/TSPGA_main.java
+===================================================================
+--- metaheuristics/singleObjective/geneticAlgorithm/TSPGA_main.java	(revision 269)
++++ metaheuristics/singleObjective/geneticAlgorithm/TSPGA_main.java	(working copy)
+@@ -38,7 +38,7 @@
+     
+     problem = new TSP(problemName);
+     
+-    algorithm = new ssGA(problem);
++    algorithm = new SSGA(problem);
+     //algorithm = new gGA(problem) ;
+     
+     // Algorithm params

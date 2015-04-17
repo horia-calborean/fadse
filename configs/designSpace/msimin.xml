@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : msimin.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Camil
+-->
+<design_space>
+    <simulator name="MsimSimulator" type="simulator" >
+<!--    <simulator name="FalseSimulator" type="simulator" >-->
+        <parameter name="simulator_executable" value="/home/camil/RSPDT/Projects/University/Research/Simulators/m-sim_v3.0/sim-outorder" />
+        <parameter name="simulator_output_file" value="/home/camil/RSPDT/Projects/University/Research/Simulators/m-sim_v3.0/out.txt"/>
+        <parameter name="maximumTimeOfASimulation" value="1"/><!--in minutes-->
+    </simulator>
+    <database ip="127.0.0.1" port="3306" name="fadse" user="root" password="carbohydrates"/>
+    <benchmarks>
+        <item name="1"/>
+        <item name="2"/>
+    </benchmarks>
+    <metaheuristic name="NSGAII" config_path="nsgaii.properties" />
+    <parameters>
+	
+	<!-- Simple parameters -->
+	    <!--
+	    <parameter name="config" type="string" >
+		<item value="[load simulator config file]"/>
+	    </parameter>
+	    -->
+	    
+	    <!--
+	    <parameter name="dumpconfig" type="string" >
+		<item value="[save current simulator config file]"/>
+	    </parameter>
+	    -->
+	    
+	    <!--
+	    <parameter name="v" type="string" >
+		<item value="[verbose operation, true/false]"/>
+	    </parameter>
+	    -->
+
+	    <parameter name="power_print_stats" type="string">
+		<item value="true"/>
+	    </parameter>
+	    
+	    <parameter name="max_inst" type="integer" min="1000000" max="1000000" />
+	    <parameter name="max_cycles" type="integer" min="-1" max="-1" />
+	    <parameter name="fastfwd" type="integer" min="1000000" max="1000000" />
+	    <parameter name="num_cores" type="integer" min="1" max="1" />
+	    <parameter name="max_contexts_per_core" type="integer" min="-1" max="-1" />
+	    <parameter name="decode_width" type="integer" min="4" max="4" />
+	    <parameter name="issue_width" type="integer" min="4" max="4" />
+	    <parameter name="issue_inorder" type="string">
+		<item value="false"/>
+	    </parameter>
+	    
+	    <parameter name="issue_wrongpath" type="string">
+		<item value="true"/>
+	    </parameter>
+	    
+	    <!--
+	    <parameter name="fetch_speed" type="" min="" max="" /> ???
+	    -->
+	    
+	    <!--
+	    <parameter name="nice" type="integer" min="0" max="0" />
+	    -->
+	    
+	    <parameter name="commit_width" type="integer" min="4" max="4" />
+	    <parameter name="iq_issue_exec_delay" type="integer" min="1" max="1" />
+	    <parameter name="fetch_rename_delay" type="integer" min="4" max="4" />
+	    <parameter name="rename_dispatch_delay" type="integer" min="1" max="1" />
+	    <parameter name="lsq_size" type="integer" min="48" max="48" />
+	    <parameter name="rob_size" type="integer" min="128" max="128" />
+	    <parameter name="fetch_policy" type="string" >
+		<item value="icount"/>
+	    </parameter>
+	    
+	    
+	    <parameter name="recovery_model" type="string" >
+		<item value="squash"/>
+	    </parameter>
+	    
+	    <parameter name="iq_size" type="integer" min="32" max="32" />
+	    <parameter name="rf_size" type="integer" min="128" max="128" />
+	    
+	    <parameter name="res_ialu" type="integer" min="4" max="4" />
+	    <parameter name="res_imult" type="integer" min="1" max="1" />
+	    <parameter name="res_memport" type="integer" min="2" max="2" />
+	    <parameter name="res_fpalu" type="integer" min="4" max="4" />
+	    <parameter name="res_fpmult" type="integer" min="1" max="1" />
+	    
+	    <parameter name="write_buf_size" type="integer" min="16" max="16" />
+	    <parameter name="cache_dl1lat" type="integer" min="1" max="1" />
+	    <parameter name="cache_dl2lat" type="integer" min="10" max="10" />
+	    <parameter name="cache_il1lat" type="integer" min="1" max="1" />
+	    <parameter name="cache_il2lat" type="integer" min="10" max="10" />
+	    <parameter name="tlb_lat" type="integer" min="30" max="30" />
+	    
+	    
+	    
+	    <parameter name="bpred" type="string" >
+		<item value="bimod"/>
+	    </parameter>
+	    
+	    <parameter name="bpred_ras" type="integer" min="8" max="8" />
+	    <parameter name="bpred_bimod" type="integer" min="2048" max="2048" />
+	    <parameter name="bpred_comb" type="integer" min="1024" max="1024" />
+	    
+	    
+	    
+	    <parameter name="cpred" type="string" >
+		<item value="bimod"/>
+	    </parameter>
+	    
+	    <parameter name="cpred_ras" type="integer" min="0" max="0" />
+	    <parameter name="cpred_bimod" type="integer" min="2048" max="2048" />
+	    <parameter name="cpred_comb" type="integer" min="1024" max="1024" />
+	    
+	    <parameter name="cache_dl3lat" type="integer" min="30" max="30" />
+	    <parameter name="cache_il3lat" type="integer" min="30" max="30" />
+	    
+	    <!--
+	    <parameter name="q" type="" min="" max="" />
+	    <parameter name="d" type="" min="" max="" />
+	    <parameter name="h" type="" min="" max="" /> 
+	    <parameter name="seed" type="" min="" max="" />
+	    <parameter name="redir_prog" type="" min="" max="" />
+	    <parameter name="redir_err" type="" min="" max="" />
+	    <parameter name="ptrace" type="" min="" max="" />
+	    <parameter name="pcstat" type="" min="" max="" />
+	    
+	    <parameter name="bpred_spec_update" type="" min="" max="" />
+	    -->
+	    <!-- end Simple parameters -->
+	
+	  
+	    <!-- CacheDL1 -->
+	    <parameter name="dl1_type" type="string">
+		    <item value="dl1"/>
+	    </parameter>
+	    <parameter name="dl1_nsets" type="exp2" min="256" max="256"/>
+	    <parameter name="dl1_bsize" type="exp2" min="32" max="32"/>
+	    <parameter name="dl1_assoc" type="exp2" min="4" max="4"/>
+	    <parameter name="dl1_repl" type="string">
+		<item value="l"/>
+	    </parameter>
+	    <!-- end CacheDL1 -->
+	    
+	    
+	    <!-- CacheDL2 -->
+	    <parameter name="dl2_type" type="string">
+		    <item value="ul2"/>
+	    </parameter>
+	    <parameter name="dl2_nsets" type="exp2" min="512" max="512"/>
+	    <parameter name="dl2_bsize" type="exp2" min="32" max="32"/>
+	    <parameter name="dl2_assoc" type="exp2" min="2" max="2"/>
+	    <parameter name="dl2_repl" type="string">
+		<item value="l"/>
+	    </parameter>
+	    <!-- end CacheDL2 -->
+	    
+	    
+	    <!-- CacheIL1 -->
+	    <parameter name="il1_type" type="string">
+		    <item value="il1"/>
+	    </parameter>
+	    <parameter name="il1_nsets" type="exp2" min="512" max="512"/>
+	    <parameter name="il1_bsize" type="exp2" min="32" max="32"/>
+	    <parameter name="il1_assoc" type="exp2" min="2" max="2"/>
+	    <parameter name="il1_repl" type="string">
+		<item value="l"/>
+	    </parameter>
+	    <!-- end CacheIL2 -->
+	    
+	    
+	    <!-- CacheIL2 -->
+	    <parameter name="il2_type" type="string">
+		    <item value="il2"/>
+	    </parameter>
+	    <parameter name="il2_nsets" type="exp2" min="512" max="512"/>
+	    <parameter name="il2_bsize" type="exp2" min="128" max="128"/>
+	    <parameter name="il2_assoc" type="exp2" min="8" max="8"/>
+	    <parameter name="il2_repl" type="string">
+		<item value="l"/>
+	    </parameter>
+	    <!-- end CacheIL2 -->
+	    
+	    
+	    <!-- ITLB -->
+	    <parameter name="itlb_type" type="string">
+		    <item value="itlb"/>
+	    </parameter>
+	    <parameter name="itlb_nsets" type="exp2" min="16" max="16"/>
+	    <parameter name="itlb_bsize" type="exp2" min="4096" max="4096"/>
+	    <parameter name="itlb_assoc" type="exp2" min="4" max="4"/>
+	    <parameter name="itlb_repl" type="string">
+		<item value="l"/>
+	    </parameter>
+	    <!-- end ITLB -->
+	    
+	    
+	    <!-- DTLB -->
+	    <parameter name="dtlb_type" type="string">
+		    <item value="dtlb"/>
+	    </parameter>
+	    <parameter name="dtlb_nsets" type="exp2" min="32" max="32"/>
+	    <parameter name="dtlb_bsize" type="exp2" min="4096" max="4096"/>
+	    <parameter name="dtlb_assoc" type="exp2" min="4" max="4"/>
+	    <parameter name="dtlb_repl" type="string">
+		<item value="l"/>
+	    </parameter>
+	    <!-- end DTLB -->
+	    
+	    
+	    <!-- BPred_2lev -->
+	    <parameter name="bpred2lev_l1size" type="exp2" min="1" max="1" />
+	    <parameter name="bpred2lev_l2size" type="exp2" min="1024" max="1024" />
+	    <parameter name="bpred2lev_histsize" type="exp2" min="8" max="8" />
+	    <parameter name="bpred2lev_xor" type="integer" min="0" max="0" /><!-- ??? -->
+	    <!-- end BPred_2lev -->
+	    
+	    
+	    <!-- BPred_BTB -->
+	    <parameter name="bpredbtb_numsets" type="exp2" min="512" max="512" />
+	    <parameter name="bpredbtb_assoc" type="exp2" min="1" max="1" />
+	    <!-- end BPred_BTB -->
+	    
+	    
+	    <!-- CPred_2lev -->
+	    <parameter name="cpred2lev_l1size" type="exp2" min="1" max="1" />
+	    <parameter name="cpred2lev_l2size" type="exp2" min="1024" max="1024" />
+	    <parameter name="cpred2lev_histsize" type="exp2" min="8" max="8" />
+	    <parameter name="cpred2lev_xor" type="integer" min="0" max="0" /><!-- ??? -->
+	    <!-- end CPred_2lev -->
+	    
+	    
+	    <!-- CPred_BTB -->
+	    <parameter name="cpredbtb_numsets" type="exp2" min="512" max="512" />
+	    <parameter name="cpredbtb_assoc" type="exp2" min="1" max="1" />
+	    <!-- end CPred_BTB -->
+	   
+    </parameters>
+    <system_metrics>
+        <system_metric name="ipc" type="float" unit="" desired="small"/>
+        <system_metric name="sim_num_insn_0" type="float" unit="" desired="small"/>
+        <!--<system_metric name="o3" type="float" unit="" desired="small" />-->
+        <!--<system_metric name="o4" type="float" unit="" desired="small" />-->
+    </system_metrics>
+    <rules> 
+    </rules>
+</design_space>

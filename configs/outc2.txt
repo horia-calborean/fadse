@@ -1,0 +1,174 @@
+; Report for caches, TLBs, and main memory
+;    Accesses - Total number of accesses
+;    Hits, Misses - Accesses resulting in hits/misses
+;    HitRatio - Hits divided by accesses
+;    Evictions - Invalidated or replaced cache blocks
+;    Retries - For L1 caches, accesses that were retried
+;    ReadRetries, WriteRetries - Read/Write retried accesses
+;    NoRetryAccesses - Number of accesses that were not retried
+;    NoRetryHits, NoRetryMisses - Hits and misses for not retried accesses
+;    NoRetryHitRatio - NoRetryHits divided by NoRetryAccesses
+;    NoRetryReads, NoRetryWrites - Not retried reads and writes
+;    Reads, Writes - Total read/write accesses
+;    BlockingReads, BlockingWrites - Reads/writes coming from lower-level cache
+;    NonBlockingReads, NonBlockingWrites - Coming from upper-level cache
+
+
+[ dl1-0 ]
+
+Accesses = 91244
+Hits = 91008
+Misses = 236
+HitRatio = 0.9974
+Evictions = 14
+Retries = 0
+ReadRetries = 0
+WriteRetries = 0
+
+NoRetryAccesses = 91244
+NoRetryHits = 91008
+NoRetryMisses = 236
+NoRetryHitRatio = 0.9974
+NoRetryReads = 46269
+NoRetryReadHits = 46154
+NoRetryReadMisses = 115
+NoRetryWrites = 44975
+NoRetryWriteHits = 44854
+NoRetryWriteMisses = 121
+
+Reads = 46269
+BlockingReads = 2
+NonBlockingReads = 46267
+ReadHits = 46154
+ReadMisses = 115
+
+Writes = 44975
+BlockingWrites = 0
+NonBlockingWrites = 44975
+WriteHits = 44854
+WriteMisses = 121
+
+
+[ l2-0 ]
+
+Accesses = 1296
+Hits = 393
+Misses = 903
+HitRatio = 0.3032
+Evictions = 0
+Retries = 0
+ReadRetries = 0
+WriteRetries = 0
+
+NoRetryAccesses = 1296
+NoRetryHits = 393
+NoRetryMisses = 903
+NoRetryHitRatio = 0.3032
+NoRetryReads = 867
+NoRetryReadHits = 85
+NoRetryReadMisses = 782
+NoRetryWrites = 429
+NoRetryWriteHits = 308
+NoRetryWriteMisses = 121
+
+Reads = 867
+BlockingReads = 0
+NonBlockingReads = 867
+ReadHits = 85
+ReadMisses = 782
+
+Writes = 429
+BlockingWrites = 0
+NonBlockingWrites = 429
+WriteHits = 308
+WriteMisses = 121
+
+
+[ il1-0 ]
+
+Accesses = 61495
+Hits = 60743
+Misses = 752
+HitRatio = 0.9878
+Evictions = 294
+Retries = 0
+ReadRetries = 0
+WriteRetries = 0
+
+NoRetryAccesses = 61495
+NoRetryHits = 60743
+NoRetryMisses = 752
+NoRetryHitRatio = 0.9878
+NoRetryReads = 61495
+NoRetryReadHits = 60743
+NoRetryReadMisses = 752
+NoRetryWrites = 0
+NoRetryWriteHits = 0
+NoRetryWriteMisses = 0
+
+Reads = 61495
+BlockingReads = 2
+NonBlockingReads = 61493
+ReadHits = 60743
+ReadMisses = 752
+
+Writes = 0
+BlockingWrites = 0
+NonBlockingWrites = 0
+WriteHits = 0
+WriteMisses = 0
+
+
+[ mm ]
+
+Accesses = 903
+Hits = 903
+Misses = 0
+HitRatio = 1
+Evictions = 0
+Retries = 0
+ReadRetries = 0
+WriteRetries = 0
+
+NoRetryAccesses = 903
+NoRetryHits = 903
+NoRetryMisses = 0
+NoRetryHitRatio = 1
+NoRetryReads = 782
+NoRetryReadHits = 782
+NoRetryReadMisses = 0
+NoRetryWrites = 121
+NoRetryWriteHits = 121
+NoRetryWriteMisses = 0
+
+Reads = 782
+BlockingReads = 0
+NonBlockingReads = 782
+ReadHits = 782
+ReadMisses = 0
+
+Writes = 121
+BlockingWrites = 0
+NonBlockingWrites = 121
+WriteHits = 121
+WriteMisses = 0
+
+
+[ dtlb.0.0 ]
+
+Accesses = 91242
+Hits = 91219
+Misses = 23
+HitRatio = 0.9997
+Evictions = 0
+
+
+[ itlb.0.0 ]
+
+Accesses = 61493
+Hits = 61454
+Misses = 39
+HitRatio = 0.9994
+Evictions = 0
+
+

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : params.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Horia
+    Description:
+        this is the input file for the DTLZ1problem
+-->
+<design_space>
+    <simulator name="ServerSimulator" type="simulator" >
+<!--    <simulator name="FalseSimulator" type="simulator" >-->
+        <parameter name="simulator_executable" value="/home/andrei/Work/Simulatoare/m-sim_v3.0/sim-outorder" />
+        <parameter name="simulator_output_file" value="/home/andrei/Work/Simulatoare/m-sim_v3.0/out#.txt"/>
+        <parameter name="realSimulator" value = "FalseSimulator"/>
+        <parameter name="timeToRunSimulation" value = "0"/><!--This is used by "false simulator" to set a delay in returning the results, it is in seconds-->
+        <parameter name="maximumTimeOfASimulation" value="3"/><!--in minutes-->
+        <parameter name="forceMinimumPercentageFeasibleIndividuals" value="0"/>
+    </simulator>
+    <database ip="172.16.8.69" port="1527" name="FADSE_DB" user="fadse" password="fadse"/>
+    <benchmarks>
+        <item name="1"/>      
+    </benchmarks>
+    <metaheuristic name="MOCHC" config_path="mochc.properties" />
+    <parameters>
+         <parameter name="n_lines" description="param1" type="integer" min="4" max="32"/>
+        <parameter name="n_columns" description="param2" type="integer" min="4" max="32"/>
+        <parameter name="n_layers" description="param3" type="exp2" min="1" max="64"/>
+        <parameter name="c_chunk" description="c_chunk" type="exp2" min="1" max="32"/> <!-- default: 8 (1/32) -->
+        <parameter name="c_sets" description="c_sets" type="exp2" min="32" max="8192"/> <!-- default: 128 (32/8192) -->
+        <parameter name="c_lines" description="c_lines" type="exp2" min="1" max="128"/> <!-- default 1 (1/128) -->
+
+<!--        <parameter name="perm" description="" type="permutation" dimension="2"/>-->
+    </parameters>
+    <system_metrics>
+        <system_metric name="ipc" type="float" unit="" desired="small"/>
+        <system_metric name="sim_num_insn_0" type="float" unit="" desired="small"/>
+        <!--<system_metric name="o3" type="float" unit="" desired="small" />-->
+        <!--<system_metric name="o4" type="float" unit="" desired="small" />-->
+    </system_metrics>
+    <rules>
+<!--        <rule name="...">
+            <greater>
+                <parameter name="l2size"/>
+                <parameter name="4*l1size"/>
+            </greater>
+        </rule>
+        <rule name="...">
+            <greater>
+                <parameter name="l1assoc"/>
+                <parameter name="5"/>
+            </greater>
+        </rule>-->
+    </rules>
+    <relations>
+        <relation>
+            <if parameter="n_lines" value="8">
+                <then_invalidate>
+                    <parameter name="n_columns"/>
+                   <parameter name="c_sets"/>
+                </then_invalidate>
+            </if>
+        </relation>
+
+        <relation>
+            <if parameter="n_lines" value="16">
+                <then_invalidate>
+                    <parameter name="n_layers"/>
+                    <parameter name="c_sets"/>
+                </then_invalidate>
+            </if>
+        </relation>
+
+        <relation>
+            <if parameter="n_layers" value="2">
+                <then_invalidate>
+                    <parameter name="c_chunk"/>
+                </then_invalidate>
+            </if>
+        </relation>
+    </relations>
+</design_space>

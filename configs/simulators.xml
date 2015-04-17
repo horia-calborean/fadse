@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : simulators.xml
+    Created on : April 21, 2010, 11:21 AM
+    Author     : Horia
+    Description:
+        This will contain a maping between the name of the problem/simulator and teh class that implements it
+-->
+
+<simulators>
+    <simulator name="" classPath="problem.simulator.GeneralSimulator"/>
+    <simulator name="MSim" classPath="andrei.Main"/>
+    <simulator name="LOTZ" classPath="problem.LOTZProblem"/>
+    <simulator name="DTLZ1" classPath="problem.DTLZ1_1Problem"/>
+
+    <simulator name="DTLZ2" classPath="problem.DTLZ2Problem"/>
+    <!--<simulator name="DTLZ1" classPath="problem.DTLZ1_1Problem"/>
+    <simulator name="DTLZ1" classPath="problem.DTLZ1_1Problem"/>
+    <simulator name="DTLZ1" classPath="problem.DTLZ1_1Problem"/>
+    <simulator name="DTLZ1" classPath="problem.DTLZ1_1Problem"/>-->
+</simulators>

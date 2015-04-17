@@ -1,0 +1,13 @@
+  <parameter name="benchmark" description="param3" type="string">
+             <item value="default-mibench-tele-gsm-encode" />
+             <item value="default-mibench-secu-rijndael-encode-nounroll" />
+             <item value="default-mibench-secu-rijndael-decode-nounroll" />
+             <item value="default-mibench-tele-adpcm-file-encode" />
+             <item value="default-mibench-auto-qsort" />
+             <item value="default-mibench-cons-jpeg-decode" />
+             <item value="default-mibench-tele-gsm-decode" />
+             <item value="default-mibench-netw-dijkstra" />
+             <item value="default-mibench-tele-adpcm-file-decode" />
+             <item value="default-mibench-cons-jpeg-encode" />
+             <item value="default-mibench-offi-stringsearch" />
+        </parameter>

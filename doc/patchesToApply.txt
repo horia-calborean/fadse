@@ -1,0 +1,43 @@
+In case of jMetal update please apply the folowing patches:
+*****************************************************
+in jmetal.base.Algorithm.java add:
+/**
+ * this method is here to be overwritten by algorithms. this will be useful if we want to save the progress of the algorithm if something goes bad
+ * <b> NOT THREAD SAFE</b>
+ * @return null if the method has not been override by the DSE alg. Or, hopefully, the best individuals the algorithm has found until that point.
+ */
+    public SolutionSet getCurrentSolutionSet() {
+        return null;
+    }
+
+-------------------
+in NSGA-II add:
+    @Override
+    public SolutionSet getCurrentSolutionSet() {
+        Ranking ranking = new Ranking(population);
+        return ranking.getSubfront(0);
+    }
+*****************************************************
+package jmetal.problems.ProblemFactory
+Line 50
+    else {
+        name = "SimulatorWrapper";
+    }
+line 97
+    else {
+        name = "SimulatorWrapper";
+    }
+****************************************************
+package jmetal.base.Variable
+At the end of the code
+
+  private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+*********************************

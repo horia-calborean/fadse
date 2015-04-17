@@ -1,0 +1,144 @@
+// Block definition (there may be more than one block per file)
+FUNCTION_BLOCK gap
+
+// Define input variables
+VAR_INPUT
+    dl1_nsets: REAL;
+    dl1_bsize: REAL;
+    lvpt_size: REAL;
+
+    issue_width: REAL;
+    commit_width: REAL;
+    decode_width: REAL;
+    rf_size: REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT
+    outlvpt_size    : REAL;
+    outdl1_nsets: REAL;
+    outdl1_bsize: REAL;
+
+    outissue_width: REAL;
+    outcommit_width: REAL;
+    outdecode_width: REAL;
+    outrf_size: REAL;
+END_VAR
+
+
+FUZZIFY issue_width
+    TERM small := (2, 1) (4, 1) (16, 0);
+    TERM big := (4, 0) (16,1) (32,1);
+END_FUZZIFY
+
+FUZZIFY commit_width
+    TERM small := (2, 1) (4, 1) (16, 0);
+    TERM big := (4, 0) (16,1) (32,1);
+END_FUZZIFY
+
+FUZZIFY decode_width
+    TERM small := (2, 1) (4, 1) (16, 0);
+    TERM big := (4, 0) (16,1) (32,1);
+END_FUZZIFY
+
+FUZZIFY rf_size
+    TERM small := (64, 1) (256, 0);
+    TERM big := (64, 0) (256,1);
+END_FUZZIFY
+
+
+FUZZIFY lvpt_size
+    TERM small := (16, 1) (256, 1) (2048, 0);
+    TERM big := (256, 0) (2048,1) (8192,1);
+END_FUZZIFY
+
+FUZZIFY dl1_nsets
+    TERM small := (2, 1) (32, 1) (128, 0);
+    TERM big := (32, 0) (128,1) (32768,1);
+END_FUZZIFY
+
+// Fuzzify input variable 
+FUZZIFY dl1_bsize
+    TERM small := (8, 1) (64, 1) (256,0) ;
+    TERM big := (64,0) (256,1);
+END_FUZZIFY
+
+DEFUZZIFY outissue_width
+    TERM small := (2, 1) (4, 1) (16, 0);
+    TERM big := (4, 0) (16,1) (32,1);
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+DEFUZZIFY outcommit_width
+    TERM small := (2, 1) (4, 1) (16, 0);
+    TERM big := (4, 0) (16,1) (32,1);
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+DEFUZZIFY outdecode_width
+    TERM small := (2, 1) (4, 1) (16, 0);
+    TERM big := (4, 0) (16,1) (32,1);
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+DEFUZZIFY outrf_size
+    TERM small := (64, 1) (256, 0);
+    TERM big := (64, 0) (256,1);
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+DEFUZZIFY outlvpt_size
+    TERM small := (16, 1) (256, 1) (2048, 0);
+    TERM big := (256, 0) (2048,1) (8192,1);
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+DEFUZZIFY outdl1_nsets
+    TERM small := (2, 1) (32, 1) (128, 0);
+    TERM big := (32, 0) (128,1) (32768,1);
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+DEFUZZIFY outdl1_bsize
+    TERM small := (8, 1) (64, 1) (256,0) ;
+    TERM big := (64,0) (256,1);
+    METHOD : COG;
+    DEFAULT := -1;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+
+    // Use 'min' for 'and' (also implicit use 'max'
+    // for 'or' to fulfill DeMorgan's Law)
+    AND : MIN;
+    // Use 'min' activation method
+    ACT : MIN;
+    // Use 'max' accumulation method
+    ACCU : MAX;
+
+    RULE 1 : IF dl1_nsets IS small AND dl1_bsize IS small THEN outlvpt_size IS big;
+    RULE 2 : IF dl1_nsets IS big AND dl1_bsize IS big THEN outlvpt_size IS small;
+    RULE 3 : IF lvpt_size IS big THEN outdl1_nsets IS small;
+    RULE 4 : IF lvpt_size IS small THEN outdl1_nsets IS big;
+    RULE 5 : IF lvpt_size IS big THEN outdl1_bsize IS small;
+    RULE 6 : IF lvpt_size IS small THEN outdl1_bsize IS big;
+
+    RULE 7 : IF issue_width IS small AND (commit_width IS small AND decode_width IS small) THEN outrf_size IS small;
+    RULE 8 : IF issue_width IS big AND (commit_width IS big AND decode_width IS big) THEN outrf_size IS big;
+
+    RULE 9 : IF rf_size IS small THEN outissue_width IS small;
+    RULE 10 : IF rf_size IS big THEN outissue_width IS big;
+    RULE 11 : IF rf_size IS small THEN outcommit_width IS small;
+    RULE 12 : IF rf_size IS big THEN outcommit_width IS big;
+    RULE 13 : IF rf_size IS small THEN outdecode_width IS small;
+    RULE 14 : IF rf_size IS big THEN outdecode_width IS big;
+
+
+END_RULEBLOCK
+END_FUNCTION_BLOCK

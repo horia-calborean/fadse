@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : simpleNeighborConfig.xml
+    Created on : June 22, 2010, 12:23 PM
+    Author     : Horia Calborean, Stefan Feilmeier
+    Description:
+        Very simple neighbor configuration: Everything on localhost, one client only
+-->
+
+<neighbors>
+	<neighbor ip="localhost" listenPort="4445" availableSlots="1" />
+</neighbors>

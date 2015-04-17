@@ -1,0 +1,240 @@
+Index: metaheuristics/nsgaII/NSGAII.java
+===================================================================
+--- metaheuristics/nsgaII/NSGAII.java	(revision 275)
++++ metaheuristics/nsgaII/NSGAII.java	(working copy)
+@@ -6,12 +6,18 @@
+ package jmetal.metaheuristics.nsgaII;
+ 
+ import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
+ import environment.parameters.CheckpointFileParameter;
++import java.io.BufferedReader;
++import java.io.FileReader;
++import java.io.IOException;
++import java.util.NoSuchElementException;
+ import jmetal.base.*;
+ import jmetal.qualityIndicator.QualityIndicator;
+ import jmetal.util.*;
+ 
+ import java.util.Scanner;
+ import java.util.StringTokenizer;
++import java.util.logging.Level;
++import java.util.logging.Logger;
+ 
+ /**
+  * This class implements the NSGA-II algorithm.
+@@ -31,7 +37,6 @@
+     public NSGAII(Problem problem) {
+         this.problem_ = problem;
+     } // NSGAII
+-
+     private SolutionSet population;
+ 
+     /**
+@@ -81,32 +86,56 @@
+         //Added by HORIA
+        CheckpointFileParameter fileParam = (CheckpointFileParameter) getInputParameter("checkpointFile");
+        String file ="";
+        if(fileParam !=null){
+            file = fileParam.GetCheckpointFile();
+        }
+         if (file != null && !file.equals("")) {
+-            Scanner scanner = new Scanner(file);
+-            for (int i = 0; i < populationSize; i++) {
+-                newSolution = new Solution(problem_);
+-                String line = scanner.nextLine();
+-                StringTokenizer tokenizer = new StringTokenizer(line, " ");
+-                for (int j = 0; j < problem_.getNumberOfVariables(); j++) {
+-                    newSolution.getDecisionVariables()[j].setValue(Double.valueOf(tokenizer.nextToken()));
++            Logger.getLogger(NSGAII.class.getName()).log(Level.WARNING, "Using a checkpoint file: " + file);
++            int i = 0;
++            try {
++                BufferedReader input = new BufferedReader(new FileReader(file));
++
++                String line = null; //not declared within while loop
++                line = input.readLine();//skip the headder
++                while ((line = input.readLine()) != null && i<populationSize) {
++                    newSolution = new Solution(problem_);
++
++                    StringTokenizer tokenizer = new StringTokenizer(line, ",");
++                    for (int j = 0; j < problem_.getNumberOfVariables(); j++) {
++                        newSolution.getDecisionVariables()[j].setValue(Double.valueOf(tokenizer.nextToken()));
++                    }
++                    problem_.evaluate(newSolution);
++                    problem_.evaluateConstraints(newSolution);
++                    evaluations++;
++                    population.add(newSolution);
++                    i++;
++                } //while
++            } catch (IOException ex) {
++                Logger.getLogger(NSGAII.class.getName()).log(Level.SEVERE, "Checkpoint file does not have enough elements to fill the entire population [" + i + "<" + populationSize + "]. Filling it with random individuals");
++                while (i < populationSize) {
++                    newSolution = new Solution(problem_);
++                    problem_.evaluate(newSolution);
++                    problem_.evaluateConstraints(newSolution);
++                    evaluations++;
++                    population.add(newSolution);
++                    i++;
+                 }
+-                problem_.evaluate(newSolution);
+-                problem_.evaluateConstraints(newSolution);
+-                evaluations++;
+-                population.add(newSolution);
+-            } //for
++            }
+         } else {
+             //END added by Horia
+-            for (int i = 0; i < populationSize; i++) {
++            for (int i = 0; i
++                    < populationSize; i++) {
+                 newSolution = new Solution(problem_);
+                 problem_.evaluate(newSolution);
+                 problem_.evaluateConstraints(newSolution);
+                 evaluations++;
++
+                 population.add(newSolution);
++
++
+             } //for
+             //Added by HORIA
+         }
+         if (problem_ instanceof ServerSimulator) {
+             ((ServerSimulator) problem_).join();//blocks until all  the offsprings are evaluated
++
++
+         }
+         //END added by Horia
+         // Generations ...
+@@ -115,11 +144,16 @@
+             // Create the offSpring solutionSet
+             offspringPopulation = new SolutionSet(populationSize);
+             Solution[] parents = new Solution[2];
+-            for (int i = 0; i < (populationSize / 2); i++) {
++
++
++            for (int i = 0; i
++                    < (populationSize / 2); i++) {
+                 if (evaluations < maxEvaluations) {
+                     //obtain parents
+                     parents[0] = (Solution) selectionOperator.execute(population);
+-                    parents[1] = (Solution) selectionOperator.execute(population);
++                    parents[
++
++1] = (Solution) selectionOperator.execute(population);
+                     Solution[] offSpring = (Solution[]) crossoverOperator.execute(parents);
+                     mutationOperator.execute(offSpring[0]);
+                     mutationOperator.execute(offSpring[1]);
+@@ -130,11 +164,15 @@
+                     offspringPopulation.add(offSpring[0]);
+                     offspringPopulation.add(offSpring[1]);
+                     evaluations += 2;
++
++
+                 } // if
+             } // for
+             //Added by HORIA
+             if (problem_ instanceof ServerSimulator) {
+                 ((ServerSimulator) problem_).join();//blocks until all  the offsprings are evaluated
++
++
+             }
+             //END added by Horia
+ 
+@@ -144,7 +182,11 @@
+             // Ranking the union
+             Ranking ranking = new Ranking(union);
+ 
++
++
+             int remain = populationSize;
++
++
+             int index = 0;
+             SolutionSet front = null;
+             population.clear();
+@@ -152,12 +194,19 @@
+             // Obtain the next front
+             front = ranking.getSubfront(index);
+ 
++
++
+             while ((remain > 0) && (remain >= front.size())) {
+                 //Assign crowding distance to individuals
+                 distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
+                 //Add the individuals of this front
+-                for (int k = 0; k < front.size(); k++) {
++
++
++                for (int k = 0; k
++                        < front.size(); k++) {
+                     population.add(front.get(k));
++
++
+                 } // for
+ 
+                 //Decrement remain
+@@ -165,8 +214,11 @@
+ 
+                 //Obtain the next front
+                 index++;
++
+                 if (remain > 0) {
+                     front = ranking.getSubfront(index);
++
++
+                 } // if
+             } // while
+ 
+@@ -174,13 +226,19 @@
+             if (remain > 0) {  // front contains individuals to insert
+                 distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
+                 front.sort(new jmetal.base.operator.comparator.CrowdingComparator());
+-                for (int k = 0; k < remain; k++) {
++
++
++                for (int k = 0; k
++                        < remain; k++) {
+                     population.add(front.get(k));
++
++
+                 } // for
+ 
+                 remain = 0;
++
++
+             } // if
+-
+             // This piece of code shows how to use the indicator object into the code
+             // of NSGA-II. In particular, it finds the number of evaluations required
+             // by the algorithm to obtain a Pareto front with a hypervolume higher
+@@ -188,8 +246,12 @@
+             if ((indicators != null)
+                     && (requiredEvaluations == 0)) {
+                 double HV = indicators.getHypervolume(population);
++
++
+                 if (HV >= (0.98 * indicators.getTrueParetoFrontHypervolume())) {
+                     requiredEvaluations = evaluations;
++
++
+                 } // if
+             } // if
+         } // while
+@@ -199,12 +261,18 @@
+ 
+         // Return the first non-dominated front
+         Ranking ranking = new Ranking(population);
++
++
+         return ranking.getSubfront(0);
++
++
+     } // execute
++
+     @Override
+     public SolutionSet getCurrentSolutionSet() {
+         //SolutionSet toReturn = population.union(new SolutionSet());//FAKE clone
+         return population;
++
+     }
+ } // NSGA-II
+ 

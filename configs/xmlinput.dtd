@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!ELEMENT design_space ( simulator, metaheuristic, parameters, system_metrics, rules ) >
+
+<!ELEMENT simulator ( simulator_executable, simulator_output_file ) >
+<!ATTLIST simulator name NMTOKEN #REQUIRED >
+<!ATTLIST simulator type NMTOKEN #REQUIRED >
+
+<!ELEMENT simulator_executable EMPTY >
+<!ATTLIST simulator_executable path CDATA #REQUIRED >
+
+<!ELEMENT simulator_output_file EMPTY >
+<!ATTLIST simulator_output_file path CDATA #REQUIRED >
+
+<!ELEMENT metaheuristic EMPTY >
+<!ATTLIST metaheuristic config_path NMTOKEN #REQUIRED >
+<!ATTLIST metaheuristic name NMTOKEN #REQUIRED >
+
+<!ELEMENT parameters ( parameter+ ) >
+<!ELEMENT parameter ( item* ) >
+<!ELEMENT item EMPTY >
+<!ATTLIST item value CDATA #REQUIRED >
+<!ATTLIST parameter description CDATA #IMPLIED >
+<!ATTLIST parameter max NMTOKEN #IMPLIED >
+<!ATTLIST parameter min NMTOKEN #IMPLIED >
+<!ATTLIST parameter name CDATA #REQUIRED >
+<!ATTLIST parameter step NMTOKEN #IMPLIED >
+<!ATTLIST parameter type NMTOKEN #IMPLIED >
+
+<!ELEMENT system_metrics ( system_metric+ ) >
+<!ELEMENT system_metric EMPTY >
+<!ATTLIST system_metric desired NMTOKEN #REQUIRED >
+<!ATTLIST system_metric name NMTOKEN #REQUIRED >
+<!ATTLIST system_metric type NMTOKEN #REQUIRED >
+<!ATTLIST system_metric unit CDATA #REQUIRED >
+
+<!ELEMENT rules ( rule+ ) >
+<!ELEMENT rule ( and | equal | greater | greater-equal | if | less | less-equal | not-equal )* >
+<!ATTLIST rule name CDATA #REQUIRED >
+<!ELEMENT and ( and | equal | greater | greater-equal | if | less | less-equal )* >
+<!ELEMENT if ( then, and?, if?, less?, less-equal?, greater?, greater-equal?, not-equal?, equal? ) >
+<!ELEMENT then ( and?, if?, less?, less-equal?, greater?, greater-equal?, not-equal?, equal? ) >
+<!ELEMENT equal ( parameter+, constant? ) >
+<!ELEMENT greater ( parameter+, constant? ) >
+<!ELEMENT greater-equal ( parameter+, constant? ) >
+<!ELEMENT less ( parameter+, constant? ) >
+<!ELEMENT less-equal ( parameter+, constant? ) >
+<!ELEMENT not-equal ( parameter+, constant? ) >
+<!ELEMENT constant EMPTY >
+<!ATTLIST constant value CDATA #REQUIRED >
+
+<!ELEMENT output EMPTY >
+<!ATTLIST output output_path NMTOKEN #REQUIRED >

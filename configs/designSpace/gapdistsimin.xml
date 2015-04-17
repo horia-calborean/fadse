@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : params.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Horia
+    Description:
+        this is the input file for the DTLZ1problem
+-->
+<design_space>
+    <simulator name="ServerSimulator" type="simulator" >
+        <parameter name="maximumTimeOfASimulation" value="10"/><!--in minutes-->
+        <parameter name="realSimulator" value = "GAPSimulator"/>
+        <!-- this is not really needed because it is extracted from benchmark paths -->
+        <parameter name="simulator_output_file" value="irrelevant"/>
+        <parameter name="simulator_executable" value="D:\fadse\SimAlu.exe" />
+        <parameter name="benchmark_yaml_file" value="D:\fadse\dse-kiwi3-mibench-tiny-dumps.yml"/>
+        <!-- If you put TEMP here than the dumps are placed into the temporary folder of the OS -->
+        <parameter name="benchmark_target_directory" value="C:\fadse_dumps\" />
+        <parameter name="gaptimize_executable_file" value="D:\fadse\Stepstep_YAML.exe"/>
+        <parameter name="benchmark_repository_path" value="\\172.16.21.45\fadse_benchmarks\mibench_tiny\"/>
+    </simulator>
+    <database ip="172.16.21.45" port="1527" name="FADSE_DB" user="fadse" password="fadse"/>
+    <metaheuristic name="NSGAII" config_path="nsgaii.properties" />
+    <benchmarks>
+        <item name="default-mibench-cons-jpeg-encode"/>
+    </benchmarks>
+    <parameters>
+        <parameter name="n_lines" description="param1" type="integer" min="4" max="32"/>
+        <parameter name="n_columns" description="param2" type="integer" min="4" max="32"/>
+        <parameter name="n_layers" description="param3" type="exp2" min="1" max="64"/>
+        <parameter name="c_chunk" description="c_chunk" type="exp2" min="1" max="32"/> <!-- default: 8 (1/32) -->
+        <parameter name="c_sets" description="c_sets" type="exp2" min="32" max="8192"/> <!-- default: 128 (32/8192) -->
+        <parameter name="c_lines" description="c_lines" type="exp2" min="1" max="128"/> <!-- default 1 (1/128) -->
+    </parameters>
+    <system_metrics>
+        <system_metric name="Hardware complexity" type="float" unit="" desired="small"/>
+        <system_metric name="number of clock cycles" type="float" unit="" desired="small"/>
+    </system_metrics>
+    <rules>
+    </rules>
+</design_space>

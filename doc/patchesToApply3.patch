@@ -1,0 +1,25 @@
+Index: problems/ProblemFactory.java
+===================================================================
+--- problems/ProblemFactory.java	(revision 269)
++++ problems/ProblemFactory.java	(working copy)
+@@ -48,9 +48,10 @@
+         } else if (name.substring(0, name.length() - 5).equalsIgnoreCase("CEC2009")) {
+             base += "cec2009Competition.";
+         } else {
+-            name = "SimulatorWrapper";
++            base = "extended.problems.simulators.";
+         }
+         try {
++            System.out.println("!!!!!!!!!!!!!!!!! "+base+name);
+             Class problemClass = Class.forName(base + name);
+             Constructor[] constructors = problemClass.getConstructors();
+             int i = 0;
+@@ -95,7 +96,7 @@
+         } else if (name.substring(0, name.length() - 5).startsWith("CEC2009")) {
+             base += "cec2009Competition.";
+         } else {
+-            name = "SimulatorWrapper";
++            base = "extended.problems.simulators.";
+         }
+         try {
+             Class problemClass = Class.forName(base + name);

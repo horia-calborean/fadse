@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : params.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Horia
+    Description:
+        this is the input file for the DTLZ1problem
+-->
+<design_space>
+    <simulator name="GAPSimulator" type="simulator" ><!--type="synthetic"--><!--type can be synthetic or simulator-->
+        <!-- If you put TEMP here than the dumps are placed into the temporary folder of the OS -->
+        <parameter name="benchmark_target_directory" value="c:\gap_und_fadse\" />
+        <!-- parameter name="benchmark_target_directory" value="c:\temp_fadse_gap\" / -->
+        <!-- this is not really needed because it is extracted from benchmark paths -->
+        <parameter name="simulator_output_file" value="irrelevant"/>
+        <parameter name="simulator_executable" value="D:\svn_google\SimAlu.exe" />
+        <parameter name="simulator_simulation_mode" value="false"/>
+        <parameter name="benchmark_yaml_file" value="D:\svn_google\fadse\dse-kiwi3-mibench-tiny-dumps.yml"/>
+        <parameter name="gaptimize_executable_file" value="D:\svn_google\Stepstep_YAML.exe"/>
+        <parameter name="benchmark_repository_path" value="\\kiwi3.informatik.uni-augsburg.de\ralf\benchmarks\mibench_tiny\"/>
+    </simulator>
+    <database ip="espresso.informatik.uni-augsburg.de" port="3306" name="fadse" user="fadse" password="fadse"/>
+    <metaheuristic name="NSGA-II" config_path="nsgaii.properties" />
+    <parameters>
+        <parameter name="n_lines" description="param1" type="integer" min="4" max="32"/>
+        <parameter name="n_columns" description="param2" type="integer" min="4" max="32"/>
+        <parameter name="n_layers" description="param3" type="exp2" min="1" max="64"/>
+
+        <parameter name="c_chunk" description="c_chunk" type="exp2" min="1" max="32"/> <!-- default: 8 (1/32) -->
+        <parameter name="c_sets" description="c_sets" type="exp2" min="32" max="8192"/> <!-- default: 128 (32/8192) -->
+        <parameter name="c_lines" description="c_lines" type="exp2" min="1" max="128"/> <!-- default 1 (1/128) -->
+        
+        <parameter name="do_function_inlining" description="" type="integer" min="0" max="0"/>
+        <parameter name="finline_kpi_insns_per_caller" description="" type="integer" min="0" max="0"/> <!-- 0 (0/100) -->
+        <parameter name="finline_length_of_function" description="" type="integer" min="0" max="0"/> <!-- 0 (0/10000 -->
+        <parameter name="finline_max_caller_count" description="" type="integer" min="0" max="0"/> <!-- 0 (0/100) -->
+        <parameter name="finline_weight_of_caller" description="" type="integer" min="0" max="0"/> <!-- 0 (0/100) -->
+        
+        <parameter name="benchmark" description="param3" type="string">
+             <!-- item value="D:\svn_google\mibench_tiny_stringsearch\mdump"/ --> 
+             <!-- item value="default-mibench-offi-stringsearch-quiet"/ -->
+             <item value="default-mibench-netw-dijkstra"/>
+             <!-- item value="default-mibench-cons-jpeg-encode"/ -->
+        </parameter>
+
+    </parameters>
+    <system_metrics>
+        <system_metric name="Hardware complexity" type="float" unit="" desired="small"/>
+        <system_metric name="number of clock cycles" type="float" unit="" desired="small"/>
+        <!--<system_metric name="o3" type="float" unit="" desired="small" />-->
+        <!--<system_metric name="o4" type="float" unit="" desired="small" />-->
+    </system_metrics>
+    <rules>
+    </rules>
+</design_space>

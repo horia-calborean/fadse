@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : params.xml
+    Created on : April 13, 2010, 10:25 AM
+    Author     : Horia
+    Description:
+        this is the input file for the DTLZ1problem
+-->
+<design_space>
+    <simulator name="ServerSimulator" type="simulator" ><!--type="synthetic"--><!--type can be synthetic or simulator-->
+        <parameter name="maximumTimeOfASimulation" value="10"/><!--in minutes-->
+        <parameter name="realSimulator" value="MsimSimulator"/>
+        <parameter name="simulator_executable" value="/home/andrei/Work/Simulatoare/m-sim_v3.0/sim-outorder" />
+        <parameter name="simulator_output_file" value="/home/andrei/Work/Simulatoare/m-sim_v3.0/out.txt"/>
+    </simulator>
+    <benchmarks>
+        <item name="/home/andrei/Work/Simulatoare/m-sim_v3.0/spec2000bats/bzip2.arg"/>
+    </benchmarks>
+    <database ip="172.16.21.45" port="3306" name="fadse_db" user="root" password="admin"/>
+    <metaheuristic name="NSGAII" config_path="nsgaii.properties" />
+    <parameters>
+        <parameter name="dl1_nsets" description="param1" type="exp2" min="256" max="512"/>
+        <parameter name="dl1_bsize" description="param2" type="exp2" min="32" max="64"/>
+        <parameter name="dl1_assoc" description="param3" type="exp2" min="4" max="16"/>
+<!--        <parameter name="benchmark" description="param3" type="string">
+             <item value="/home/andrei/Work/Simulatoare/m-sim_v3.0/spec2000bats/bzip2.arg"/>
+        </parameter>-->
+
+    </parameters>
+    <system_metrics>
+        <system_metric name="ipc" type="float" unit="" desired="small"/>
+        <system_metric name="sim_num_insn_0" type="float" unit="" desired="small"/>
+        <!--<system_metric name="o3" type="float" unit="" desired="small" />-->
+        <!--<system_metric name="o4" type="float" unit="" desired="small" />-->
+    </system_metrics>
+    <rules> 
+    </rules>
+</design_space>
