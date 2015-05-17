@@ -320,6 +320,13 @@ public class XMLInputReader {
         p.setMinValue(getValue(minValue, params));
         p.setMaxValue(getValue(maxValue, params));
 
+        int divideBy = 1;
+        if (attributes.getNamedItem("divideBy") != null) {
+            String divide = attributes.getNamedItem("divideBy").getNodeValue();
+            divideBy = getValue(divide, params);
+        }
+        p.setDivideBy(divideBy);
+        
         return p;
     }
 
