@@ -97,7 +97,7 @@ public class Boot {
             		+ System.getProperty("file.separator") + xmlFileName;
             String neighborConfig = dir 
             		+ System.getProperty("file.separator") + "configs"
-            		+ System.getProperty("file.separator") + "neigbor"
+            		+ System.getProperty("file.separator") + "neighbor"
             		+ System.getProperty("file.separator") + "simpleNeighborConfig.xml";
             for (int i = 1; i < args.length; i++) {
                 if (args[i].endsWith(".xml")) {
