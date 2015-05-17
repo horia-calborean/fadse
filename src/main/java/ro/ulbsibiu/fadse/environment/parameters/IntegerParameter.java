@@ -10,6 +10,7 @@ public class IntegerParameter implements Parameter {
     private String type;
     private String description;
     private Int variable;
+    private int divideBy = 1;
 
     public IntegerParameter(String name, String type, String description) {
         init(name, type, description, new Int(0,1));
@@ -109,4 +110,11 @@ public class IntegerParameter implements Parameter {
          return variable;
     }
 
+    public void setDivideBy(int divideBy) {
+        this.divideBy = divideBy;
+    }
+
+    public int getDivideBy() {
+         return divideBy;
+    }
 }
