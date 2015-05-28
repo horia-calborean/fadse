@@ -4,7 +4,6 @@
  */
 package ro.ulbsibiu.fadse.extended.problems.simulators.sniper;
 
-
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -30,159 +29,174 @@ import ro.ulbsibiu.fadse.utils.JSONHelper;
  */
 public class SniperGroupResults extends SimulatorOutputParser {
 
-    public SniperGroupResults(SimulatorBase sim) {
-        super(sim);
-    }
-    public static HashMap<String, String> mcPatParamsList = new HashMap<String, String>();
-    public static HashMap<String, Float> finalParamList = new HashMap<String, Float>();
-    // Objectives for HW
-    public final String OBJECTIVE_CLOCKS_PER_INSTRUCTION = "cpi";
-    public final String OBJECTIVE_AREA = "area";
-    public float finalCPI = 0;
-    public float area = 0;
-    public float peakPower = 0;
-    public float totalLeakage = 0;
-    public float peakDynamic = 0;
-    public float subthresholdLeakage = 0;
-    public float gateLeakage = 0;
-    public float runtimeDynamic = 0;
-    public float totalEnergy = 0;
-    public int start = 15;
-    public int end = 32;
-    public float frequency = (float) 2.66; // GHz
-    public float power = 0;
+	public SniperGroupResults(SimulatorBase sim) {
+		super(sim);
+	}
 
-    public boolean groupPartialResults() {
-        String simOutputDir = this.simulator.getInputDocument().getSimulatorParameter("simulator_opt");
+	public static HashMap<String, String> mcPatParamsList = new HashMap<String, String>();
+	public static HashMap<String, Float> finalParamList = new HashMap<String, Float>();
+	// Objectives for HW
+	public final String OBJECTIVE_CLOCKS_PER_INSTRUCTION = "cpi";
+	public final String OBJECTIVE_AREA = "area";
+	public float finalCPI = 0;
+	public float area = 0;
+	public float peakPower = 0;
+	public float totalLeakage = 0;
+	public float peakDynamic = 0;
+	public float subthresholdLeakage = 0;
+	public float gateLeakage = 0;
+	public float runtimeDynamic = 0;
+	public float totalEnergy = 0;
+	public int start = 15;
+	public int end = 32;
+	public float frequency = (float) 2.66; // GHz
+	public float power = 0;
 
-        String simOutputFile = simOutputDir + "sim.out";
+	public boolean groupPartialResults() {
+		String simOutputDir = this.simulator.getInputDocument()
+				.getSimulatorParameter("simulator_opt");
 
-        ArrayList<Float> nInstructions = new ArrayList<Float>();
-        ArrayList<Float> nCycles = new ArrayList<Float>();
+		String simOutputFile = simOutputDir + "sim.out";
 
-        int nrCores = 0;
+		ArrayList<Float> nInstructions = new ArrayList<Float>();
+		ArrayList<Float> nCycles = new ArrayList<Float>();
 
-        try {
-            FileInputStream fstream = new FileInputStream(simOutputFile);
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String strLine;
+		int nrCores = 0;
 
-            // Read first line
-            strLine = br.readLine();
-            if (strLine != null) {
-                StringTokenizer st = new StringTokenizer(strLine, "|");
-                nrCores = st.countTokens() - 1;
-            }
+		try {
+			FileInputStream fstream = new FileInputStream(simOutputFile);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String strLine;
 
-            strLine = br.readLine();
-            if (strLine != null) {
-                StringTokenizer st = new StringTokenizer(strLine, "|");
+			// Read first line
+			strLine = br.readLine();
+			if (strLine != null) {
+				StringTokenizer st = new StringTokenizer(strLine, "|");
+				nrCores = st.countTokens() - 1;
+			}
 
-                // First one should be instructions
-                st.nextToken();
+			strLine = br.readLine();
+			if (strLine != null) {
+				StringTokenizer st = new StringTokenizer(strLine, "|");
 
-                while (st.hasMoreTokens()) {
-                    nInstructions.add(Float.parseFloat(st.nextToken().toString().trim()));
-                }
-            }
+				// First one should be instructions
+				st.nextToken();
 
-            strLine = br.readLine();
-            if (strLine != null) {
-                StringTokenizer st = new StringTokenizer(strLine, "|");
+				while (st.hasMoreTokens()) {
+					nInstructions.add(Float.parseFloat(st.nextToken()
+							.toString().trim()));
+				}
+			}
 
-                // First one should be cycles
-                st.nextToken();
+			strLine = br.readLine();
+			if (strLine != null) {
+				StringTokenizer st = new StringTokenizer(strLine, "|");
 
-                while (st.hasMoreTokens()) {
-                    nCycles.add(Float.parseFloat(st.nextToken().toString().trim()));
-                }
-            }
+				// First one should be cycles
+				st.nextToken();
 
-            in.close();
-        } catch (NumberFormatException e) {
-            System.err.println("Error: " + e.getMessage());
-        }
-        catch (IOException e) {
-            System.err.println("Error: " + e.getMessage());
-        }
-        float instructionsSum = 0;
+				while (st.hasMoreTokens()) {
+					nCycles.add(Float.parseFloat(st.nextToken().toString()
+							.trim()));
+				}
+			}
 
-        for (int i = 0; i < nrCores; i++) {
-            instructionsSum += nInstructions.get(i);
-        }
+			in.close();
+		} catch (NumberFormatException e) {
+			System.err.println("Error: " + e.getMessage());
+		} catch (IOException e) {
+			System.err.println("Error: " + e.getMessage());
+		}
+		float instructionsSum = 0;
 
-        float maxCycles = 0;
-        maxCycles = Collections.max(nCycles);
+		for (int i = 0; i < nrCores; i++) {
+			instructionsSum += nInstructions.get(i);
+		}
 
-        float average = 0;
+		float maxCycles = 0;
+		maxCycles = Collections.max(nCycles);
 
-        average = maxCycles / instructionsSum;
-        finalCPI = average;
+		float average = 0;
 
-        // This is for McPAT
-        if (Integer.parseInt(this.simulator.getInputDocument().getSimulatorParameter("mcpat")) == 1) {
-            String powerFile = simOutputDir + "power.py";
-            readFromFile(powerFile);
+		average = maxCycles / instructionsSum;
+		finalCPI = average;
 
-            // This is for Total Energy            
-            String energyFile = simOutputDir + this.simulator.getInputDocument().getSimulatorParameter("console_output");
-            Energy energy = new Energy();
-            totalEnergy = energy.readEnergy(energyFile);
-            area = finalParamList.get("Area");
-        }
+		// This is for McPAT
+		if (Integer.parseInt(this.simulator.getInputDocument()
+				.getSimulatorParameter("mcpat")) == 1) {
+			String powerFile = simOutputDir + "power.py";
+			readFromFile(powerFile);
 
-        File finalResults = null;
+			// This is for Total Energy
+			String energyFile = simOutputDir
+					+ this.simulator.getInputDocument().getSimulatorParameter(
+							"console_output");
+			Energy energy = new Energy();
+			totalEnergy = energy.readEnergy(energyFile);
+			area = finalParamList.get("Area");
+		}
 
-        try {
-            finalResults = new File(this.simulator.getInputDocument().getSimulatorParameter("simulator_final_results"));
+		File finalResults = null;
 
-            FileWriter outFile = new FileWriter(finalResults);
-            PrintWriter out = new PrintWriter(outFile);
+		try {
+			finalResults = new File(this.simulator.getInputDocument()
+					.getSimulatorParameter("simulator_final_results"));
+			String parent = finalResults.getParent();
+			if (parent != null) {
+				File parentDir = new File(parent);
+				if (!parentDir.exists()) {
+					parentDir.mkdirs();
+				}
+			}
 
-            out.println("[output]");
-            out.println("cpi = " + finalCPI);
-            out.println("area = " + area);
-            out.println("energy = " + totalEnergy);
+			FileWriter outFile = new FileWriter(finalResults);
+			PrintWriter out = new PrintWriter(outFile);
 
-            out.close();
+			out.println("[output]");
+			out.println("cpi = " + finalCPI);
+			out.println("area = " + area);
+			out.println("energy = " + totalEnergy);
 
-            return true;
-        } catch (IOException e) {
-        }
+			out.close();
 
-        return false;
-    }   
+			return true;
+		} catch (IOException e) {
+		}
 
-    public static void readFromFile(String fileName) {
-        int counterLine = 0;
+		return false;
+	}
 
-        try {
-            FileInputStream fstream = new FileInputStream(fileName);
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String strLine = null;
-            String fullString = "";
+	public static void readFromFile(String fileName) {
+		int counterLine = 0;
 
-            while ((strLine = br.readLine()) != null) {
-                fullString += strLine;
-            }
+		try {
+			FileInputStream fstream = new FileInputStream(fileName);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String strLine = null;
+			String fullString = "";
 
-            in.close();
+			while ((strLine = br.readLine()) != null) {
+				fullString += strLine;
+			}
 
-            String split[] = fullString.split(" = ");
-            String jsonString = split[1];
-            jsonString = jsonString.replaceAll("\'", "\"");
-            Object processorArea = JSONHelper.GetValue(jsonString, "Processor:Area");
-            if(processorArea!=null){
-                finalParamList.put("Area", Float.parseFloat(processorArea.toString()));
-            }
-                                                
-        } catch (NumberFormatException e) {
-            System.err.println("Error: " + e.getMessage());
-        }
-        catch (IOException e){
-            System.err.println("Error: " + e.getMessage());
-        }
-    }
+			in.close();
+
+			String split[] = fullString.split(" = ");
+			String jsonString = split[1];
+			jsonString = jsonString.replaceAll("\'", "\"");
+			Object processorArea = JSONHelper.GetValue(jsonString,
+					"Processor:Area");
+			if (processorArea != null) {
+				finalParamList.put("Area",
+						Float.parseFloat(processorArea.toString()));
+			}
+
+		} catch (NumberFormatException e) {
+			System.err.println("Error: " + e.getMessage());
+		} catch (IOException e) {
+			System.err.println("Error: " + e.getMessage());
+		}
+	}
 }

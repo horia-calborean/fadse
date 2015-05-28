@@ -46,14 +46,14 @@
     <benchmarks>
 		<!-- SPLASH-2 Suite -->
 		<item name="splash2-barnes"/>
-		<item name="splash2-cholesky"/>
+<!--		<item name="splash2-cholesky"/>
 		<item name="splash2-fft"/>
 		<item name="splash2-lu.cont"/>
 		<item name="splash2-lu.ncont"/>
 		<item name="splash2-ocean.cont"/>
 		<item name="splash2-ocean.ncont"/>	
 		<item name="splash2-radix"/>
-		<item name="splash2-water.nsq"/>
+		<item name="splash2-water.nsq"/> -->
 		 <!--	<item name="splash2-raytrace"/>
 		<item name="splash2-fmm"/>
 		<item name="splash2-radiosity"/> 
@@ -75,7 +75,7 @@
 		-->
     </benchmarks>
 	
-    <metaheuristic name="NSGAII" config_path="configs/nsgaii.properties" />
+    <metaheuristic name="NSGAII" config_path="nsgaii.properties" />
 	
     <parameters>
         <parameter name="num_cores" description="Number of cores" type="exp2" min="1" max="16" />
@@ -95,13 +95,13 @@
 	
 		<!-- L1 DCache -->
 		<parameter name="l1_dcache_associativity" description="L1 DCache associativity" type="exp2" min="1" max="8" />
-		<parameter name="l1_dcache_cache_block_size" description="L1 DCache block size" type="exp2" min="64" max="128" />
+<!--		<parameter name="l1_dcache_cache_block_size" description="L1 DCache block size" type="exp2" min="64" max="128" /> -->
 		<parameter name="l1_dcache_cache_size" description="L1 DCache size" type="exp2" min="64" max="256" />
 		<!--<parameter name="l1_dcache_shared_cores" description="L1 DCache shared cores" type="exp2" min="1" max="2" />-->
 
 		<!-- L2 Cache Parameters -->
 		<parameter name="l2_cache_associativity" description="L2 Cache associativity" type="exp2" min="1" max="8" />
-		<parameter name="l2_cache_cache_block_size" description="L2 cache block size" type="exp2" min="64" max="128" />
+<!--		<parameter name="l2_cache_cache_block_size" description="L2 cache block size" type="exp2" min="64" max="128" /> -->
 		<parameter name="l2_cache_cache_size" description="L2 Cache size" type="exp2" min="64" max="2048" />
 		<!--<parameter name="l2_cache_shared_cores" description="L2 Cache shared cores" type="exp2" min="1" max="2" />-->
 

@@ -78,9 +78,11 @@ public class AlgorithmRunner {
 
         properties = new Properties();
         String path = "N/A";
+        String currentDir = System.getProperty("user.dir");
+        System.out.println("Current folder is: "+currentDir);
         try {
-            path = env.getInputDocument().getMetaheuristicConfigPath();
-            properties.load(new FileInputStream(path));
+            path = env.getInputDocument().getMetaheuristicConfigPath();            
+            properties.load(new FileInputStream(currentDir+ File.separator + path));
         } catch (Exception e) {
             System.out.println("BAD properties file [" + path + "]. going with default values");
         }

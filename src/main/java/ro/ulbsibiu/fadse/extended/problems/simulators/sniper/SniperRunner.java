@@ -220,7 +220,7 @@ public class SniperRunner extends SimulatorRunner {
 
         File output = new File(outputSimDir);
         if(!output.exists()){
-            output.mkdir();
+            output.mkdirs();
         }
         
         String runScript = outputSimDir + "runSniper" + System.currentTimeMillis() + ".sh";
