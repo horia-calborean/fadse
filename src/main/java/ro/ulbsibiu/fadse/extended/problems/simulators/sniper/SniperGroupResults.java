@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -51,6 +52,7 @@ public class SniperGroupResults extends SimulatorOutputParser {
 	public int end = 32;
 	public float frequency = (float) 2.66; // GHz
 	public float power = 0;
+	public float temperature = 0;
 
 	public boolean groupPartialResults() {
 		String simOutputDir = this.simulator.getInputDocument()
@@ -139,6 +141,12 @@ public class SniperGroupResults extends SimulatorOutputParser {
 
 		File finalResults = null;
 
+		String hotspot = this.simulator.getInputDocument()
+				.getSimulatorParameter("hotspot");
+		if (hotspot != null && !hotspot.isEmpty()) {
+			ReadMaxTemperature(simOutputDir);
+		}
+
 		try {
 			finalResults = new File(this.simulator.getInputDocument()
 					.getSimulatorParameter("simulator_final_results"));
@@ -157,6 +165,7 @@ public class SniperGroupResults extends SimulatorOutputParser {
 			out.println("cpi = " + finalCPI);
 			out.println("area = " + area);
 			out.println("energy = " + totalEnergy);
+			out.println("temperature = " + temperature);
 
 			out.close();
 
@@ -165,6 +174,42 @@ public class SniperGroupResults extends SimulatorOutputParser {
 		}
 
 		return false;
+	}
+
+	private void ReadMaxTemperature(String simoutDir) {
+		try {
+			File temperatureFile = new File(simoutDir + File.pathSeparator
+					+ "hotspot" + File.pathSeparator + "temperature.ttrace");
+
+			FileInputStream fstream;
+
+			fstream = new FileInputStream(temperatureFile);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String strLine = null;
+			String fullString = "";
+
+			strLine = br.readLine(); //skip first line with header
+			
+			while ((strLine = br.readLine()) != null) {
+				fullString += " " +strLine;
+			}
+			
+			String[] split = fullString.split(" ");
+			
+			for(String strValue : split){
+				Float doubleValue = Float.parseFloat(strValue); 
+				if(doubleValue > temperature){
+					temperature = doubleValue;
+				}
+			}
+
+			in.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	public static void readFromFile(String fileName) {

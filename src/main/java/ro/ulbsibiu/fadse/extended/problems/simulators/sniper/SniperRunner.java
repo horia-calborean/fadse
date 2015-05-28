@@ -16,6 +16,7 @@ import java.util.Map;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorBase;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorRunner;
 
+
 /**
  *
  * @author Andrei DAIAN
@@ -201,15 +202,14 @@ public class SniperRunner extends SimulatorRunner {
               
         // Append simple parameters
         appendSimpleParams(Output);
-
-       
-        
-  
-
-      
-
+                   
         if (Integer.parseInt(this.simulator.getInputDocument().getSimulatorParameter("mcpat")) == 1) {
             Output.append(" --power");
+        }
+        
+        String hotspot = this.simulator.getInputDocument().getSimulatorParameter("hotspot");
+        if (hotspot != null && !hotspot.isEmpty()) {
+            Output.append(" "+ hotspot);
         }
 
         Output.append(" -d ").append(outputSimDir);
