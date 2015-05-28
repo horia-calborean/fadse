@@ -25,7 +25,9 @@
 		<parameter name="instructions_type" value="test" />
 		<!-- McPAT: 0 - Disable McPAT, 1 - Enable McPAT -->
 		<parameter name="mcpat" value="1" />
-		<!-- Path to simulator executable -->
+		<!-- McPAT: 0 - Disable McPAT, 1 - Enable McPAT -->
+		<parameter name="hotspot" value="-s hotspot:500000:block" />
+		<!-- Path to simulator executable -->	
         <parameter name="simulator_executable" value="/home/radu/sniper/benchmarks/run-sniper" />
 		<!-- Name of a simulator: SniperSimulator -->
         <parameter name="realSimulator" value = "SniperSimulator" />
@@ -130,6 +132,7 @@
 		<system_metric name="subthreshold_leakage" type="float" desired="small" />
 		<system_metric name="total_leakage" type="float" desired="small" />-->
 		<system_metric name="energy" type="float" desired="small" />
+		<system_metric name="temperature" type="float" desired="small" />
     </system_metrics>
 	
      <rules>

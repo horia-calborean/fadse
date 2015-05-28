@@ -178,8 +178,8 @@ public class SniperGroupResults extends SimulatorOutputParser {
 
 	private void ReadMaxTemperature(String simoutDir) {
 		try {
-			File temperatureFile = new File(simoutDir + File.pathSeparator
-					+ "hotspot" + File.pathSeparator + "temperature.ttrace");
+			File temperatureFile = new File(simoutDir + File.separator
+					+ "hotspot" + File.separator + "temperature.ttrace");
 
 			FileInputStream fstream;
 
@@ -192,10 +192,10 @@ public class SniperGroupResults extends SimulatorOutputParser {
 			strLine = br.readLine(); //skip first line with header
 			
 			while ((strLine = br.readLine()) != null) {
-				fullString += " " +strLine;
+				fullString += "\t" +strLine;
 			}
 			
-			String[] split = fullString.split(" ");
+			String[] split = fullString.trim().split("\\s+");
 			
 			for(String strValue : split){
 				Float doubleValue = Float.parseFloat(strValue); 
