@@ -1,0 +1,15 @@
+# Working with FADSE
+
+## Introduction
+
+FADSE is an automatic design space exploration tool. But it does not work on its own. You need a simulator, a problem, that you need to optimize. For this you have to develop a special connector (if it is not already developed) and then configure FADSE according to your environment (paths to the simulator, network structure, etc.) 
+
+## A Step by Step Introduction
+
+First thing you need to do is to download the source code from [here](https://github.com/horiacalborean/fadse) using a GIT client or preferably directly from a JAVA IDE. Once you do this and make sure it compiles (this requires adding all the libraries from the lib folder to you project) you need to write a special connector for your simulator, because FADSE does not know how to run your simulator. From our experience this should not take more than a day once you understand what you have to do: 
+* you need to extend the SimulatorBase class (see [FalseSimulator.java](https://github.com/horiacalborean/fadse/blob/master/src/main/java/ro/ulbsibiu/fadse/extended/problems/simulators/FalseSimulator.java))
+* you need to implement the performSimulation(...) method - this means extracting the parameters from the Individual (parameter of the method) they will be something like: name = value ... then creating your command line : path/to/simulator -pram1=value1 ... start the simulation and when the simulation is over parse the results and fill the objectives you want to optimize in the individual. You can find many example of connectors [here](https://github.com/horiacalborean/fadse/blob/master/src/main/java/ro/ulbsibiu/fadse/extended/problems/simulators) for GAP, M-SIM, UniMap and Sniper 
+
+After you wrote your connector you need to write a configuration XML (a simple example [falsesimin.xml](https://github.com/horiacalborean/fadse/blob/master/configs/designSpace/falsesimin.xml) - stop reading at `</system_metrics>` after this there are some advanced features). This is a simple XML where you need to say where the simulator is located (you need this info in the connector - FADSE does not need it). Which are the benchmarks on which you are going to test the configurations (also needed by the connector). What DSE algorithm you want to use (NSGA-II, SPEA2, SMPSO, OMOPSO, etc.). A database connection for results reuse (here you find the SQL to build the database: [SQL script](https://github.com/horiacalborean/fadse/blob/master/doc/mysql%20database%20schema/create_dabase101110.sql)). Then you need to define the parameters FADSE will vary (you have many XML-s with examples there) and finally the objectives you want to fill. The rest of the tags you can leave empty for now, they allow you to do some more advanced stuff: constraints between parameters , define fuzzy rules with parameters, etc.
+
+Then you have to run the Boot class to start the server and the BootClient class to start clients (to run distributed you need to configure your clients in the neighborConfig.xml - very easy) and everything should work. 
