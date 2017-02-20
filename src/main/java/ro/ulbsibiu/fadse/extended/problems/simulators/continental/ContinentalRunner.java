@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ro.ulbsibiu.fadse.environment.Objective;
 
 import ro.ulbsibiu.fadse.environment.parameters.IntegerParameter;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
@@ -34,7 +33,7 @@ public class ContinentalRunner extends SimulatorRunner {
 
     private File benchmarkDirectory;
     private static final long TIME_BETWEEN_PROCESS_CHECKS = 10000;
-    private long MAX_SIMULATION_TIME_SECONDS = 500; //MAX simulation time - if not finished, restart
+    private static final long MAX_SIMULATION_TIME = 300; //MAX simulation time - if not finished, restart
 
     public ContinentalRunner(SimulatorBase simulator) {
         super(simulator);
@@ -61,10 +60,6 @@ public class ContinentalRunner extends SimulatorRunner {
         // Target Directory for Benchmark
         this.benchmarkDirectory = null;
 
-        int maxMinutes = Integer.parseInt(simulator.getInputDocument().getSimulatorParameter("maximumTimeOfASimulation"));
-        
-        MAX_SIMULATION_TIME_SECONDS = maxMinutes * 60;
-        
         String basename = individual.getBenchmark();
 
         String[] benchmarks = basename.split(";");
@@ -141,13 +136,12 @@ public class ContinentalRunner extends SimulatorRunner {
             p = Runtime.getRuntime().exec(executeCommand, null, benchmarkDirectory);
             Boolean isTerminated = false;
             Boolean doTerminate = false;
-            Boolean wasRestarted = false;
             String reason;
             // Execute the benchmark
             do {
                 try {
                     System.out.println(
-                            "Simulation took " + (System.currentTimeMillis() - start) + " ms...");
+                            "Simulation: Let's wait for " + TIME_BETWEEN_PROCESS_CHECKS + " ms...");
                     synchronized (p) {
                         p.wait(TIME_BETWEEN_PROCESS_CHECKS);
                     }
@@ -160,33 +154,17 @@ public class ContinentalRunner extends SimulatorRunner {
 
                 if (isTerminated) {
                     reason = "The process has terminated.";
-                    
-                    if(EveryThingOk(targetDirectory)){
-                        doTerminate = true;
-                    }
-                    else{
-                        if(!wasRestarted){
-                            wasRestarted = true;
-                            p = Runtime.getRuntime().exec(executeCommand, null, benchmarkDirectory);
-                            start = System.currentTimeMillis();                            
-                            System.out.println("Simulation restarted because outputs were missing");
-                        }
-                        else{
-                            doTerminate = true;
-                        }
-                    }
-                                                                                                                        
+                    doTerminate = true;
                 }
                 else{
                     long currentEllapsed = System.currentTimeMillis();
                     long ellapsedTime = (currentEllapsed - start) / 1000; 
-                    if(ellapsedTime > MAX_SIMULATION_TIME_SECONDS){
+                    if(ellapsedTime > MAX_SIMULATION_TIME){
                          if (p != null && !isExecutionTerminated(p)) {
                              p.destroy();                                
                          }
                          p = Runtime.getRuntime().exec(executeCommand, null, benchmarkDirectory);
                          start = System.currentTimeMillis();
-                         System.out.println("Simulation restarted because max_simulation_time");
                     }
                 }
             } while (!doTerminate);
@@ -286,16 +264,5 @@ public class ContinentalRunner extends SimulatorRunner {
             }
         }
         return false;
-    }
-
-    private boolean EveryThingOk(String targetDirectory) {
-           for (Objective obj : individual.getObjectives()) {
-                String name = obj.getName();
-                File outputFile = new File(targetDirectory, "\\" + name);
-                if(!outputFile.exists()){
-                    return false;
-                }
-           }
-           return true;
     }
 }
