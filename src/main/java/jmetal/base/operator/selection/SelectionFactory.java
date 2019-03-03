@@ -35,6 +35,9 @@ public class SelectionFactory {
       return new RankingAndCrowdingSelection();
     else if (name.equalsIgnoreCase("DifferentialEvolutionSelection"))
       return new DifferentialEvolutionSelection();
+    else if(name.equalsIgnoreCase("BinaryTournamentAfr")){
+      return new BinaryTournamentAfr();
+    }
     else {
       Configuration.logger_.severe("Operator '" + name + "' not found ");
       throw new JMException("Exception in " + name + ".getSelectionOperator()") ;
