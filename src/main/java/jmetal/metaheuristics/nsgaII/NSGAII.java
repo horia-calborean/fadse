@@ -18,6 +18,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.hsqldb.Server;
 import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzy;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzyVirtualParameters;
@@ -28,11 +29,32 @@ import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
  * This class implements the NSGA-II algorithm.
  */
 public class NSGAII extends Algorithm {
+    protected int populationSize;
+    protected int maxEvaluations;
+    protected int evaluations;
+    protected String outputPath;
+    protected String checkPointFile = "";
+    protected boolean feasible = false;
+    protected int feasiblePercentage;
+    protected QualityIndicator indicators; // QualityIndicator object
+    protected int requiredEvaluations; // Use in the example of use of the
+    // indicators object (see below)
+
+    //SolutionSet offspringPopulation;
+    //SolutionSet union;
+    //private SolutionSet population;
+
+    protected Operator mutationOperator;
+    protected Operator crossoverOperator;
+    protected Operator selectionOperator;
+
+    protected Distance distance = new Distance();
+    protected boolean outputEveryPopulation = false;
 
     /**
      * stores the problem to solve
      */
-    private Problem problem_;
+    protected Problem problem_;
 
     /**
      * Constructor
@@ -42,7 +64,7 @@ public class NSGAII extends Algorithm {
     public NSGAII(Problem problem) {
         this.problem_ = problem;
     } // NSGAII
-    private SolutionSet population;
+
 
     /**
      * Runs the NSGA-II algorithm.
@@ -52,67 +74,228 @@ public class NSGAII extends Algorithm {
      * @throws JMException
      */
     public SolutionSet execute() throws JMException, ClassNotFoundException {
-        int populationSize;
-        int maxEvaluations;
-        int evaluations;
 
-        QualityIndicator indicators; // QualityIndicator object
-        int requiredEvaluations; // Use in the example of use of the
-        // indicators object (see below)
+        SolutionSet population = InitializeEverything();
+
+        //***********************************************MAIN ALGORITHM********************************************************
+        // Generations ...
+        while (evaluations < maxEvaluations) {
+            SolutionSet offspringPopulation = GenerateOffsprings(population, feasiblePercentage);
+            JoinAndOutputPopulation(offspringPopulation, "offspring");
+            ReEvaluatePopulation(population);
+            JoinAndOutputPopulation(population, "corrected");
+
+            // Create the solutionSet union of solutionSet and offSpring
+            SolutionSet union = ((SolutionSet) population).union(offspringPopulation);
+            population = SelectNextGeneration(union, populationSize);
+            DoIndicatorExtraStuff(population);
+
+            DoEndRoundOutputs(population);
+
+        } // while
+
+        // Return as output parameter the required evaluations
+        setOutputParameter("evaluations", requiredEvaluations);
+
+        // Return the first non-dominated front
+        Ranking ranking = new Ranking(population);
+
+        return ranking.getSubfront(0);
 
 
-        SolutionSet offspringPopulation;
-        SolutionSet union;
+    } // execute
 
-        Operator mutationOperator;
-        Operator crossoverOperator;
-        Operator selectionOperator;
+    protected void DoEndRoundOutputs(SolutionSet population) {
+        if(problem_ instanceof ServerSimulator){
+            OutputPopulation(population, "filled");
+            Ranking ranking_temp = new Ranking(population);
+            OutputPopulation(ranking_temp.getSubfront(0), "pareto");
+        } else {
+            if (outputEveryPopulation) {
+                population.printObjectivesToFile(outputPath + System.currentTimeMillis() + ".csv");
+            }
+        }
+    }
 
-        Distance distance = new Distance();
+    protected SolutionSet InitializeEverything() throws ClassNotFoundException, JMException {
+        ReadParameters();
+        ReadOperators();
 
+        //Initialize the variables
+        evaluations = 0;
+        requiredEvaluations = 0;
+
+        //***********************************************INITIAL POPULATION****************************************************
+        SolutionSet population = CreateInitialPopulation();
+        JoinAndOutputPopulation(population, "filled");
+        ReEvaluatePopulation(population);
+        JoinAndOutputPopulation(population, "corrected");
+
+        Ranking ranking_temp = new Ranking(population);
+        OutputPopulation(ranking_temp.getSubfront(0), "pareto");
+        return population;
+    }
+
+    protected void DoIndicatorExtraStuff(SolutionSet population) {
+        // This piece of code shows how to use the indicator object into the code
+        // of NSGA-II. In particular, it finds the number of evaluations required
+        // by the algorithm to obtain a Pareto front with a hypervolume higher
+        // than the hypervolume of the true Pareto front.
+        if ((indicators != null)
+                && (requiredEvaluations == 0)) {
+            double HV = indicators.getHypervolume(population);
+            if (HV >= (0.98 * indicators.getTrueParetoFrontHypervolume())) {
+                requiredEvaluations = evaluations;
+            } // if
+        } // if
+    }
+
+    protected SolutionSet SelectNextGeneration(SolutionSet union, int populationSize) {
+        // Ranking the union
+        Ranking ranking = new Ranking(union);
+        int index = 0;
+        int remain = populationSize;
+        SolutionSet front = null;
+        SolutionSet population = new SolutionSet();
+        population.clear();
+        // Obtain the next front
+        front = ranking.getSubfront(index);
+        while ((remain > 0) && (remain >= front.size())) {
+            //Assign crowding distance to individuals
+            distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
+            //Add the individuals of this front
+            for (int k = 0; k
+                    < front.size(); k++) {
+                population.add(front.get(k));
+            } // for
+            //Decrement remain
+            remain = remain - front.size();
+            //Obtain the next front
+            index++;
+            if (remain > 0) {
+                front = ranking.getSubfront(index);
+            } // if
+        } // while
+        // Remain is less than front(index).size, insert only the best one
+        if (remain > 0) {  // front contains individuals to insert
+            distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
+            front.sort(new jmetal.base.operator.comparator.CrowdingComparator());
+            for (int k = 0; k
+                    < remain; k++) {
+                population.add(front.get(k));
+            } // for
+            remain = 0;
+        } // if
+
+        return population;
+    }
+
+    protected void ReadParameters() {
         //Read the parameters
         populationSize = ((Integer) getInputParameter("populationSize")).intValue();
         maxEvaluations = ((Integer) getInputParameter("maxEvaluations")).intValue();
         indicators = (QualityIndicator) getInputParameter("indicators");
 
-        boolean outputEveryPopulation = false;
         Object output = getInputParameter("outputEveryPopulation");
         if (output != null) {
             outputEveryPopulation = (Boolean) output;
         }
-        String outputPath = (String) getInputParameter("outputPath");
 
-        //Initialize the variables
-        population = new SolutionSet(populationSize);
-        evaluations = 0;
+        CheckpointFileParameter fileParam = (CheckpointFileParameter) getInputParameter("checkpointFile");
 
-        requiredEvaluations = 0;
-
-        //Read the operators
-        mutationOperator = operators_.get("mutation");
-        if (mutationOperator instanceof BitFlipMutationFuzzyVirtualParameters) {
-            try {
-                ((BitFlipMutationFuzzyVirtualParameters) mutationOperator).x = ((Integer) getInputParameter("initialGeneration")).intValue();
-                System.out.println("Initial generation is: "+ ((BitFlipMutationFuzzyVirtualParameters) mutationOperator).x);
-            } catch (Exception e) {
-                System.out.println("NSGA-II: initial generations start was not set caused by: "+e.getMessage());
-            }
-
+        if (fileParam != null) {
+            checkPointFile = fileParam.GetCheckpointFile();
         }
-        crossoverOperator = operators_.get("crossover");
-        selectionOperator = operators_.get("selection");
-//***********************************************INITIAL POPULATION****************************************************
+        String feasibleString = (String) getInputParameter("forceFeasibleFirstGeneration");
+
+        feasible = feasibleString != null && feasibleString.equals("true");
+        feasiblePercentage = Integer
+                .parseInt((String) getInputParameter("forceMinimumPercentageFeasibleIndividuals"));
+
+        outputPath = (String) getInputParameter("outputPath");
+    }
+
+    protected void ReEvaluatePopulation(SolutionSet population) throws JMException {
+        //WORKAROUND
+        System.out.println("RESEND");
+        for (int i = 0; i < populationSize; i++) {
+            Solution s = population.get(i);
+            problem_.evaluate(s);
+        }
+    }
+
+    protected void JoinAndOutputPopulation(SolutionSet population, String populationName) {
+        //Added by HORIA
+        if (problem_ instanceof ServerSimulator) {
+            ((ServerSimulator) problem_).join();//blocks until all  the offsprings are evaluated
+            OutputPopulation(population, populationName);
+        }
+    }
+
+    protected void OutputPopulation(SolutionSet population, String populationName) {
+        if (problem_ instanceof ServerSimulator) {
+            ((ServerSimulator) problem_).dumpCurrentPopulation(populationName + System.currentTimeMillis(), population);
+        }
+    }
+
+    protected SolutionSet GenerateOffsprings(SolutionSet population, int feasiblePercentage) throws JMException {
+        // Create the offSpring solutionSet
+        SolutionSet offspringPopulation = new SolutionSet(populationSize);
+        Solution[] parents = new Solution[2];
+        int nrOfFeasible = 0;
+//            for (int i = 0; i < (populationSize / 2); i++) {
+        while (offspringPopulation.size() < populationSize) {
+            if (evaluations < maxEvaluations) {
+                //obtain parents
+                parents[0] = (Solution) selectionOperator.execute(population);
+                parents[1] = (Solution) selectionOperator.execute(population);
+                Solution[] offSpring = (Solution[]) crossoverOperator.execute(parents);
+                mutationOperator.execute(offSpring[0]);
+                mutationOperator.execute(offSpring[1]);
+                problem_.evaluate(offSpring[0]);
+                problem_.evaluateConstraints(offSpring[0]);
+//                    System.out.println("[0] " + offSpring[0].getNumberOfViolatedConstraint() + " " + nrOfFeasible);
+                if (offSpring[0].getNumberOfViolatedConstraint() > 0 && (((nrOfFeasible + 0.0) / populationSize) * 100) < feasiblePercentage) {
+                    //infeasible and we still need feasible individuals in the population
+//                        System.out.println("[0] INFESIBLE nr of feasible " + nrOfFeasible + " needed " + feasiblePercentage + "violated " + offSpring[0].getNumberOfViolatedConstraint());
+                    if (mutationOperator instanceof BitFlipMutationFuzzy) {
+                        ((BitFlipMutationFuzzy) mutationOperator).x--;
+                    }
+                } else {
+
+                    offspringPopulation.add(offSpring[0]);
+                    evaluations += 1;
+                    nrOfFeasible++;
+                }
+                problem_.evaluate(offSpring[1]);
+                problem_.evaluateConstraints(offSpring[1]);
+//                    System.out.println("[1] " + offSpring[1].getNumberOfViolatedConstraint() + " " + nrOfFeasible);
+                if (offSpring[1].getNumberOfViolatedConstraint() > 0 && (((nrOfFeasible + 0.0) / populationSize) * 100) < feasiblePercentage) {
+                    //infeasible and we still need feasible individuals in the population
+//                        System.out.println("[1] INFESIBLE nr of feasible " + nrOfFeasible + " needed " + feasiblePercentage + "violated " + offSpring[1].getNumberOfViolatedConstraint());
+                    if (mutationOperator instanceof BitFlipMutationFuzzy) {
+                        ((BitFlipMutationFuzzy) mutationOperator).x--;
+                    }
+                } else {
+                    if (offspringPopulation.size() < populationSize) {
+                        offspringPopulation.add(offSpring[1]);
+                        evaluations += 1;
+                        nrOfFeasible++;
+                    }
+                }
+
+
+            } // if
+        } // for
+        return offspringPopulation;
+    }
+
+    protected SolutionSet CreateInitialPopulation() throws ClassNotFoundException, JMException {
+        SolutionSet population = new SolutionSet(populationSize);
         // Create the initial solutionSet
         Solution newSolution;
         //Added by HORIA
-        CheckpointFileParameter fileParam = (CheckpointFileParameter) getInputParameter("checkpointFile");
-        String file = "";
-        if (fileParam != null) {
-            file = fileParam.GetCheckpointFile();
-        }
-        String feasible = (String) getInputParameter("forceFeasibleFirstGeneration");
-        int feasiblePercentage = Integer
-                .parseInt((String) getInputParameter("forceMinimumPercentageFeasibleIndividuals"));
+        String file = checkPointFile;
         if (file != null && !file.equals("")) {
             Logger.getLogger(NSGAII.class.getName()).log(Level.WARNING, "Using a checkpoint file: " + file);
             int i = 0;
@@ -148,7 +331,7 @@ public class NSGAII extends Algorithm {
                     }
                     problem_.evaluate(newSolution);
                     problem_.evaluateConstraints(newSolution);
-                    if (feasible != null && feasible.equals("true")) {//this will skip ind only if they are infeasible because of constrains
+                    if (feasible) {//this will skip ind only if they are infeasible because of constrains
                         if (newSolution.getNumberOfViolatedConstraint() > 0) {
                             if (mutationOperator instanceof BitFlipMutationFuzzy) {
                                 ((BitFlipMutationFuzzy) mutationOperator).x--;
@@ -172,7 +355,7 @@ public class NSGAII extends Algorithm {
                 }
                 problem_.evaluate(newSolution);
                 problem_.evaluateConstraints(newSolution);
-                if (feasible != null && feasible.equals("true")) {//this will skip ind only if they are infeasible because of constrains
+                if (feasible) {//this will skip ind only if they are infeasible because of constrains
                     if (newSolution.getNumberOfViolatedConstraint() > 0) {
                         if (mutationOperator instanceof BitFlipMutationFuzzy) {
                             ((BitFlipMutationFuzzy) mutationOperator).x--;
@@ -186,162 +369,23 @@ public class NSGAII extends Algorithm {
             } //for
             //Added by HORIA
         }
-        if (problem_ instanceof ServerSimulator) {
-            ((ServerSimulator) problem_).join();//blocks until all  the offsprings are evaluated
-            ((ServerSimulator) problem_).dumpCurrentPopulation(population);
+        return population;
+    }
+
+    protected void ReadOperators() {
+        //Read the operators
+        mutationOperator = operators_.get("mutation");
+        if (mutationOperator instanceof BitFlipMutationFuzzyVirtualParameters) {
+            try {
+                ((BitFlipMutationFuzzyVirtualParameters) mutationOperator).x = ((Integer) getInputParameter("initialGeneration")).intValue();
+                System.out.println("Initial generation is: "+ ((BitFlipMutationFuzzyVirtualParameters) mutationOperator).x);
+            } catch (Exception e) {
+                System.out.println("NSGA-II: initial generations start was not set caused by: "+e.getMessage());
+            }
+
         }
-        //WORKAROUND
-        for (int i = 0; i < populationSize; i++) {
-            Solution s = population.get(i);
-            problem_.evaluate(s);
-        }
-        if (problem_ instanceof ServerSimulator) {
-            ((ServerSimulator) problem_).join();//blocks until all  the offsprings are evaluated
-            ((ServerSimulator) problem_).dumpCurrentPopulation("corrected" + System.currentTimeMillis(), population);
-            Ranking ranking_temp = new Ranking(population);
-            ((ServerSimulator) problem_).dumpCurrentPopulation("pareto" + System.currentTimeMillis(), ranking_temp.getSubfront(0));
-        }
-        //END WORKAROUND
-        //END added by Horia
-//***********************************************MAIN ALGORITHM********************************************************
-        // Generations ...
-        while (evaluations < maxEvaluations) {
-            // Create the offSpring solutionSet
-            offspringPopulation = new SolutionSet(populationSize);
-            Solution[] parents = new Solution[2];
-            int nrOfFeasible = 0;
-//            for (int i = 0; i < (populationSize / 2); i++) {
-            while (offspringPopulation.size() < populationSize) {
-                if (evaluations < maxEvaluations) {
-                    //obtain parents
-                    parents[0] = (Solution) selectionOperator.execute(population);
-                    parents[1] = (Solution) selectionOperator.execute(population);
-                    Solution[] offSpring = (Solution[]) crossoverOperator.execute(parents);
-                    mutationOperator.execute(offSpring[0]);
-                    mutationOperator.execute(offSpring[1]);
-                    problem_.evaluate(offSpring[0]);
-                    problem_.evaluateConstraints(offSpring[0]);
-//                    System.out.println("[0] " + offSpring[0].getNumberOfViolatedConstraint() + " " + nrOfFeasible);
-                    if (offSpring[0].getNumberOfViolatedConstraint() > 0 && (((nrOfFeasible + 0.0) / populationSize) * 100) < feasiblePercentage) {
-                        //infeasible and we still need feasible individuals in the population
-//                        System.out.println("[0] INFESIBLE nr of feasible " + nrOfFeasible + " needed " + feasiblePercentage + "violated " + offSpring[0].getNumberOfViolatedConstraint());
-                        if (mutationOperator instanceof BitFlipMutationFuzzy) {
-                            ((BitFlipMutationFuzzy) mutationOperator).x--;
-                        }
-                    } else {
-
-                        offspringPopulation.add(offSpring[0]);
-                        evaluations += 1;
-                        nrOfFeasible++;
-                    }
-                    problem_.evaluate(offSpring[1]);
-                    problem_.evaluateConstraints(offSpring[1]);
-//                    System.out.println("[1] " + offSpring[1].getNumberOfViolatedConstraint() + " " + nrOfFeasible);
-                    if (offSpring[1].getNumberOfViolatedConstraint() > 0 && (((nrOfFeasible + 0.0) / populationSize) * 100) < feasiblePercentage) {
-                        //infeasible and we still need feasible individuals in the population
-//                        System.out.println("[1] INFESIBLE nr of feasible " + nrOfFeasible + " needed " + feasiblePercentage + "violated " + offSpring[1].getNumberOfViolatedConstraint());
-                        if (mutationOperator instanceof BitFlipMutationFuzzy) {
-                            ((BitFlipMutationFuzzy) mutationOperator).x--;
-                        }
-                    } else {
-                        if (offspringPopulation.size() < populationSize) {
-                            offspringPopulation.add(offSpring[1]);
-                            evaluations += 1;
-                            nrOfFeasible++;
-                        }
-                    }
-
-
-                } // if
-            } // for
-            //Added by HORIA
-            if (problem_ instanceof ServerSimulator) {
-                ((ServerSimulator) problem_).join();//blocks until all  the offsprings are evaluated
-                ((ServerSimulator) problem_).dumpCurrentPopulation("offspring" + System.currentTimeMillis(), offspringPopulation);
-            }
-            //WORKAROUND
-            System.out.println("RESEND");
-            for (int i = 0; i < populationSize; i++) {
-                Solution s = population.get(i);
-                problem_.evaluate(s);
-            }
-            if (problem_ instanceof ServerSimulator) {
-                ((ServerSimulator) problem_).join();//blocks until all  the offsprings are evaluated
-                ((ServerSimulator) problem_).dumpCurrentPopulation("corrected" + System.currentTimeMillis(), population);
-            }
-            //END WORKAROUND
-            //END added by Horia
-            // Create the solutionSet union of solutionSet and offSpring
-            union = ((SolutionSet) population).union(offspringPopulation);
-            // Ranking the union
-            Ranking ranking = new Ranking(union);
-            int remain = populationSize;
-            int index = 0;
-            SolutionSet front = null;
-            population.clear();
-            // Obtain the next front
-            front = ranking.getSubfront(index);
-            while ((remain > 0) && (remain >= front.size())) {
-                //Assign crowding distance to individuals
-                distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
-                //Add the individuals of this front
-                for (int k = 0; k
-                        < front.size(); k++) {
-                    population.add(front.get(k));
-                } // for
-                //Decrement remain
-                remain = remain - front.size();
-                //Obtain the next front
-                index++;
-                if (remain > 0) {
-                    front = ranking.getSubfront(index);
-                } // if
-            } // while
-            // Remain is less than front(index).size, insert only the best one
-            if (remain > 0) {  // front contains individuals to insert
-                distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
-                front.sort(new jmetal.base.operator.comparator.CrowdingComparator());
-                for (int k = 0; k
-                        < remain; k++) {
-                    population.add(front.get(k));
-                } // for
-                remain = 0;
-            } // if
-            // This piece of code shows how to use the indicator object into the code
-            // of NSGA-II. In particular, it finds the number of evaluations required
-            // by the algorithm to obtain a Pareto front with a hypervolume higher
-            // than the hypervolume of the true Pareto front.
-            if ((indicators != null)
-                    && (requiredEvaluations == 0)) {
-                double HV = indicators.getHypervolume(population);
-                if (HV >= (0.98 * indicators.getTrueParetoFrontHypervolume())) {
-                    requiredEvaluations = evaluations;
-                } // if
-            } // if
-            if (problem_ instanceof ServerSimulator) {
-                ((ServerSimulator) problem_).dumpCurrentPopulation(population);
-                Ranking ranking_temp = new Ranking(population);
-                ((ServerSimulator) problem_).dumpCurrentPopulation("pareto" + System.currentTimeMillis(), ranking_temp.getSubfront(0));
-            } else {
-                if (outputEveryPopulation) {
-                    population.printObjectivesToFile(outputPath + System.currentTimeMillis() + ".csv");
-                }
-            }
-
-
-
-        } // while
-
-        // Return as output parameter the required evaluations
-        setOutputParameter("evaluations", requiredEvaluations);
-
-        // Return the first non-dominated front
-        Ranking ranking = new Ranking(population);
-
-
-        return ranking.getSubfront(0);
-
-
-    } // execute
+        crossoverOperator = operators_.get("crossover");
+        selectionOperator = operators_.get("selection");
+    }
 } // NSGA-II
 
