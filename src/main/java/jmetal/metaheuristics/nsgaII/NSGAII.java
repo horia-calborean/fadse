@@ -156,7 +156,7 @@ public class NSGAII extends Algorithm {
         int index = 0;
         int remain = populationSize;
         SolutionSet front = null;
-        SolutionSet population = new SolutionSet();
+        SolutionSet population = new SolutionSet(populationSize);
         population.clear();
         // Obtain the next front
         front = ranking.getSubfront(index);

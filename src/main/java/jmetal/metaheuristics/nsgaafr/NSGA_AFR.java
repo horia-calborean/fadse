@@ -77,7 +77,7 @@ public class NSGA_AFR extends NSGAII {
         int remain = populationSize;
         int index = 0;
         SolutionSet front = null;
-        SolutionSet population = new SolutionSet();
+        SolutionSet population = new SolutionSet(populationSize);
         population.clear();
         // Obtain the next front
         front = ranking.getSubfront(index);
