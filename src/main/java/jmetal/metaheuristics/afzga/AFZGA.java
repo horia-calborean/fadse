@@ -1,43 +1,32 @@
-package jmetal.metaheuristics.nsgaafr;
+package jmetal.metaheuristics.afzga;
 
-import jmetal.base.*;
+import jmetal.base.Problem;
+import jmetal.base.SolutionSet;
 import jmetal.metaheuristics.nsgaII.NSGAII;
-import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.AfMembership;
 import jmetal.util.ApparentFront;
-import jmetal.util.JMException;
+import jmetal.util.ApparentFrontRanking;
 import jmetal.util.Ranking;
-import ro.ulbsibiu.fadse.environment.Population;
-import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
-import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzy;
-import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzyVirtualParameters;
-import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationRandomDefuzzifier;
-import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-public class NSGA_AFR extends NSGAII {
+public class AFZGA extends NSGAII {
     /**
      * Constructor
      *
      * @param problem Problem to solve
      */
-    public NSGA_AFR(Problem problem) {
+    public AFZGA(Problem problem) {
         super(problem);
     }
-
+    
 
     @Override
     protected SolutionSet SelectNextGeneration(SolutionSet union, int populationSize) {
         //Distance distance = new Distance();
         AfMembership afMembership = new AfMembership();
+        ApparentFront af = new ApparentFront(11);
         // Ranking the union
-        Ranking ranking = new Ranking(union);
+        ApparentFrontRanking ranking = new ApparentFrontRanking(af, union, 3);
+        //Ranking ranking = new Ranking(union);
         int remain = populationSize;
         int index = 0;
         SolutionSet front = null;
@@ -46,7 +35,7 @@ public class NSGA_AFR extends NSGAII {
         // Obtain the next front
         front = ranking.getSubfront(index);
 
-        ApparentFront af = new ApparentFront(11);
+
         int minVectors = front.get(0).numberOfObjectives() + 1;
         //if we have at least N+1 individuals on the first front
         if (front.size() >= minVectors) {

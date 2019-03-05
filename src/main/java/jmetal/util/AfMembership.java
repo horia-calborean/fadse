@@ -14,18 +14,7 @@ public class AfMembership {
      * @return the fuzzy membership of the {@link Solution} to the {@link ApparentFront}
      */
     public double compute(ApparentFront af, Solution solution) {
-        double distance = 0;
-
-        double[] objectives = new double[solution.numberOfObjectives()];
-        for (int i = 0; i < solution.numberOfObjectives(); i++) {
-            objectives[i] = solution.getObjective(i);
-        }
-
-        for (int i = 0; i < objectives.length; i++) {
-            distance += af.getCoefficients()[i] * Math.pow(objectives[i], af.getPower());
-        }
-
-        distance -= 1;
+        double distance = AfDistance.ComputeDistance(af, solution);
 
         double alfa = 2;
         double membership = 1 - Math.pow(alfa, -(distance + 1));
