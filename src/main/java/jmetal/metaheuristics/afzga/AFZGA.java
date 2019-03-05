@@ -7,6 +7,7 @@ import jmetal.util.AfMembership;
 import jmetal.util.ApparentFront;
 import jmetal.util.ApparentFrontRanking;
 import jmetal.util.Ranking;
+import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
 
 public class AFZGA extends NSGAII {
     /**
@@ -91,5 +92,29 @@ public class AFZGA extends NSGAII {
             remain = 0;
         }
         return population;
+    }
+
+    @Override
+    protected void DoEndRoundOutputs(SolutionSet population) {
+        if(problem_ instanceof ServerSimulator){
+            OutputPopulation(population, "filled");
+            Ranking ranking_temp = new Ranking(population);
+            OutputPopulation(ranking_temp.getSubfront(0), "pareto");
+
+            ApparentFront af = new ApparentFront(11);
+            ApparentFrontRanking ranking = new ApparentFrontRanking(af, population, 3);
+
+            SolutionSet zone1Solutions = ranking.getSubfront(0);
+            SolutionSet zone2Solutions = ranking.getSubfront(1);
+            SolutionSet zoneSolutions = zone1Solutions.size() > 0 ? zone1Solutions : zone2Solutions;
+
+            OutputPopulation(zoneSolutions, "zone");
+            OutputPopulation(zone1Solutions, "zone1");
+            OutputPopulation(zone2Solutions, "zone2");
+        } else {
+            if (outputEveryPopulation) {
+                population.printObjectivesToFile(outputPath + System.currentTimeMillis() + ".csv");
+            }
+        }
     }
 }
