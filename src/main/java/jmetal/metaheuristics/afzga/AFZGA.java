@@ -83,17 +83,11 @@ public class AFZGA extends NSGAII {
         }
         // Remain is less than front(index).size, insert only the best ones
         if (remain > 0) {  // front contains individuals to insert
-            for (int k = 0; k < front.size(); k++) {
-                //Assign afr membership to individual
-                double membership = afMembership.compute(af, front.get(k));
-                front.get(k).setAfrMembership(membership);
-            }
-
-            front.sort(new jmetal.base.operator.comparator.AfrMembershipComparator());
-            for (int k = 0; k
-                    < remain; k++) {
+            distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
+            front.sort(new jmetal.base.operator.comparator.CrowdingComparator());
+            for (int k = 0; k < remain; k++) {
                 population.add(front.get(k));
-            }
+            } // for
             remain = 0;
         }
         return population;

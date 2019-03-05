@@ -180,8 +180,7 @@ public class NSGAII extends Algorithm {
         if (remain > 0) {  // front contains individuals to insert
             distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
             front.sort(new jmetal.base.operator.comparator.CrowdingComparator());
-            for (int k = 0; k
-                    < remain; k++) {
+            for (int k = 0; k < remain; k++) {
                 population.add(front.get(k));
             } // for
             remain = 0;
