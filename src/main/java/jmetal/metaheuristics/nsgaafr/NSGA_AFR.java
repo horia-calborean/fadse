@@ -3,10 +3,7 @@ package jmetal.metaheuristics.nsgaafr;
 import jmetal.base.*;
 import jmetal.metaheuristics.nsgaII.NSGAII;
 import jmetal.qualityIndicator.QualityIndicator;
-import jmetal.util.AfMembership;
-import jmetal.util.ApparentFront;
-import jmetal.util.JMException;
-import jmetal.util.Ranking;
+import jmetal.util.*;
 import ro.ulbsibiu.fadse.environment.Population;
 import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzy;
@@ -17,6 +14,9 @@ import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,8 +27,29 @@ public class NSGA_AFR extends NSGAII {
      *
      * @param problem Problem to solve
      */
+
+    ObjectivesTranslator objectivesTranslator;
+
     public NSGA_AFR(Problem problem) {
         super(problem);
+
+        IObjectiveTranslationFunction hwFunction = new IObjectiveTranslationFunction() {
+            public double translate(double hardwareComplexity) {
+                return (10000 - hardwareComplexity) / 10000;
+            }
+        };
+
+        IObjectiveTranslationFunction ipcFunction = new IObjectiveTranslationFunction() {
+            public double translate(double ipc) {
+                return (5 - 1/ipc) / 5;
+            }
+        };
+
+        List<IObjectiveTranslationFunction> objectiveTranslations = new ArrayList<IObjectiveTranslationFunction>();
+        objectiveTranslations.add(hwFunction);
+        objectiveTranslations.add(ipcFunction);
+
+        objectivesTranslator = new ObjectivesTranslator(objectiveTranslations);
     }
 
 
