@@ -35,47 +35,17 @@ public class NSGA_AFR extends NSGAII {
 
         ApparentFront af = new ApparentFront(11);
         int minVectors = front.get(0).numberOfObjectives() + 1;
-        //if we have at least N+1 individuals on the first front
-        if (front.size() >= minVectors) {
-            //turn to maximization problem
-            GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(front);
-            normalizer.scaleObjectives();
 
-            af.fit(front);
+        SolutionSet supportVectors;
+        supportVectors = ComputeSupportVectors(ranking, index, front, minVectors);
 
-            //restore to minimization problem
-            normalizer.restoreObjectives();
-        } else {
-            SolutionSet supportVectors = new SolutionSet(minVectors);
+        FitTheFront(af, supportVectors);
 
-            for (int i = 0; i < front.size(); i++) {
-                supportVectors.add(front.get(i));
-            }
-
-            int l = index + 1;
-            SolutionSet nextFront = ranking.getSubfront(l);
-            while (supportVectors.size() < minVectors) {
-                int necessary = minVectors - supportVectors.size();
-                int size = nextFront.size() <= necessary ? nextFront.size() : necessary;
-                for (int i = 0; i < size; i++) {
-                    supportVectors.add(nextFront.get(i));
-                }
-                l++;
-            }
-
-            //turn to maximization problem
-            GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(supportVectors);
-            normalizer.scaleObjectives();
-
-            af.fit(supportVectors);
-
-            //restore to minimization problem
-            normalizer.restoreObjectives();
-        }
+        GapObjectivesNormalizer normalizer;
 
         while ((remain > 0) && (remain >= front.size())) {
             //turn to maximization problem
-            GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(front);
+            normalizer = new GapObjectivesNormalizer(front);
             normalizer.scaleObjectives();
 
             for (int k = 0; k
@@ -103,7 +73,7 @@ public class NSGA_AFR extends NSGAII {
         // Remain is less than front(index).size, insert only the best ones
         if (remain > 0) {  // front contains individuals to insert
             //turn to maximization problem
-            GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(front);
+            normalizer = new GapObjectivesNormalizer(front);
             normalizer.scaleObjectives();
 
             for (int k = 0; k < front.size(); k++) {
@@ -123,5 +93,43 @@ public class NSGA_AFR extends NSGAII {
             remain = 0;
         }
         return population;
+    }
+
+    private void FitTheFront(ApparentFront af, SolutionSet supportVectors) {
+        //turn to maximization problem
+        GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(supportVectors);
+        normalizer.scaleObjectives();
+
+        af.fit(supportVectors);
+
+        //restore to minimization problem
+        normalizer.restoreObjectives();
+    }
+
+    private SolutionSet ComputeSupportVectors(Ranking ranking, int index, SolutionSet front, int minVectors) {
+        SolutionSet supportVectors;//if we have at least N+1 individuals on the first front
+        if (front.size() >= minVectors) {
+            supportVectors = front;
+        } else {
+            supportVectors = new SolutionSet(minVectors);
+
+            for (int i = 0; i < front.size(); i++) {
+                supportVectors.add(front.get(i));
+            }
+
+            int l = index + 1;
+
+            while (supportVectors.size() < minVectors) {
+                SolutionSet nextFront = ranking.getSubfront(l);
+                int necessary = minVectors - supportVectors.size();
+                int size = nextFront.size() <= necessary ? nextFront.size() : necessary;
+                for (int i = 0; i < size; i++) {
+                    supportVectors.add(nextFront.get(i));
+                }
+                l++;
+            }
+
+        }
+        return supportVectors;
     }
 }

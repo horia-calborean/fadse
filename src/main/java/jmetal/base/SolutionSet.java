@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*; 
 
 import jmetal.util.Configuration;
+import jmetal.util.JMException;
 
 /** 
  * Class representing a SolutionSet (a set of solutions)
@@ -65,7 +66,7 @@ public class SolutionSet implements Serializable {
    * Returns the ith solution in the set.
    * @param i Position of the solution to obtain.
    * @return The <code>Solution</code> at the position i.
-   * @throws IndexOutOfBoundsException.
+   * @throws IndexOutOfBoundsException
    */
   public Solution get(int i) {
     if (i >= solutionsList_.size()) {
@@ -225,18 +226,47 @@ public class SolutionSet implements Serializable {
    * Copies the objectives of the solution set to a matrix
    * @return A matrix containing the objectives
    */
-  public double [][] writeObjectivesToMatrix() {
-    if (this.size() == 0) {
-      return null;
-    }
-    double [][] objectives;
-    objectives = new double[size()][get(0).numberOfObjectives()];
-    for (int i = 0; i < size(); i++) {
-      for (int j = 0; j < get(0).numberOfObjectives(); j++) {
-        objectives[i][j] = get(i).getObjective(j);
-      }
-    }
-    return objectives;
-  } // writeObjectivesMatrix
+    public double [][] writeObjectivesToMatrix() {
+        if (this.size() == 0) {
+            return null;
+        }
+        double [][] objectives;
+        objectives = new double[size()][get(0).numberOfObjectives()];
+        for (int i = 0; i < size(); i++) {
+            for (int j = 0; j < get(0).numberOfObjectives(); j++) {
+                objectives[i][j] = get(i).getObjective(j);
+            }
+        }
+        return objectives;
+    } // writeObjectivesMatrix
+
+    /**
+     * Copies the objectives of the solution set to a matrix
+     * @return A matrix containing the objectives
+     */
+    public boolean deepContains(Solution s) {
+        if (this.size() == 0) {
+            return false;
+        }
+        int numberOfVariables = solutionsList_.get(0).getDecisionVariables().length ;
+        for (int i = 0; i < solutionsList_.size(); i++) {
+            Solution currentSolution = solutionsList_.get(i);
+            boolean equal = true;
+            for (int j = 0; j < numberOfVariables; j++) {
+                try {
+                    if(currentSolution.getDecisionVariables()[j].getValue() != s.getDecisionVariables()[j].getValue() ){
+                        equal = false;
+                    }
+                } catch (JMException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(equal){
+                return true;
+            }
+        }
+        return false;
+    } // writeObjectivesMatrix
+
 } // SolutionSet
 

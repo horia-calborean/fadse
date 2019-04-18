@@ -18,7 +18,6 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.hsqldb.Server;
 import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzy;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzyVirtualParameters;
@@ -151,14 +150,14 @@ public class NSGAII extends Algorithm {
     }
 
     protected SolutionSet SelectNextGeneration(SolutionSet union, int populationSize) {
+        SolutionSet population = new SolutionSet(populationSize);
+        population.clear();
+        // Obtain the next front
         // Ranking the union
         Ranking ranking = new Ranking(union);
         int index = 0;
         int remain = populationSize;
         SolutionSet front = null;
-        SolutionSet population = new SolutionSet(populationSize);
-        population.clear();
-        // Obtain the next front
         front = ranking.getSubfront(index);
         while ((remain > 0) && (remain >= front.size())) {
             //Assign crowding distance to individuals
@@ -262,9 +261,11 @@ public class NSGAII extends Algorithm {
                     }
                 } else {
 
-                    offspringPopulation.add(offSpring[0]);
-                    evaluations += 1;
-                    nrOfFeasible++;
+                    if(!population.deepContains(offSpring[0]) && offspringPopulation.deepContains(offSpring[0])) {
+                        offspringPopulation.add(offSpring[0]);
+                        evaluations += 1;
+                        nrOfFeasible++;
+                    }
                 }
                 problem_.evaluate(offSpring[1]);
                 problem_.evaluateConstraints(offSpring[1]);
@@ -277,13 +278,13 @@ public class NSGAII extends Algorithm {
                     }
                 } else {
                     if (offspringPopulation.size() < populationSize) {
-                        offspringPopulation.add(offSpring[1]);
-                        evaluations += 1;
-                        nrOfFeasible++;
+                        if(!population.deepContains(offSpring[0]) && offspringPopulation.deepContains(offSpring[0])) {
+                            offspringPopulation.add(offSpring[1]);
+                            evaluations += 1;
+                            nrOfFeasible++;
+                        }
                     }
                 }
-
-
             } // if
         } // for
         return offspringPopulation;
