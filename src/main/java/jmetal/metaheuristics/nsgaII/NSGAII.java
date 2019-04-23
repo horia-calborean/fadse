@@ -79,6 +79,7 @@ public class NSGAII extends Algorithm {
         //***********************************************MAIN ALGORITHM********************************************************
         // Generations ...
         while (evaluations < maxEvaluations) {
+            Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "Entered NextGeneration with evaluations: " + evaluations);
             SolutionSet offspringPopulation = GenerateOffsprings(population, feasiblePercentage);
             JoinAndOutputPopulation(offspringPopulation, "offspring");
             ReEvaluatePopulation(population);
@@ -237,12 +238,14 @@ public class NSGAII extends Algorithm {
     }
 
     protected SolutionSet GenerateOffsprings(SolutionSet population, int feasiblePercentage) throws JMException {
+        Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "Entered GenerateOffsprings with feasiblePercentage: " + feasiblePercentage);
         // Create the offSpring solutionSet
         SolutionSet offspringPopulation = new SolutionSet(populationSize);
         Solution[] parents = new Solution[2];
         int nrOfFeasible = 0;
 //            for (int i = 0; i < (populationSize / 2); i++) {
         while (offspringPopulation.size() < populationSize) {
+            Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "#############################While GenerateOffsprings with currentSize: " + offspringPopulation.size());
             if (evaluations < maxEvaluations) {
                 //obtain parents
                 parents[0] = (Solution) selectionOperator.execute(population);
@@ -260,8 +263,8 @@ public class NSGAII extends Algorithm {
                         ((BitFlipMutationFuzzy) mutationOperator).x--;
                     }
                 } else {
-
-                    if(!population.deepContains(offSpring[0]) && offspringPopulation.deepContains(offSpring[0])) {
+                    if(!population.deepContains(offSpring[0]) && !offspringPopulation.deepContains(offSpring[0])) {
+                        Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "While GenerateOffsprings Added offsprings[0]");
                         offspringPopulation.add(offSpring[0]);
                         evaluations += 1;
                         nrOfFeasible++;
@@ -278,7 +281,8 @@ public class NSGAII extends Algorithm {
                     }
                 } else {
                     if (offspringPopulation.size() < populationSize) {
-                        if(!population.deepContains(offSpring[0]) && offspringPopulation.deepContains(offSpring[0])) {
+                        if(!population.deepContains(offSpring[1]) && !offspringPopulation.deepContains(offSpring[1])) {
+                            Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "While GenerateOffsprings Added offsprings[1]");
                             offspringPopulation.add(offSpring[1]);
                             evaluations += 1;
                             nrOfFeasible++;
@@ -287,6 +291,7 @@ public class NSGAII extends Algorithm {
                 }
             } // if
         } // for
+        Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "Leaving GenerateOffsprings with a populationsSize of: " + offspringPopulation.size());
         return offspringPopulation;
     }
 

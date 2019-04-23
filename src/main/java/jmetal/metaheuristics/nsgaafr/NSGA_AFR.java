@@ -8,6 +8,9 @@ import jmetal.util.ApparentFront;
 import jmetal.util.GapObjectivesNormalizer;
 import jmetal.util.Ranking;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class NSGA_AFR extends NSGAII {
     /**
      * Constructor
@@ -22,6 +25,7 @@ public class NSGA_AFR extends NSGAII {
 
     @Override
     protected SolutionSet SelectNextGeneration(SolutionSet union, int populationSize) {
+        Logger.getLogger(NSGA_AFR.class.getName()).log(Level.INFO, "Entered SelectNextGeneration with populationsize of: " + populationSize);
         AfMembership afMembership = new AfMembership();
         // Ranking the union
         Ranking ranking = new Ranking(union);
@@ -92,6 +96,9 @@ public class NSGA_AFR extends NSGAII {
             }
             remain = 0;
         }
+
+        Logger.getLogger(NSGA_AFR.class.getName()).log(Level.INFO, "Leaving SelectNextGeneration with populationsize of: " + population.size());
+
         return population;
     }
 

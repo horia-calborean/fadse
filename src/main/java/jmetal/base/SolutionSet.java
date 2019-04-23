@@ -254,8 +254,11 @@ public class SolutionSet implements Serializable {
             boolean equal = true;
             for (int j = 0; j < numberOfVariables; j++) {
                 try {
-                    if(currentSolution.getDecisionVariables()[j].getValue() != s.getDecisionVariables()[j].getValue() ){
+                    double currentSolutionValue = currentSolution.getDecisionVariables()[j].getValue();
+                    double sValue = s.getDecisionVariables()[j].getValue();
+                    if(sValue != currentSolutionValue){
                         equal = false;
+                        break;
                     }
                 } catch (JMException e) {
                     e.printStackTrace();
