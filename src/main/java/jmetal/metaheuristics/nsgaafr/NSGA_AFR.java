@@ -3,10 +3,7 @@ package jmetal.metaheuristics.nsgaafr;
 import jmetal.base.Problem;
 import jmetal.base.SolutionSet;
 import jmetal.metaheuristics.nsgaII.NSGAII;
-import jmetal.util.AfMembership;
-import jmetal.util.ApparentFront;
-import jmetal.util.GapObjectivesNormalizer;
-import jmetal.util.Ranking;
+import jmetal.util.*;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,9 +38,9 @@ public class NSGA_AFR extends NSGAII {
         int minVectors = front.get(0).numberOfObjectives() + 1;
 
         SolutionSet supportVectors;
-        supportVectors = ComputeSupportVectors(ranking, index, front, minVectors);
+        supportVectors = ApparentFrontHelper.ComputeSupportVectors(ranking, index, front, minVectors);
 
-        FitTheFront(af, supportVectors);
+        ApparentFrontHelper.FitTheFront(af, supportVectors);
 
         GapObjectivesNormalizer normalizer;
 
@@ -102,41 +99,4 @@ public class NSGA_AFR extends NSGAII {
         return population;
     }
 
-    private void FitTheFront(ApparentFront af, SolutionSet supportVectors) {
-        //turn to maximization problem
-        GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(supportVectors);
-        normalizer.scaleObjectives();
-
-        af.fit(supportVectors);
-
-        //restore to minimization problem
-        normalizer.restoreObjectives();
-    }
-
-    private SolutionSet ComputeSupportVectors(Ranking ranking, int index, SolutionSet front, int minVectors) {
-        SolutionSet supportVectors;//if we have at least N+1 individuals on the first front
-        if (front.size() >= minVectors) {
-            supportVectors = front;
-        } else {
-            supportVectors = new SolutionSet(minVectors);
-
-            for (int i = 0; i < front.size(); i++) {
-                supportVectors.add(front.get(i));
-            }
-
-            int l = index + 1;
-
-            while (supportVectors.size() < minVectors) {
-                SolutionSet nextFront = ranking.getSubfront(l);
-                int necessary = minVectors - supportVectors.size();
-                int size = nextFront.size() <= necessary ? nextFront.size() : necessary;
-                for (int i = 0; i < size; i++) {
-                    supportVectors.add(nextFront.get(i));
-                }
-                l++;
-            }
-
-        }
-        return supportVectors;
-    }
 }

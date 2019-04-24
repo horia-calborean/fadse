@@ -251,44 +251,31 @@ public class NSGAII extends Algorithm {
                 parents[0] = (Solution) selectionOperator.execute(population);
                 parents[1] = (Solution) selectionOperator.execute(population);
                 Solution[] offSpring = (Solution[]) crossoverOperator.execute(parents);
-                mutationOperator.execute(offSpring[0]);
-                mutationOperator.execute(offSpring[1]);
-                problem_.evaluate(offSpring[0]);
-                problem_.evaluateConstraints(offSpring[0]);
-//                    System.out.println("[0] " + offSpring[0].getNumberOfViolatedConstraint() + " " + nrOfFeasible);
-                if (offSpring[0].getNumberOfViolatedConstraint() > 0 && (((nrOfFeasible + 0.0) / populationSize) * 100) < feasiblePercentage) {
-                    //infeasible and we still need feasible individuals in the population
+                for (int i=0;i<offSpring.length; i++){
+                    Solution offs = offSpring[i];
+                    mutationOperator.execute(offs);
+                    problem_.evaluate(offs);
+                    problem_.evaluateConstraints(offs);
+
+                    System.out.println("[0] " + offs.getNumberOfViolatedConstraint() + " " + nrOfFeasible);
+                    if (offs.getNumberOfViolatedConstraint() > 0 && (((nrOfFeasible + 0.0) / populationSize) * 100) < feasiblePercentage) {
+                        //infeasible and we still need feasible individuals in the population
 //                        System.out.println("[0] INFESIBLE nr of feasible " + nrOfFeasible + " needed " + feasiblePercentage + "violated " + offSpring[0].getNumberOfViolatedConstraint());
-                    if (mutationOperator instanceof BitFlipMutationFuzzy) {
-                        ((BitFlipMutationFuzzy) mutationOperator).x--;
-                    }
-                } else {
-                    if(!population.deepContains(offSpring[0]) && !offspringPopulation.deepContains(offSpring[0])) {
-                        Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "While GenerateOffsprings Added offsprings[0]");
-                        offspringPopulation.add(offSpring[0]);
-                        evaluations += 1;
-                        nrOfFeasible++;
-                    }
-                }
-                problem_.evaluate(offSpring[1]);
-                problem_.evaluateConstraints(offSpring[1]);
-//                    System.out.println("[1] " + offSpring[1].getNumberOfViolatedConstraint() + " " + nrOfFeasible);
-                if (offSpring[1].getNumberOfViolatedConstraint() > 0 && (((nrOfFeasible + 0.0) / populationSize) * 100) < feasiblePercentage) {
-                    //infeasible and we still need feasible individuals in the population
-//                        System.out.println("[1] INFESIBLE nr of feasible " + nrOfFeasible + " needed " + feasiblePercentage + "violated " + offSpring[1].getNumberOfViolatedConstraint());
-                    if (mutationOperator instanceof BitFlipMutationFuzzy) {
-                        ((BitFlipMutationFuzzy) mutationOperator).x--;
-                    }
-                } else {
-                    if (offspringPopulation.size() < populationSize) {
-                        if(!population.deepContains(offSpring[1]) && !offspringPopulation.deepContains(offSpring[1])) {
-                            Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "While GenerateOffsprings Added offsprings[1]");
-                            offspringPopulation.add(offSpring[1]);
-                            evaluations += 1;
-                            nrOfFeasible++;
+                        if (mutationOperator instanceof BitFlipMutationFuzzy) {
+                            ((BitFlipMutationFuzzy) mutationOperator).x--;
+                        }
+                    } else {
+                        if (offspringPopulation.size() < populationSize) {
+                            if (!population.deepContains(offs) && !offspringPopulation.deepContains(offs)) {
+                                Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "While GenerateOffsprings Added offsprings " + i);
+                                offspringPopulation.add(offs);
+                                evaluations += 1;
+                                nrOfFeasible++;
+                            }
                         }
                     }
                 }
+
             } // if
         } // for
         Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "Leaving GenerateOffsprings with a populationsSize of: " + offspringPopulation.size());

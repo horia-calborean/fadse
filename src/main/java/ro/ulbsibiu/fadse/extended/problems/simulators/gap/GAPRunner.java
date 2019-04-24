@@ -49,7 +49,7 @@ import stepstepgui.datastructures.YamlParameters;
 public class GAPRunner extends SimulatorRunner {
 
     private File benchmarkDirectory;
-    private static final long TIME_BETWEEN_PROCESS_CHECKS = 10000;
+    private static final long TIME_BETWEEN_PROCESS_CHECKS = 2000;
     private static final long TIMEOUT_TO_KILL_SIMULATION = 30000;
 
     /** Constructor */

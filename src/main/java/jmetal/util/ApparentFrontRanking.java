@@ -9,28 +9,34 @@ public class ApparentFrontRanking {
 
     private SolutionSet[] ranking_  ;
 
-    public ApparentFrontRanking(ApparentFront af, SolutionSet solutionSet, int nrZones) {
-        af.fit(solutionSet);
+    public ApparentFrontRanking(ApparentFront apparentFront, SolutionSet solutionSet, int nrZones) {
 
         LinkedList<Solution>[] solutionsInZones = new LinkedList[nrZones];
         for(int i=0;i<nrZones;i++){
             solutionsInZones[i] = new LinkedList<Solution>();
         }
 
-        for (int i=0;i<solutionSet.size();i++) {
-            Solution currentSolution = solutionSet.get(i);
-            double distance = AfDistance.ComputeDistance(af, currentSolution);
-            if(distance < -0.05){
-                solutionsInZones[2].add(currentSolution);
-            }
-            else if(distance > 0.05){
-                solutionsInZones[0].add(currentSolution);
-            }
-            else{
-                solutionsInZones[1].add(currentSolution);
-            }
-        }
+        AfMembership afMembership = new AfMembership();
 
+        GapObjectivesNormalizer  normalizer = new GapObjectivesNormalizer(solutionSet);
+        normalizer.scaleObjectives();
+
+            for (int i = 0; i <  solutionSet.size(); i++) {
+                Solution currentSolution = solutionSet.get(i);
+                double afMemberShip = afMembership.compute(apparentFront, currentSolution);
+                double distance = AfDistance.ComputeDistance(apparentFront, currentSolution);
+                if(distance < -0.05){
+                    solutionsInZones[2].add(currentSolution);
+                }
+                else if(distance > 0.05){
+                    solutionsInZones[0].add(currentSolution);
+                }
+                else{
+                    solutionsInZones[1].add(currentSolution);
+                }
+            }
+
+        normalizer.restoreObjectives();
 
         ranking_ = new SolutionSet[nrZones];
         for(int i = 0;i<nrZones;i++){
