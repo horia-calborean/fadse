@@ -71,8 +71,8 @@ public class CoverageFromTwoFolders {
 //        populationSize2 = Integer.parseInt((new BufferedReader(new InputStreamReader(System.in))).readLine());
         int nrObjectives = 2 ;
         int populationSize = 100;
-        String folderPath1 = "D:\\Work\\Doctorat\\Output\\FADSE\\ServerSimulator\\RaduResults\\cnsgaii0.1";
-        String folderPath2 = "D:\\Work\\Doctorat\\Output\\FADSE\\ServerSimulator\\RaduResults\\cnsgaii0.9";
+        String folderPath1 = "D:\\Work\\Results\\nsgaii";
+        String folderPath2 = "D:\\Work\\Results\\nsgaafr";
 
         LinkedList<File> listOfPopulationFiles1 = MetricsUtil.getListOfFiles(folderPath1, "filled");
         LinkedList<File> listOfPopulationFiles2 = MetricsUtil.getListOfFiles(folderPath2, "filled");

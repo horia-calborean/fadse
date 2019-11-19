@@ -1,14 +1,23 @@
 package jmetal.metaheuristics.nsgaafr;
 
 import jmetal.base.Problem;
+import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
+import jmetal.base.operator.comparator.CrowdingDistanceComparator;
 import jmetal.metaheuristics.nsgaII.NSGAII;
 import jmetal.util.*;
+import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class NSGA_AFR extends NSGAII {
+
+    String outputFolder = null;
+
     /**
      * Constructor
      *
@@ -17,11 +26,15 @@ public class NSGA_AFR extends NSGAII {
     public NSGA_AFR(Problem problem) {
 
         super(problem);
-    }
 
+        if (problem_ instanceof ServerSimulator) {
+            outputFolder = ((ServerSimulator) problem_).getEnvironment().getResultsFolder();
+        }
+    }
 
     @Override
     protected SolutionSet SelectNextGeneration(SolutionSet union, int populationSize) {
+        long startTime =  System.currentTimeMillis();
         Logger.getLogger(NSGA_AFR.class.getName()).log(Level.INFO, "Entered SelectNextGeneration with populationsize of: " + populationSize);
         AfMembership afMembership = new AfMembership();
         // Ranking the union
@@ -43,14 +56,27 @@ public class NSGA_AFR extends NSGAII {
         ApparentFrontHelper.FitTheFront(af, supportVectors);
 
         GapObjectivesNormalizer normalizer;
+        normalizer = new GapObjectivesNormalizer(union);
+        normalizer.scaleObjectives();
+
+        for(int i =0;i< union.size();i++) {
+            Solution currentSolution = union.get(i);
+            double membership = afMembership.compute(af, currentSolution);
+            currentSolution.setAfrMembership(membership);
+        }
+        if (problem_ instanceof ServerSimulator) {
+            ((ServerSimulator) problem_).dumpCurrentPopulation("unionMaximization" + System.currentTimeMillis(), union);
+        }
+
+        normalizer.restoreObjectives();
+
 
         while ((remain > 0) && (remain >= front.size())) {
             //turn to maximization problem
             normalizer = new GapObjectivesNormalizer(front);
             normalizer.scaleObjectives();
 
-            for (int k = 0; k
-                    < front.size(); k++) {
+            for (int k = 0; k < front.size(); k++) {
                 //Assign afr membership to individual
                 double membership = afMembership.compute(af, front.get(k));
                 front.get(k).setAfrMembership(membership);
@@ -95,6 +121,39 @@ public class NSGA_AFR extends NSGAII {
         }
 
         Logger.getLogger(NSGA_AFR.class.getName()).log(Level.INFO, "Leaving SelectNextGeneration with populationsize of: " + population.size());
+
+        if (outputFolder != null) {
+            String fileName = outputFolder + System.getProperty("file.separator")+ "nsgaAfr" + System.currentTimeMillis() + ".csv";
+
+            String str = "";
+
+            for (double coeff : af.getCoefficients()) {
+                str +="Coeffs: " + coeff + ",";
+            }
+
+            str+="\n";
+            str+="FrontNR,AfrMemberShip,CrowdingDistance\n";
+
+            for(int i=0;i<ranking.getNumberOfSubfronts();i++){
+                SolutionSet currentFront = ranking.getSubfront(i);
+                distance.crowdingDistanceAssignment(currentFront, problem_.getNumberOfObjectives());
+                for(int j=0;j<currentFront.size();j++){
+                    Solution currentSolution = currentFront.get(j);
+                    str += i + "," + currentSolution.getAfrMembership() + "," + currentSolution.getCrowdingDistance() + "\n";
+                }
+            }
+
+            long endTime = System.currentTimeMillis();
+            long duration = (endTime-startTime);
+            str ="Duration in SelectNextPopulation: " + duration + "\n" + str;
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+                writer.write(str);
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         return population;
     }

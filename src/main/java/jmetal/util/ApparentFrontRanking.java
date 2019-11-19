@@ -16,20 +16,22 @@ public class ApparentFrontRanking {
             solutionsInZones[i] = new LinkedList<Solution>();
         }
 
-        AfMembership afMembership = new AfMembership();
 
         GapObjectivesNormalizer  normalizer = new GapObjectivesNormalizer(solutionSet);
         normalizer.scaleObjectives();
 
             for (int i = 0; i <  solutionSet.size(); i++) {
                 Solution currentSolution = solutionSet.get(i);
-                double afMemberShip = afMembership.compute(apparentFront, currentSolution);
+
                 double distance = AfDistance.ComputeDistance(apparentFront, currentSolution);
                 if(distance < -0.05){
-                    solutionsInZones[2].add(currentSolution);
+                    solutionsInZones[3].add(currentSolution);
                 }
                 else if(distance > 0.05){
                     solutionsInZones[0].add(currentSolution);
+                }
+                else if(distance < 0){
+                    solutionsInZones[2].add(currentSolution);
                 }
                 else{
                     solutionsInZones[1].add(currentSolution);

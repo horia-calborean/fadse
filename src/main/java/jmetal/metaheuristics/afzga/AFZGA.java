@@ -5,7 +5,6 @@ import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
 import jmetal.metaheuristics.nsgaII.NSGAII;
 import jmetal.util.*;
-import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
 
 public class AFZGA extends NSGAII {
     /**
@@ -17,8 +16,8 @@ public class AFZGA extends NSGAII {
         super(problem);
     }
 
-    private int nrZones = 3;
-
+    private int nrZones = 4;
+    private int supportVectorsPerFront = 5;
     private SolutionSet bestSupportVectors;
 
     @Override
@@ -27,10 +26,12 @@ public class AFZGA extends NSGAII {
         //AfMembership afMembership = new AfMembership();
         ApparentFront af = new ApparentFront(11);
 
-        int minVectors = union.get(0).numberOfObjectives() + 1;
+        //int minSupportVectorNumber = union.get(0).numberOfObjectives() + 1;
+        int minSupportVectorNumber = 3;
+        int defaultSupportVectorNumber = 15;
         //SolutionSet supportVectors = new SolutionSet(minVectors);
         if(bestSupportVectors == null){
-            bestSupportVectors = GenerateSupportVectors(union, minVectors);
+            bestSupportVectors = GenerateInitialSupportVectors(union, defaultSupportVectorNumber);
         }
 
         ApparentFrontHelper.FitTheFront(af, bestSupportVectors);
@@ -46,6 +47,7 @@ public class AFZGA extends NSGAII {
         for(int i=0;i<nrZones;i++) {
             OutputPopulation(ranking.getSubfront(i), "afz"+(i+1)+"_");
         }
+
 
         front = ranking.getSubfront(index);
         while ((remain > 0) && (remain >= front.size())) {
@@ -73,18 +75,43 @@ public class AFZGA extends NSGAII {
             remain = 0;
         } // if
 
-        bestSupportVectors.clear();
-        for(int i=0;i<minVectors;i++){
-            bestSupportVectors.add(population.get(i));
-        }
+        selectNextSupportVectors(minSupportVectorNumber, ranking, population);
 
         OutputPopulation(bestSupportVectors, "supportVectors");
 
         return population;
     }
 
-    private SolutionSet GenerateSupportVectors(SolutionSet union, int minVectors) {
-        bestSupportVectors = new SolutionSet(minVectors);
+    private void selectNextSupportVectors(int minSupportVectorNumber, ApparentFrontRanking ranking, SolutionSet population) {
+        bestSupportVectors.clear();
+//        for (int i = 0; i < minSupportVectorNumber; i++) {
+//                bestSupportVectors.add(population.get(i));
+//        }
+
+
+        for(int i=0;i<3;i++){
+            SolutionSet subFront = ranking.getSubfront(i);
+            int maxSolutionsFromFront = Math.min(subFront.size(), supportVectorsPerFront);
+            for(int j=0;j<maxSolutionsFromFront;j++){
+                bestSupportVectors.add(subFront.get(j));
+            }
+        }
+
+        if(bestSupportVectors.size() < minSupportVectorNumber) {
+            int i = -1;
+            do {
+                i++;
+                Solution currentSolution = population.get(i);
+                if (bestSupportVectors.deepContains(currentSolution)) {
+                    continue;
+                }
+                bestSupportVectors.add(population.get(i));
+            } while (bestSupportVectors.size() > 2);
+        }
+    }
+
+    private SolutionSet GenerateInitialSupportVectors(SolutionSet union, int minNumber) {
+        bestSupportVectors = new SolutionSet(minNumber);
         SolutionSet temp = new SolutionSet(union.size());
         for(int i=0;i<union.size();i++){
             temp.add(new Solution(union.get(i)));
@@ -92,7 +119,7 @@ public class AFZGA extends NSGAII {
 
         distance.crowdingDistanceAssignment(temp, problem_.getNumberOfObjectives());
         temp.sort(new jmetal.base.operator.comparator.CrowdingComparator());
-        for (int k = 0; k < minVectors; k++) {
+        for (int k = 0; k < minNumber; k++) {
             bestSupportVectors.add(temp.get(k));
         } // for
         return bestSupportVectors;
