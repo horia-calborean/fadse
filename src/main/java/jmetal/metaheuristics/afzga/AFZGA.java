@@ -4,7 +4,17 @@ import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
 import jmetal.metaheuristics.nsgaII.NSGAII;
-import jmetal.util.*;
+import jmetal.util.ApparentFront;
+import jmetal.util.ApparentFrontHelper;
+import jmetal.util.ApparentFrontRanking;
+import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
+import ro.ulbsibiu.fadse.utils.Utils;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class AFZGA extends NSGAII {
     /**
@@ -30,11 +40,13 @@ public class AFZGA extends NSGAII {
         int minSupportVectorNumber = 3;
         int defaultSupportVectorNumber = 15;
         //SolutionSet supportVectors = new SolutionSet(minVectors);
-        if(bestSupportVectors == null){
+        if (bestSupportVectors == null) {
             bestSupportVectors = GenerateInitialSupportVectors(union, defaultSupportVectorNumber);
         }
 
         ApparentFrontHelper.FitTheFront(af, bestSupportVectors);
+
+        dumpCurrentFront("coefficients_" + System.currentTimeMillis(), af);
 
         ApparentFrontRanking ranking = new ApparentFrontRanking(af, union, nrZones);
 
@@ -44,8 +56,8 @@ public class AFZGA extends NSGAII {
         SolutionSet population = new SolutionSet(populationSize);
         population.clear();
 
-        for(int i=0;i<nrZones;i++) {
-            OutputPopulation(ranking.getSubfront(i), "afz"+(i+1)+"_");
+        for (int i = 0; i < nrZones; i++) {
+            OutputPopulation(ranking.getSubfront(i), "afz" + (i + 1) + "_");
         }
 
 
@@ -89,15 +101,15 @@ public class AFZGA extends NSGAII {
 //        }
 
 
-        for(int i=0;i<3;i++){
+        for (int i = 0; i < 3; i++) {
             SolutionSet subFront = ranking.getSubfront(i);
             int maxSolutionsFromFront = Math.min(subFront.size(), supportVectorsPerFront);
-            for(int j=0;j<maxSolutionsFromFront;j++){
+            for (int j = 0; j < maxSolutionsFromFront; j++) {
                 bestSupportVectors.add(subFront.get(j));
             }
         }
 
-        if(bestSupportVectors.size() < minSupportVectorNumber) {
+        if (bestSupportVectors.size() < minSupportVectorNumber) {
             int i = -1;
             do {
                 i++;
@@ -113,7 +125,7 @@ public class AFZGA extends NSGAII {
     private SolutionSet GenerateInitialSupportVectors(SolutionSet union, int minNumber) {
         bestSupportVectors = new SolutionSet(minNumber);
         SolutionSet temp = new SolutionSet(union.size());
-        for(int i=0;i<union.size();i++){
+        for (int i = 0; i < union.size(); i++) {
             temp.add(new Solution(union.get(i)));
         }
 
@@ -123,5 +135,24 @@ public class AFZGA extends NSGAII {
             bestSupportVectors.add(temp.get(k));
         } // for
         return bestSupportVectors;
+    }
+
+    private void dumpCurrentFront(String filename, ApparentFront af) {
+        if (problem_ instanceof ServerSimulator) {
+            Environment environment = ((ServerSimulator) problem_).getEnvironment();
+
+            String result = (new Utils()).generateCSVHeaderForApparentFront(af);
+            result += (new Utils()).generateCSVForApparentFront(af);
+
+            try {
+                (new File(environment.getResultsFolder())).mkdirs();
+                BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolder() + System.getProperty("file.separator") + filename + ".csv"));
+                out.write(result);
+                out.close();
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 }

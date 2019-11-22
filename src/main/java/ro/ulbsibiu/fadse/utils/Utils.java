@@ -1,29 +1,22 @@
 package ro.ulbsibiu.fadse.utils;
 
 //
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import jmetal.base.Solution;
+import jmetal.base.SolutionSet;
+import jmetal.base.Variable;
+import jmetal.util.ApparentFront;
+import jmetal.util.JMException;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.parameters.ExpresionParameter;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 import ro.ulbsibiu.fadse.environment.parameters.VirtualParameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status.SimulationStatus;
-import jmetal.base.Solution;
-import jmetal.base.SolutionSet;
-import jmetal.base.Variable;
-import jmetal.util.JMException;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Utils {
 
@@ -73,8 +66,36 @@ public class Utils {
         return headder;
     }
 
+    public String generateCSVForApparentFront(ApparentFront af) {
+        String csvOutput = "";
+        double[] coeff = af.getCoefficients();
+
+        String csvLine = "";
+        for (int i = 0; i < coeff.length; i++) {
+            csvLine += coeff[i] + ",";
+        }
+
+        csvLine = csvLine.substring(0, csvLine.length() - 1);
+        csvLine += System.getProperty("line.separator");
+        csvOutput += csvLine;
+
+        return csvOutput;
+    }
+
+    public String generateCSVHeaderForApparentFront(ApparentFront af) {
+        double[] coeff = af.getCoefficients();
+
+        String header = "";
+        for (int i = 0; i < coeff.length - 1; i++) {
+            header += "a" + (i + 1) + ",";
+        }
+        header += "c";
+
+        header += System.getProperty("line.separator");
+        return header;
+    }
+
     /**
-     *
      * @param simulationStatus
      * @return a new SolutionSet containing solutions with filled objectives
      */
@@ -177,7 +198,7 @@ public class Utils {
 
     public static Parameter[] getParametersAndVitualParameters(Solution solution, Environment environment) {
         Variable[] vars = solution.getDecisionVariables();
-        Parameter[] params = new Parameter[environment.getInputDocument().getParameters().length+environment.getInputDocument().getVirtualParameters().length];
+        Parameter[] params = new Parameter[environment.getInputDocument().getParameters().length + environment.getInputDocument().getVirtualParameters().length];
         /** for all variables... associate them with a parameter */
         for (int i = 0; i < vars.length; i++) {
             try {
@@ -197,7 +218,8 @@ public class Utils {
                 for (Parameter param : environment.getInputDocument().getParameters()) {
                     try {
                         e.addVariable(param.getName(), new Double((Integer) param.getValue()));
-                    } catch (Exception ex) {}
+                    } catch (Exception ex) {
+                    }
                 }
             }
             Parameter[] virtualParameters = environment.getInputDocument().getVirtualParameters();
