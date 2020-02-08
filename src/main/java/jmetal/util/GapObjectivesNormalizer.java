@@ -43,6 +43,6 @@ public class GapObjectivesNormalizer {
     }
 
     private double scaleHC(double HC) {
-        return (10000.0 - HC) / 10000.0;
+        return (5000.0 - HC) / 5000.0;
     }
 }

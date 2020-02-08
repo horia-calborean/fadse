@@ -6,23 +6,23 @@
  */
 package jmetal.metaheuristics.nsgaII;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
 import jmetal.base.*;
 import jmetal.qualityIndicator.QualityIndicator;
-import jmetal.util.*;
-
-import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import jmetal.util.Distance;
+import jmetal.util.JMException;
+import jmetal.util.Ranking;
 import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzy;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzyVirtualParameters;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationRandomDefuzzifier;
 import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class implements the NSGA-II algorithm.
@@ -106,7 +106,7 @@ public class NSGAII extends Algorithm {
     } // execute
 
     protected void DoEndRoundOutputs(SolutionSet population) {
-        if(problem_ instanceof ServerSimulator){
+        if (problem_ instanceof ServerSimulator) {
             OutputPopulation(population, "filled");
             Ranking ranking_temp = new Ranking(population);
             OutputPopulation(ranking_temp.getSubfront(0), "pareto");
@@ -127,13 +127,17 @@ public class NSGAII extends Algorithm {
 
         //***********************************************INITIAL POPULATION****************************************************
         SolutionSet population = CreateInitialPopulation();
+        OutputAndReevaluatePopulation(population);
+        return population;
+    }
+
+    protected void OutputAndReevaluatePopulation(SolutionSet population) throws JMException {
         JoinAndOutputPopulation(population, "filled");
         ReEvaluatePopulation(population);
         JoinAndOutputPopulation(population, "corrected");
 
         Ranking ranking_temp = new Ranking(population);
         OutputPopulation(ranking_temp.getSubfront(0), "pareto");
-        return population;
     }
 
     protected void DoIndicatorExtraStuff(SolutionSet population) {
@@ -251,7 +255,7 @@ public class NSGAII extends Algorithm {
                 parents[0] = (Solution) selectionOperator.execute(population);
                 parents[1] = (Solution) selectionOperator.execute(population);
                 Solution[] offSpring = (Solution[]) crossoverOperator.execute(parents);
-                for (int i=0;i<offSpring.length; i++){
+                for (int i = 0; i < offSpring.length; i++) {
                     Solution offs = offSpring[i];
                     mutationOperator.execute(offs);
                     problem_.evaluate(offs);
@@ -370,9 +374,9 @@ public class NSGAII extends Algorithm {
         if (mutationOperator instanceof BitFlipMutationFuzzyVirtualParameters) {
             try {
                 ((BitFlipMutationFuzzyVirtualParameters) mutationOperator).x = ((Integer) getInputParameter("initialGeneration")).intValue();
-                System.out.println("Initial generation is: "+ ((BitFlipMutationFuzzyVirtualParameters) mutationOperator).x);
+                System.out.println("Initial generation is: " + ((BitFlipMutationFuzzyVirtualParameters) mutationOperator).x);
             } catch (Exception e) {
-                System.out.println("NSGA-II: initial generations start was not set caused by: "+e.getMessage());
+                System.out.println("NSGA-II: initial generations start was not set caused by: " + e.getMessage());
             }
 
         }
