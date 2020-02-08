@@ -4,10 +4,11 @@ import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
 import jmetal.metaheuristics.nsgaII.NSGAII;
-import jmetal.util.ApparentFront;
-import jmetal.util.ApparentFrontHelper;
-import jmetal.util.ApparentFrontRanking;
+import jmetal.util.*;
 import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzy;
+import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzyVirtualParameters;
+import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationRandomDefuzzifier;
 import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
 import ro.ulbsibiu.fadse.utils.Utils;
 
@@ -15,6 +16,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AFZGA extends NSGAII {
     /**
@@ -28,7 +31,46 @@ public class AFZGA extends NSGAII {
 
     private int nrZones = 4;
     private int supportVectorsPerFront = 5;
+    private int supportVectorsPerAxis = 2;
     private SolutionSet bestSupportVectors;
+
+    @Override
+    public SolutionSet execute() throws JMException, ClassNotFoundException {
+
+        SolutionSet population = InitializeEverything();
+        population = CleanPopulation(population, null);
+        OutputAndReevaluatePopulation(population);
+        //***********************************************MAIN ALGORITHM********************************************************
+        // Generations ...
+        while (evaluations < maxEvaluations) {
+            Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "Entered NextGeneration with evaluations: " + evaluations);
+            SolutionSet offspringPopulation = GenerateOffsprings(population, feasiblePercentage);
+            offspringPopulation = CleanPopulation(offspringPopulation, population);
+
+            JoinAndOutputPopulation(offspringPopulation, "offspring");
+            ReEvaluatePopulation(population);
+            JoinAndOutputPopulation(population, "corrected");
+
+            // Create the solutionSet union of solutionSet and offSpring
+            SolutionSet union = ((SolutionSet) population).union(offspringPopulation);
+            population = SelectNextGeneration(union, populationSize);
+            DoIndicatorExtraStuff(population);
+
+            DoEndRoundOutputs(population);
+
+        } // while
+
+        // Return as output parameter the required evaluations
+        setOutputParameter("evaluations", requiredEvaluations);
+
+        // Return the first non-dominated front
+        Ranking ranking = new Ranking(population);
+
+        return ranking.getSubfront(0);
+
+
+    } // execute
+
 
     @Override
     protected SolutionSet SelectNextGeneration(SolutionSet union, int populationSize) {
@@ -100,13 +142,26 @@ public class AFZGA extends NSGAII {
 //                bestSupportVectors.add(population.get(i));
 //        }
 
-
         for (int i = 0; i < 3; i++) {
             SolutionSet subFront = ranking.getSubfront(i);
             int maxSolutionsFromFront = Math.min(subFront.size(), supportVectorsPerFront);
             for (int j = 0; j < maxSolutionsFromFront; j++) {
                 bestSupportVectors.add(subFront.get(j));
             }
+        }
+
+        SolutionSet supportVectorsCloseToAxis = selectSupportVectorsCloseToAxis(30, ranking, supportVectorsPerAxis);
+
+//        if (supportVectorsCloseToAxis.size() < 2 * supportVectorsPerAxis) {
+//            addVirtualSupportVectors(supportVectorsCloseToAxis, population);
+//        }
+
+        for (int i = 0; i < supportVectorsCloseToAxis.size(); i++) {
+            Solution currentSolution = supportVectorsCloseToAxis.get(i);
+            if (bestSupportVectors.deepContains(currentSolution)) {
+                continue;
+            }
+            bestSupportVectors.add(currentSolution);
         }
 
         if (bestSupportVectors.size() < minSupportVectorNumber) {
@@ -118,8 +173,80 @@ public class AFZGA extends NSGAII {
                     continue;
                 }
                 bestSupportVectors.add(population.get(i));
-            } while (bestSupportVectors.size() > 2);
+            } while (bestSupportVectors.size() < minSupportVectorNumber);
         }
+    }
+
+    //2 dimensions only
+    private SolutionSet selectSupportVectorsCloseToAxis(int angleDegrees, ApparentFrontRanking ranking, int nrFromEachAxis) {
+        SolutionSet supportVectors = new SolutionSet(2 * nrFromEachAxis);
+        double alfa = Math.toRadians(angleDegrees);
+
+        int[] counts = new int[2];
+        for (int i = 0; i < 3; i++) {
+            SolutionSet front = ranking.getSubfront(i);
+
+            GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(front);
+            normalizer.scaleObjectives();
+
+            int j = 0;
+            while (j < front.size() &&
+                    (counts[0] < nrFromEachAxis || counts[1] < nrFromEachAxis)) {
+                double alfa1 = Math.atan(front.get(j).getObjective(0) / front.get(j).getObjective(1));
+                double alfa2 = Math.atan(front.get(j).getObjective(1) / front.get(j).getObjective(0));
+
+                if (alfa1 < alfa) {
+                    supportVectors.add(front.get(j));
+                    counts[0]++;
+                } else if (alfa2 < alfa) {
+                    supportVectors.add(front.get(j));
+                    counts[1]++;
+                }
+
+                j++;
+            }
+
+            normalizer.restoreObjectives();
+        }
+
+        return supportVectors;
+    }
+
+    private void addVirtualSupportVectors(SolutionSet supportVectors, SolutionSet population) {
+        double maxHC = 0;
+        double maxIPC = 0;
+
+        int maxHCIndex = 0;
+        int maxIPCIndex = 0;
+
+        GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(population);
+        normalizer.scaleObjectives();
+
+        for (int i = 0; i < population.size(); i++) {
+            Solution currentSolution = population.get(i);
+            if (currentSolution.getObjective(0) > maxIPC) {
+                maxIPC = currentSolution.getObjective(0);
+                maxHCIndex = i;
+            }
+
+            if (currentSolution.getObjective(1) > maxHC) {
+                maxHC = currentSolution.getObjective(1);
+                maxIPCIndex = i;
+            }
+        }
+
+        normalizer.restoreObjectives();
+
+        Solution solMaxHC = new Solution(population.get(maxHCIndex));
+        solMaxHC.setObjective(0, 0);
+        solMaxHC.setObjective(1, maxHC);
+
+        Solution solMaxIPC = new Solution(population.get(maxIPCIndex));
+        solMaxIPC.setObjective(0, maxIPC);
+        solMaxIPC.setObjective(1, 0);
+
+        supportVectors.add(solMaxHC);
+        supportVectors.add(solMaxIPC);
     }
 
     private SolutionSet GenerateInitialSupportVectors(SolutionSet union, int minNumber) {
@@ -135,6 +262,113 @@ public class AFZGA extends NSGAII {
             bestSupportVectors.add(temp.get(k));
         } // for
         return bestSupportVectors;
+    }
+
+    private boolean hasFeasibleHC(Solution solution) {
+        double HC = solution.getObjective(1);
+        if (HC <= 5000) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private SolutionSet CleanPopulation(SolutionSet population, SolutionSet parentPopulation) throws JMException, ClassNotFoundException {
+        SolutionSet cleanPopulation = new SolutionSet(populationSize);
+        do {
+            if (problem_ instanceof ServerSimulator) {
+                ((ServerSimulator) problem_).join();//blocks until all  the offsprings are evaluated
+            }
+
+            cleanPopulation = RemoveInfeasibleIndividuals(population);
+            population = RefillPopulation(cleanPopulation, feasiblePercentage, parentPopulation);
+
+        } while (cleanPopulation.size() < populationSize);
+
+        return cleanPopulation;
+    }
+
+    private SolutionSet RemoveInfeasibleIndividuals(SolutionSet population) {
+        SolutionSet cleanPopulation = new SolutionSet(populationSize);
+
+        for (int i = 0; i < population.size(); i++) {
+            if (hasFeasibleHC(population.get(i))) {
+                cleanPopulation.add(population.get(i));
+            }
+        }
+
+        return cleanPopulation;
+    }
+
+    private SolutionSet RefillPopulation(SolutionSet currentPopulation, int feasiblePercentage, SolutionSet parentPopulation) throws JMException, ClassNotFoundException {
+        Logger.getLogger(AFZGA.class.getName()).log(Level.INFO, "Entered RefillPopulation with size: " + currentPopulation.size());
+
+        SolutionSet newPopulation = new SolutionSet(populationSize);
+        if (parentPopulation == null) {
+            int i = 0;
+            Solution newSolution;
+            while (i < populationSize - currentPopulation.size()) {
+                Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "#############################While RefillPopulation with currentSize: " + newPopulation.size());
+                newSolution = new Solution(problem_);
+                if (mutationOperator instanceof BitFlipMutationFuzzy
+                        || mutationOperator instanceof BitFlipMutationRandomDefuzzifier
+                        || mutationOperator instanceof BitFlipMutationFuzzyVirtualParameters) {
+                    mutationOperator.execute(newSolution);
+                }
+                problem_.evaluate(newSolution);
+                problem_.evaluateConstraints(newSolution);
+                if (feasible) {
+                    if (newSolution.getNumberOfViolatedConstraint() > 0) {
+                        if (mutationOperator instanceof BitFlipMutationFuzzy) {
+                            ((BitFlipMutationFuzzy) mutationOperator).x--;
+                        }
+                        continue;
+                    }
+                }
+                evaluations++;
+                newPopulation.add(newSolution);
+                i++;
+            }
+        } else {
+            Solution[] parents = new Solution[2];
+            int nrOfFeasible = 0;
+
+            while (newPopulation.size() < populationSize - currentPopulation.size()) {
+                Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "#############################While RefillPopulation with currentSize: " + newPopulation.size());
+                if (evaluations < maxEvaluations) {
+                    //obtain parents
+                    parents[0] = (Solution) selectionOperator.execute(parentPopulation);
+                    parents[1] = (Solution) selectionOperator.execute(parentPopulation);
+                    Solution[] offSpring = (Solution[]) crossoverOperator.execute(parents);
+                    for (int i = 0; i < offSpring.length; i++) {
+                        Solution offs = offSpring[i];
+                        mutationOperator.execute(offs);
+                        problem_.evaluate(offs);
+                        problem_.evaluateConstraints(offs);
+
+                        System.out.println("[0] " + offs.getNumberOfViolatedConstraint() + " " + nrOfFeasible);
+                        if (offs.getNumberOfViolatedConstraint() > 0 && (((nrOfFeasible + 0.0) / populationSize) * 100) < feasiblePercentage) {
+                            if (mutationOperator instanceof BitFlipMutationFuzzy) {
+                                ((BitFlipMutationFuzzy) mutationOperator).x--;
+                            }
+                        } else {
+                            if (newPopulation.size() < populationSize - currentPopulation.size()) {
+                                if (!parentPopulation.deepContains(offs) && !newPopulation.deepContains(offs)) {
+                                    Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "While RefillPopulation Added offsprings " + i);
+                                    newPopulation.add(offs);
+                                    evaluations += 1;
+                                    nrOfFeasible++;
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "Leaving RefillPopulation with a new populationsSize of: " + newPopulation.size());
+        return newPopulation.union(currentPopulation);
     }
 
     private void dumpCurrentFront(String filename, ApparentFront af) {
