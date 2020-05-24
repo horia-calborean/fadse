@@ -19,8 +19,10 @@ public class AfrMembershipComparator implements Comparator {
         else if (o2 == null)
             return -1;
 
-        double membership1 = ((Solution) o1).getAfrMembership();
-        double membership2 = ((Solution) o2).getAfrMembership();
+        Solution solution1 = ((Solution) o1);
+        Solution solution2 = ((Solution) o2);
+        double membership1 = solution1.getAfrMembership();
+        double membership2 = solution2.getAfrMembership();
         if (membership1 > membership2)
             return -1;
 

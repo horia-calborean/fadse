@@ -19,7 +19,7 @@ public class PureAFGA extends NSGAII {
     }
 
     @Override
-    protected SolutionSet InitializeEverything() throws ClassNotFoundException, JMException {
+    protected SolutionSet InitializeEverything() throws JMException, ClassNotFoundException {
         ReadParameters();
         ReadOperators();
 

@@ -14,31 +14,31 @@
         <!-- this is not really needed because it is extracted from benchmark paths -->
         <parameter name="simulator_output_file" value="irrelevant"/>
         <parameter name="simulator_executable"
-                   value="d:\fadse\SimAlu.exe"/>
+                   value="C:\Alina\Cercetare-Disertatie\miBenchSimulatorForGAP\fadse\SimAlu.exe"/>
         <parameter name="simulator_simulation_mode" value="false"/>
         <parameter name="benchmark_yaml_file"
-                   value="d:\fadse\dse-kiwi3-mibench-tiny-dumps.yml"/>
+                   value="C:\Alina\Cercetare-Disertatie\miBenchSimulatorForGAP\fadse\dse-kiwi3-mibench-tiny-dumps.yml"/>
         <!-- If you put TEMP here than the dumps are placed into the temporary folder of the OS -->
         <parameter name="benchmark_target_directory"
-                   value="d:\fadse\fadse_dumps\"/>
+                   value="C:\Alina\Cercetare-Disertatie\miBenchSimulatorForGAP\fadse\fadse_dumps\"/>
         <parameter name="gaptimize_executable_file"
-                   value="d:\fadse\Stepstep_YAML.exe"/>
+                   value="C:\Alina\Cercetare-Disertatie\miBenchSimulatorForGAP\fadse\Stepstep_YAML.exe"/>
         <parameter name="benchmark_repository_path"
-                   value="d:\fadse\mibench_tiny\"/>
+                   value="C:\Alina\Cercetare-Disertatie\miBenchSimulatorForGAP\fadse\mibench_tiny\"/>
     </simulator>
     <benchmarks>
-       <!--<item name="default-mibench-netw-dijkstra"/>
-        <item name="default-mibench-cons-jpeg-encode"/>-->
-        <item name="default-mibench-offi-stringsearch"/>
-        <!--<item name="default-mibench-auto-qsort"/>
-        <item name="default-mibench-tele-gsm-encode"/>
-        <item name="default-mibench-secu-rijndael-encode-nounroll"/>
-        <item name="default-mibench-secu-rijndael-decode-nounroll"/>
-        <item name="default-mibench-cons-jpeg-decode"/>
-        <item name="default-mibench-tele-gsm-decode"/>
-        <item name="default-mibench-tele-adpcm-file-decode"/>-->
+        <item name="default-mibench-netw-dijkstra"/>
+        <!--<item name="default-mibench-cons-jpeg-encode"/>-->
+        <!--<item name="default-mibench-offi-stringsearch"/>-->
+        <!--<item name="default-mibench-auto-qsort"/>-->
+        <!--<item name="default-mibench-tele-gsm-encode"/>-->
+        <!--<item name="default-mibench-secu-rijndael-encode-nounroll"/>-->
+        <!--<item name="default-mibench-secu-rijndael-decode-nounroll"/>-->
+        <!--<item name="default-mibench-cons-jpeg-decode"/>-->
+        <!--<item name="default-mibench-tele-gsm-decode"/>-->
+        <!--<item name="default-mibench-tele-adpcm-file-decode"/>-->
     </benchmarks>
-    <database ip="127.0.0.1" port="3306" name="fadse" user="root" password="fadse"/>
+    <database ip="127.0.0.1" port="3306" name="fadse_db" user="root" password="admin"/>
     <metaheuristic name="AFZGA" config_path="afzga.properties"/>
     <parameters>
         <parameter name="n_lines" description="param1" type="integer" min="4" max="32"/>
@@ -58,5 +58,5 @@
     </rules>
     <relations>
     </relations>
-    <output output_path="d:\work\FADSE_outputs\Gap_AFZGA\"/>
+    <output output_path="F:\FADSE_outputs\GAP_AFZGA\"/>
 </design_space>

@@ -28,17 +28,17 @@
     </simulator>
     <benchmarks>
         <item name="default-mibench-netw-dijkstra"/>
-        <item name="default-mibench-cons-jpeg-encode"/>
+        <!--<item name="default-mibench-cons-jpeg-encode"/>-->
         <item name="default-mibench-offi-stringsearch"/>
-        <item name="default-mibench-auto-qsort"/>
-        <item name="default-mibench-tele-gsm-encode"/>
-        <item name="default-mibench-secu-rijndael-encode-nounroll"/>
-        <item name="default-mibench-secu-rijndael-decode-nounroll"/>
-        <item name="default-mibench-cons-jpeg-decode"/>
-        <item name="default-mibench-tele-gsm-decode"/>
-        <item name="default-mibench-tele-adpcm-file-decode"/>
+        <!--<item name="default-mibench-auto-qsort"/>-->
+        <!--<item name="default-mibench-tele-gsm-encode"/>-->
+        <!--<item name="default-mibench-secu-rijndael-encode-nounroll"/>-->
+        <!--<item name="default-mibench-secu-rijndael-decode-nounroll"/>-->
+        <!--<item name="default-mibench-cons-jpeg-decode"/>-->
+        <!--<item name="default-mibench-tele-gsm-decode"/>-->
+        <!--<item name="default-mibench-tele-adpcm-file-decode"/>-->
     </benchmarks>
-    <database ip="127.0.0.1" port="3306" name="fadse_db" user="fadse" password="fadse"/>
+    <database ip="127.0.0.1" port="3306" name="fadse_db" user="root" password="admin"/>
     <metaheuristic name="PureAFGA" config_path="pureafga.properties"/>
     <parameters>
         <parameter name="n_lines" description="param1" type="integer" min="4" max="32"/>

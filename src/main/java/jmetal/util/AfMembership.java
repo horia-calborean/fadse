@@ -13,7 +13,7 @@ public class AfMembership {
      * @param solution the {@link Solution} for which the membership is computed
      * @return the fuzzy membership of the {@link Solution} to the {@link ApparentFront}
      */
-    public double compute(ApparentFront af, Solution solution) {
+    public static double compute(ApparentFront af, Solution solution) {
         double distance = AfDistance.ComputeDistance(af, solution);
 
         double alfa = 2;

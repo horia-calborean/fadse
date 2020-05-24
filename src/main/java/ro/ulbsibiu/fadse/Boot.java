@@ -1,17 +1,17 @@
 package ro.ulbsibiu.fadse;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import jmetal.util.JMException;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
 import ro.ulbsibiu.fadse.tools.monitor.SwingMonitor;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /*
- * 
+ *
  *
  * This file is part of the FADSE tool.
  *
@@ -46,8 +46,8 @@ import ro.ulbsibiu.fadse.tools.monitor.SwingMonitor;
  *
  *
  */
+
 /**
- *
  * @author Horia Calborean <horia.calborean at ulbsibiu.ro>
  */
 public class Boot {
@@ -69,7 +69,7 @@ public class Boot {
             String currentdir = System.getProperty("user.dir");
             File dir = new File(currentdir);
 
-             //String xmlFileName = "falsesimin.xml";
+            //String xmlFileName = "falsesimin.xml";
             String xmlFileName = "gapdistsimin_pureafga.xml";
             //String xmlFileName = "gapdistsmin_afzga.xml";
             //String xmlFileName = "falsesimin_radu.xml";
@@ -91,15 +91,15 @@ public class Boot {
             String checkpointFile = "";
             String secondFile = "";
 
-            String fuzzyConfigFile ="";
-            String environmentConfigFile = dir 
-            		+ System.getProperty("file.separator") + "configs" 
-            		+ System.getProperty("file.separator") + "designSpace"
-            		+ System.getProperty("file.separator") + xmlFileName;
-            String neighborConfig = dir 
-            		+ System.getProperty("file.separator") + "configs"
-            		+ System.getProperty("file.separator") + "neighbor"
-            		+ System.getProperty("file.separator") + "simpleNeighborConfig.xml";
+            String fuzzyConfigFile = "";
+            String environmentConfigFile = dir
+                    + System.getProperty("file.separator") + "configs"
+                    + System.getProperty("file.separator") + "designSpace"
+                    + System.getProperty("file.separator") + xmlFileName;
+            String neighborConfig = dir
+                    + System.getProperty("file.separator") + "configs"
+                    + System.getProperty("file.separator") + "neighbor"
+                    + System.getProperty("file.separator") + "simpleNeighborConfig.xml";
             for (int i = 1; i < args.length; i++) {
                 if (args[i].endsWith(".xml")) {
                     neighborConfig = args[i];
@@ -110,7 +110,7 @@ public class Boot {
                 } else if (args[i].endsWith(".fcl")) {
                     fuzzyConfigFile = args[i];
                 }
-            }           
+            }
 
             Environment env = new Environment(environmentConfigFile);
             CheckpointFileParameter checkpointFileParameter = new CheckpointFileParameter(checkpointFile, secondFile);
@@ -119,7 +119,7 @@ public class Boot {
             //TODO
             env.setNeighborsConfigFile(neighborConfig);
             //END TODO            
-            
+
             try {
                 AlgorithmRunner algRunner = new AlgorithmRunner();
                 algRunner.run(env);

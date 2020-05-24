@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import ro.ulbsibiu.fadse.environment.document.InputDocument;
 
-import com.mysql.jdbc.PreparedStatement;
+import java.sql.PreparedStatement;
 
 /**
  * ConnectionPool verwaltet die Datenbankverbindungen, die nicht über SPRING

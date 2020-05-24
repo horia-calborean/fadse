@@ -63,6 +63,10 @@ public class ApparentFront {
 
         for (int i = 0; i < eigenVectorArray.length; i++) {
             coefficients[i] = -eigenVectorArray[i] / eigenVectorArray[dims];
+            if (i < 2 && coefficients[i] < 0) {
+                System.out.println("Negative AF coefficients!!!");
+                System.exit(1);
+            }
         }
     }
 

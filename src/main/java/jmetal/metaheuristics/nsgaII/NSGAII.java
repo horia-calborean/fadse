@@ -117,7 +117,7 @@ public class NSGAII extends Algorithm {
         }
     }
 
-    protected SolutionSet InitializeEverything() throws ClassNotFoundException, JMException {
+    protected SolutionSet InitializeEverything() throws JMException, ClassNotFoundException {
         ReadParameters();
         ReadOperators();
 

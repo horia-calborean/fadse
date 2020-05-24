@@ -9,5 +9,12 @@
 -->
 
 <neighbors>
+	<neighbor ip="localhost" listenPort="4444" availableSlots="1" />
 	<neighbor ip="localhost" listenPort="4445" availableSlots="1" />
+	<neighbor ip="localhost" listenPort="4447" availableSlots="1" />
+	<neighbor ip="localhost" listenPort="4449" availableSlots="1" />
+	<neighbor ip="localhost" listenPort="4464" availableSlots="1" />
+	<neighbor ip="localhost" listenPort="4465" availableSlots="1" />
+	<neighbor ip="localhost" listenPort="4466" availableSlots="1" />
+	<neighbor ip="localhost" listenPort="4467" availableSlots="1" />
 </neighbors>

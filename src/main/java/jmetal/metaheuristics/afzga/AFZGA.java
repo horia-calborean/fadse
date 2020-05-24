@@ -30,8 +30,10 @@ public class AFZGA extends NSGAII {
     }
 
     private int nrZones = 4;
-    private int supportVectorsPerFront = 5;
-    private int supportVectorsPerAxis = 2;
+    private int nrZonesUsedForSupportVectors = 3;
+    private int supportVectorsPerFront = 2;
+    private int supportVectorsPerAxis = 5;
+    private int defaultSupportVectorsNumber = nrZonesUsedForSupportVectors * supportVectorsPerFront + 2 * supportVectorsPerAxis;
     private SolutionSet bestSupportVectors;
 
     @Override
@@ -76,14 +78,13 @@ public class AFZGA extends NSGAII {
     protected SolutionSet SelectNextGeneration(SolutionSet union, int populationSize) {
         //Distance distance = new Distance();
         //AfMembership afMembership = new AfMembership();
-        ApparentFront af = new ApparentFront(11);
+        ApparentFront af = new ApparentFront(4);
 
         //int minSupportVectorNumber = union.get(0).numberOfObjectives() + 1;
         int minSupportVectorNumber = 3;
-        int defaultSupportVectorNumber = 15;
         //SolutionSet supportVectors = new SolutionSet(minVectors);
         if (bestSupportVectors == null) {
-            bestSupportVectors = GenerateInitialSupportVectors(union, defaultSupportVectorNumber);
+            bestSupportVectors = GenerateInitialSupportVectors(union, defaultSupportVectorsNumber);
         }
 
         ApparentFrontHelper.FitTheFront(af, bestSupportVectors);
@@ -133,36 +134,24 @@ public class AFZGA extends NSGAII {
 
         OutputPopulation(bestSupportVectors, "supportVectors");
 
+        GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(bestSupportVectors);
+        normalizer.scaleObjectives();
+
+        //OutputPopulation(bestSupportVectors, "supportVectors_normalized");
+
+        normalizer.restoreObjectives();
+
         return population;
     }
 
     private void selectNextSupportVectors(int minSupportVectorNumber, ApparentFrontRanking ranking, SolutionSet population) {
         bestSupportVectors.clear();
-//        for (int i = 0; i < minSupportVectorNumber; i++) {
-//                bestSupportVectors.add(population.get(i));
-//        }
 
-        for (int i = 0; i < 3; i++) {
-            SolutionSet subFront = ranking.getSubfront(i);
-            int maxSolutionsFromFront = Math.min(subFront.size(), supportVectorsPerFront);
-            for (int j = 0; j < maxSolutionsFromFront; j++) {
-                bestSupportVectors.add(subFront.get(j));
-            }
-        }
+        AFZGASupportVectors supportVectorsGenerator = new AFZGASupportVectors(population, ranking, defaultSupportVectorsNumber);
+        supportVectorsGenerator.addSupportVectorsFromFronts(nrZonesUsedForSupportVectors, supportVectorsPerFront);
+        supportVectorsGenerator.addSupportVectorsCloseToAxis(nrZonesUsedForSupportVectors, supportVectorsPerAxis, 40, 15);
 
-        SolutionSet supportVectorsCloseToAxis = selectSupportVectorsCloseToAxis(30, ranking, supportVectorsPerAxis);
-
-//        if (supportVectorsCloseToAxis.size() < 2 * supportVectorsPerAxis) {
-//            addVirtualSupportVectors(supportVectorsCloseToAxis, population);
-//        }
-
-        for (int i = 0; i < supportVectorsCloseToAxis.size(); i++) {
-            Solution currentSolution = supportVectorsCloseToAxis.get(i);
-            if (bestSupportVectors.deepContains(currentSolution)) {
-                continue;
-            }
-            bestSupportVectors.add(currentSolution);
-        }
+        bestSupportVectors = supportVectorsGenerator.getSupportVectors();
 
         if (bestSupportVectors.size() < minSupportVectorNumber) {
             int i = -1;
@@ -175,78 +164,6 @@ public class AFZGA extends NSGAII {
                 bestSupportVectors.add(population.get(i));
             } while (bestSupportVectors.size() < minSupportVectorNumber);
         }
-    }
-
-    //2 dimensions only
-    private SolutionSet selectSupportVectorsCloseToAxis(int angleDegrees, ApparentFrontRanking ranking, int nrFromEachAxis) {
-        SolutionSet supportVectors = new SolutionSet(2 * nrFromEachAxis);
-        double alfa = Math.toRadians(angleDegrees);
-
-        int[] counts = new int[2];
-        for (int i = 0; i < 3; i++) {
-            SolutionSet front = ranking.getSubfront(i);
-
-            GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(front);
-            normalizer.scaleObjectives();
-
-            int j = 0;
-            while (j < front.size() &&
-                    (counts[0] < nrFromEachAxis || counts[1] < nrFromEachAxis)) {
-                double alfa1 = Math.atan(front.get(j).getObjective(0) / front.get(j).getObjective(1));
-                double alfa2 = Math.atan(front.get(j).getObjective(1) / front.get(j).getObjective(0));
-
-                if (alfa1 < alfa) {
-                    supportVectors.add(front.get(j));
-                    counts[0]++;
-                } else if (alfa2 < alfa) {
-                    supportVectors.add(front.get(j));
-                    counts[1]++;
-                }
-
-                j++;
-            }
-
-            normalizer.restoreObjectives();
-        }
-
-        return supportVectors;
-    }
-
-    private void addVirtualSupportVectors(SolutionSet supportVectors, SolutionSet population) {
-        double maxHC = 0;
-        double maxIPC = 0;
-
-        int maxHCIndex = 0;
-        int maxIPCIndex = 0;
-
-        GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(population);
-        normalizer.scaleObjectives();
-
-        for (int i = 0; i < population.size(); i++) {
-            Solution currentSolution = population.get(i);
-            if (currentSolution.getObjective(0) > maxIPC) {
-                maxIPC = currentSolution.getObjective(0);
-                maxHCIndex = i;
-            }
-
-            if (currentSolution.getObjective(1) > maxHC) {
-                maxHC = currentSolution.getObjective(1);
-                maxIPCIndex = i;
-            }
-        }
-
-        normalizer.restoreObjectives();
-
-        Solution solMaxHC = new Solution(population.get(maxHCIndex));
-        solMaxHC.setObjective(0, 0);
-        solMaxHC.setObjective(1, maxHC);
-
-        Solution solMaxIPC = new Solution(population.get(maxIPCIndex));
-        solMaxIPC.setObjective(0, maxIPC);
-        solMaxIPC.setObjective(1, 0);
-
-        supportVectors.add(solMaxHC);
-        supportVectors.add(solMaxIPC);
     }
 
     private SolutionSet GenerateInitialSupportVectors(SolutionSet union, int minNumber) {
