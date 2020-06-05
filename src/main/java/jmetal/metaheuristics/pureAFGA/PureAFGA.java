@@ -18,6 +18,8 @@ public class PureAFGA extends NSGAII {
         super(problem);
     }
 
+    private int virtualSupportVectorsPerAxis = 5;
+
     @Override
     protected SolutionSet InitializeEverything() throws JMException, ClassNotFoundException {
         ReadParameters();
@@ -33,11 +35,11 @@ public class PureAFGA extends NSGAII {
         ReEvaluatePopulation(population);
         JoinAndOutputPopulation(population, "corrected");
 
+        AsignAfrMembership(population);
 
         Ranking ranking_temp = new Ranking(population);
         OutputPopulation(ranking_temp.getSubfront(0), "pareto");
 
-        AsignAfrMembership(population);
         return population;
     }
 
@@ -69,6 +71,8 @@ public class PureAFGA extends NSGAII {
 
         af.fit(supportVectors);
 
+        af.dumpCurrentFront(problem_, "coefficients_" + System.currentTimeMillis());
+
         //restore to minimization problem
         normalizer.restoreObjectives();
     }
@@ -77,8 +81,26 @@ public class PureAFGA extends NSGAII {
         AfMembership afMembership = new AfMembership();
 
         // compute Apparent Front using the entire population
-        ApparentFront af = new ApparentFront(11);
-        FitTheFront(af, population);
+        ApparentFront af = new ApparentFront(4);
+        SolutionSet supportVectors = new SolutionSet(population.size() + 2 * virtualSupportVectorsPerAxis);
+
+        SolutionSet xVectors = VirtualSupportVectors.getVirtualSupportVectorsCloseToX(population, virtualSupportVectorsPerAxis);
+        for (int i = 0; i < xVectors.size(); i++) {
+            supportVectors.add(xVectors.get(i));
+        }
+
+        SolutionSet yVectors = VirtualSupportVectors.getVirtualSupportVectorsCloseToY(population, virtualSupportVectorsPerAxis);
+        for (int i = 0; i < yVectors.size(); i++) {
+            supportVectors.add(yVectors.get(i));
+        }
+
+        for (int i = 0; i < population.size(); i++) {
+            supportVectors.add(population.get(i));
+        }
+
+        OutputPopulation(supportVectors, "supportVectors");
+
+        FitTheFront(af, supportVectors);
 
         // turn to maximization problem
         GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(population);

@@ -1,10 +1,19 @@
 package jmetal.util;
 
+import jmetal.base.Problem;
 import jmetal.base.SolutionSet;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
+import ro.ulbsibiu.fadse.utils.Utils;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class ApparentFront {
     private double[] coefficients;
@@ -66,6 +75,25 @@ public class ApparentFront {
             if (i < 2 && coefficients[i] < 0) {
                 System.out.println("Negative AF coefficients!!!");
                 System.exit(1);
+            }
+        }
+    }
+
+    public void dumpCurrentFront(Problem problem, String filename) {
+        if (problem instanceof ServerSimulator) {
+            Environment environment = ((ServerSimulator) problem).getEnvironment();
+
+            String result = (new Utils()).generateCSVHeaderForApparentFront(this);
+            result += (new Utils()).generateCSVForApparentFront(this);
+
+            try {
+                (new File(environment.getResultsFolder())).mkdirs();
+                BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolder() + System.getProperty("file.separator") + filename + ".csv"));
+                out.write(result);
+                out.close();
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
             }
         }
     }

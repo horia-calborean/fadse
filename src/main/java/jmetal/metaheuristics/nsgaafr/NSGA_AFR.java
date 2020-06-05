@@ -3,7 +3,6 @@ package jmetal.metaheuristics.nsgaafr;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
-import jmetal.base.operator.comparator.CrowdingDistanceComparator;
 import jmetal.metaheuristics.nsgaII.NSGAII;
 import jmetal.util.*;
 import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
@@ -34,7 +33,7 @@ public class NSGA_AFR extends NSGAII {
 
     @Override
     protected SolutionSet SelectNextGeneration(SolutionSet union, int populationSize) {
-        long startTime =  System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         Logger.getLogger(NSGA_AFR.class.getName()).log(Level.INFO, "Entered SelectNextGeneration with populationsize of: " + populationSize);
         AfMembership afMembership = new AfMembership();
         // Ranking the union
@@ -47,19 +46,28 @@ public class NSGA_AFR extends NSGAII {
         // Obtain the next front
         front = ranking.getSubfront(index);
 
-        ApparentFront af = new ApparentFront(11);
+        ApparentFront af = new ApparentFront(4);
         int minVectors = front.get(0).numberOfObjectives() + 1;
 
-        SolutionSet supportVectors;
-        supportVectors = ApparentFrontHelper.ComputeSupportVectors(ranking, index, front, minVectors);
+        SupportVectorsHelper supportVectorsHelper = new SupportVectorsHelper();
+//        SolutionSet initialSupportVectors = supportVectorsHelper.getNSGAAFRSupportVectors(ranking, index, front, minVectors);
+//        SolutionSet marginalSupportVectors = supportVectorsHelper.getSupportVectorsCloseToAxis(union, ranking, 3, 5, 20, 20);
+//
+//        SolutionSet supportVectors = supportVectorsHelper.combine(initialSupportVectors, marginalSupportVectors);
+
+        SolutionSet supportVectors = supportVectorsHelper.getNSGAAFRSupportVectors(ranking, index, front, minVectors);
+
+        OutputPopulation(supportVectors, "supportVectors");
 
         ApparentFrontHelper.FitTheFront(af, supportVectors);
+
+        af.dumpCurrentFront(problem_, "coefficients_" + System.currentTimeMillis());
 
         GapObjectivesNormalizer normalizer;
         normalizer = new GapObjectivesNormalizer(union);
         normalizer.scaleObjectives();
 
-        for(int i =0;i< union.size();i++) {
+        for (int i = 0; i < union.size(); i++) {
             Solution currentSolution = union.get(i);
             double membership = afMembership.compute(af, currentSolution);
             currentSolution.setAfrMembership(membership);
@@ -123,29 +131,29 @@ public class NSGA_AFR extends NSGAII {
         Logger.getLogger(NSGA_AFR.class.getName()).log(Level.INFO, "Leaving SelectNextGeneration with populationsize of: " + population.size());
 
         if (outputFolder != null) {
-            String fileName = outputFolder + System.getProperty("file.separator")+ "nsgaAfr" + System.currentTimeMillis() + ".csv";
+            String fileName = outputFolder + System.getProperty("file.separator") + "nsgaAfr" + System.currentTimeMillis() + ".csv";
 
             String str = "";
 
             for (double coeff : af.getCoefficients()) {
-                str +="Coeffs: " + coeff + ",";
+                str += "Coeffs: " + coeff + ",";
             }
 
-            str+="\n";
-            str+="FrontNR,AfrMemberShip,CrowdingDistance\n";
+            str += "\n";
+            str += "FrontNR,AfrMemberShip,CrowdingDistance\n";
 
-            for(int i=0;i<ranking.getNumberOfSubfronts();i++){
+            for (int i = 0; i < ranking.getNumberOfSubfronts(); i++) {
                 SolutionSet currentFront = ranking.getSubfront(i);
                 distance.crowdingDistanceAssignment(currentFront, problem_.getNumberOfObjectives());
-                for(int j=0;j<currentFront.size();j++){
+                for (int j = 0; j < currentFront.size(); j++) {
                     Solution currentSolution = currentFront.get(j);
                     str += i + "," + currentSolution.getAfrMembership() + "," + currentSolution.getCrowdingDistance() + "\n";
                 }
             }
 
             long endTime = System.currentTimeMillis();
-            long duration = (endTime-startTime);
-            str ="Duration in SelectNextPopulation: " + duration + "\n" + str;
+            long duration = (endTime - startTime);
+            str = "Duration in SelectNextPopulation: " + duration + "\n" + str;
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
                 writer.write(str);

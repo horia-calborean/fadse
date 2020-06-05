@@ -5,7 +5,7 @@ import jmetal.base.SolutionSet;
 
 import java.util.LinkedList;
 
-public class ApparentFrontRanking {
+public class ApparentFrontRanking implements IRanking {
 
     private SolutionSet[] ranking_;
 

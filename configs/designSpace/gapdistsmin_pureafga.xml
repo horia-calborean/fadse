@@ -29,7 +29,7 @@
     <benchmarks>
         <item name="default-mibench-netw-dijkstra"/>
         <!--<item name="default-mibench-cons-jpeg-encode"/>-->
-        <item name="default-mibench-offi-stringsearch"/>
+        <!--<item name="default-mibench-offi-stringsearch"/>-->
         <!--<item name="default-mibench-auto-qsort"/>-->
         <!--<item name="default-mibench-tele-gsm-encode"/>-->
         <!--<item name="default-mibench-secu-rijndael-encode-nounroll"/>-->
@@ -58,5 +58,5 @@
     </rules>
     <relations>
     </relations>
-    <output output_path="C:\Alina\Cercetare-Disertatie\FADSE_outputs\Gap_PureAFGA\"/>
+    <output output_path="F:\FADSE_outputs\GAP_PureAFGA\"/>
 </design_space>

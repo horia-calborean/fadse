@@ -89,7 +89,7 @@ public class AFZGA extends NSGAII {
 
         ApparentFrontHelper.FitTheFront(af, bestSupportVectors);
 
-        dumpCurrentFront("coefficients_" + System.currentTimeMillis(), af);
+        af.dumpCurrentFront(problem_, "coefficients_" + System.currentTimeMillis());
 
         ApparentFrontRanking ranking = new ApparentFrontRanking(af, union, nrZones);
 
@@ -147,11 +147,11 @@ public class AFZGA extends NSGAII {
     private void selectNextSupportVectors(int minSupportVectorNumber, ApparentFrontRanking ranking, SolutionSet population) {
         bestSupportVectors.clear();
 
-        AFZGASupportVectors supportVectorsGenerator = new AFZGASupportVectors(population, ranking, defaultSupportVectorsNumber);
-        supportVectorsGenerator.addSupportVectorsFromFronts(nrZonesUsedForSupportVectors, supportVectorsPerFront);
-        supportVectorsGenerator.addSupportVectorsCloseToAxis(nrZonesUsedForSupportVectors, supportVectorsPerAxis, 40, 15);
+        SupportVectorsHelper supportVectorsHelper = new SupportVectorsHelper();
+        SolutionSet initialSupportVectors = supportVectorsHelper.getAFZGASupportVectors(ranking, nrZonesUsedForSupportVectors, supportVectorsPerFront);
+        SolutionSet marginalSupportVectors = supportVectorsHelper.getSupportVectorsCloseToAxis(population, ranking, nrZonesUsedForSupportVectors, supportVectorsPerAxis, 40, 15);
 
-        bestSupportVectors = supportVectorsGenerator.getSupportVectors();
+        bestSupportVectors = supportVectorsHelper.combine(initialSupportVectors, marginalSupportVectors);
 
         if (bestSupportVectors.size() < minSupportVectorNumber) {
             int i = -1;
