@@ -5,17 +5,11 @@ import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
 import jmetal.metaheuristics.nsgaII.NSGAII;
 import jmetal.util.*;
-import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzy;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzyVirtualParameters;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationRandomDefuzzifier;
 import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
-import ro.ulbsibiu.fadse.utils.Utils;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,8 +24,10 @@ public class AFZGA extends NSGAII {
     }
 
     private int nrZones = 4;
-    private int supportVectorsPerFront = 5;
-    private int supportVectorsPerAxis = 2;
+    private int nrZonesUsedForSupportVectors = 3;
+    private int supportVectorsPerFront = 2;
+    private int supportVectorsPerAxis = 5;
+    private int defaultSupportVectorsNumber = nrZonesUsedForSupportVectors * supportVectorsPerFront + 2 * supportVectorsPerAxis;
     private SolutionSet bestSupportVectors;
 
     @Override
@@ -57,7 +53,6 @@ public class AFZGA extends NSGAII {
             DoIndicatorExtraStuff(population);
 
             DoEndRoundOutputs(population);
-
         } // while
 
         // Return as output parameter the required evaluations
@@ -72,23 +67,86 @@ public class AFZGA extends NSGAII {
     } // execute
 
 
+//    @Override
+//    protected SolutionSet SelectNextGeneration(SolutionSet union, int populationSize) {
+//        //Distance distance = new Distance();
+//        //AfMembership afMembership = new AfMembership();
+//        ApparentFront af = new ApparentFront(4);
+//
+//        //int minSupportVectorNumber = union.get(0).numberOfObjectives() + 1;
+//        int minSupportVectorNumber = 3;
+//        //SolutionSet supportVectors = new SolutionSet(minVectors);
+//        if (bestSupportVectors == null) {
+//            bestSupportVectors = GenerateInitialSupportVectors(union, defaultSupportVectorsNumber);
+//        }
+//
+//        OutputPopulation(bestSupportVectors, "supportVectors");
+//
+//        ApparentFrontHelper.FitTheFront(af, bestSupportVectors);
+//
+//        af.dumpCurrentFront(problem_, "coefficients_" + System.currentTimeMillis());
+//
+//        ApparentFrontRanking ranking = new ApparentFrontRanking(af, union, nrZones);
+//
+//        int remain = populationSize;
+//        int index = 0;
+//        SolutionSet front = null;
+//        SolutionSet population = new SolutionSet(populationSize);
+//        population.clear();
+//
+//        for (int i = 0; i < nrZones; i++) {
+//            OutputPopulation(ranking.getSubfront(i), "afz" + (i + 1) + "_");
+//        }
+//
+//
+//        front = ranking.getSubfront(index);
+//        while ((remain > 0) && (remain >= front.size())) {
+//            //Assign crowding distance to individuals
+//            distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
+//            //Add the individuals of this front
+//            for (int k = 0; k < front.size(); k++) {
+//                population.add(front.get(k));
+//            } // for
+//            //Decrement remain
+//            remain = remain - front.size();
+//            //Obtain the next front
+//            index++;
+//            if (remain > 0) {
+//                front = ranking.getSubfront(index);
+//            } // if
+//        } // while
+//        // Remain is less than front(index).size, insert only the best one
+//        if (remain > 0) {  // front contains individuals to insert
+//            distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
+//            front.sort(new jmetal.base.operator.comparator.CrowdingComparator());
+//            for (int k = 0; k < remain; k++) {
+//                population.add(front.get(k));
+//            } // for
+//            remain = 0;
+//        } // if
+//
+//        selectNextSupportVectors(minSupportVectorNumber, ranking, population);
+//
+//        return population;
+//    }
+
     @Override
     protected SolutionSet SelectNextGeneration(SolutionSet union, int populationSize) {
+        double reductionRate = 0.1;
         //Distance distance = new Distance();
         //AfMembership afMembership = new AfMembership();
         ApparentFront af = new ApparentFront(11);
 
         //int minSupportVectorNumber = union.get(0).numberOfObjectives() + 1;
         int minSupportVectorNumber = 3;
-        int defaultSupportVectorNumber = 15;
         //SolutionSet supportVectors = new SolutionSet(minVectors);
         if (bestSupportVectors == null) {
-            bestSupportVectors = GenerateInitialSupportVectors(union, defaultSupportVectorNumber);
+            bestSupportVectors = GenerateInitialSupportVectors(union, defaultSupportVectorsNumber);
         }
 
         ApparentFrontHelper.FitTheFront(af, bestSupportVectors);
 
-        dumpCurrentFront("coefficients_" + System.currentTimeMillis(), af);
+        af.dumpCurrentFront(problem_, "coefficients_" + System.currentTimeMillis());
 
         ApparentFrontRanking ranking = new ApparentFrontRanking(af, union, nrZones);
 
@@ -97,72 +155,76 @@ public class AFZGA extends NSGAII {
         SolutionSet front = null;
         SolutionSet population = new SolutionSet(populationSize);
         population.clear();
+        // Obtain the next front
+        front = ranking.getSubfront(index);
 
         for (int i = 0; i < nrZones; i++) {
             OutputPopulation(ranking.getSubfront(i), "afz" + (i + 1) + "_");
         }
 
+        OutputPopulation(bestSupportVectors, "supportVectors");
 
-        front = ranking.getSubfront(index);
-        while ((remain > 0) && (remain >= front.size())) {
-            //Assign crowding distance to individuals
-            distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
-            //Add the individuals of this front
-            for (int k = 0; k < front.size(); k++) {
-                population.add(front.get(k));
-            } // for
-            //Decrement remain
-            remain = remain - front.size();
-            //Obtain the next front
-            index++;
-            if (remain > 0) {
-                front = ranking.getSubfront(index);
-            } // if
-        } // while
-        // Remain is less than front(index).size, insert only the best one
-        if (remain > 0) {  // front contains individuals to insert
-            distance.crowdingDistanceAssignment(front, problem_.getNumberOfObjectives());
+        int nrFronts = ranking.getNumberOfSubfronts();
+        int currentFrontNr = (int) ((populationSize * (1 - reductionRate) * Math.pow(reductionRate,
+                index)) / (1 - Math.pow(reductionRate, nrFronts)) + 1);
+
+        while (remain > 0 && index < nrFronts) {
+            // Assign crowding distance to individuals
+            distance.crowdingDistanceAssignment(front,
+                    problem_.getNumberOfObjectives());
             front.sort(new jmetal.base.operator.comparator.CrowdingComparator());
-            for (int k = 0; k < remain; k++) {
+
+            int k;
+            for (k = 0; k < remain && k < currentFrontNr && k < front.size(); k++) {
                 population.add(front.get(k));
-            } // for
-            remain = 0;
-        } // if
+            }
+
+            for (int i = k - 1; i >= 0; i--) {
+                front.remove(i);
+            }
+
+            // for
+            // Decrement remain
+            remain = remain - k;
+
+            // Obtain the next front
+            index++;
+            currentFrontNr = (int) ((populationSize * (1 - reductionRate) * Math.pow(reductionRate,
+                    index)) / (1 - Math.pow(reductionRate, nrFronts))) + 1;
+            if (remain > 0) {
+                try {
+                    front = ranking.getSubfront(index);
+                } catch (Exception ex) {
+                    break;
+                }
+            }
+
+        } // while
+
+        index = 0;
+
+        do {
+            front = ranking.getSubfront(index);
+            for (int i = 0; i < front.size() && remain > 0; i++) {
+                population.add(front.get(i));
+                remain--;
+            }
+            index++;
+        } while (remain > 0);
 
         selectNextSupportVectors(minSupportVectorNumber, ranking, population);
-
-        OutputPopulation(bestSupportVectors, "supportVectors");
 
         return population;
     }
 
     private void selectNextSupportVectors(int minSupportVectorNumber, ApparentFrontRanking ranking, SolutionSet population) {
         bestSupportVectors.clear();
-//        for (int i = 0; i < minSupportVectorNumber; i++) {
-//                bestSupportVectors.add(population.get(i));
-//        }
 
-        for (int i = 0; i < 3; i++) {
-            SolutionSet subFront = ranking.getSubfront(i);
-            int maxSolutionsFromFront = Math.min(subFront.size(), supportVectorsPerFront);
-            for (int j = 0; j < maxSolutionsFromFront; j++) {
-                bestSupportVectors.add(subFront.get(j));
-            }
-        }
+        SupportVectorsHelper supportVectorsHelper = new SupportVectorsHelper();
+        SolutionSet initialSupportVectors = supportVectorsHelper.getAFZGASupportVectors(ranking, nrZonesUsedForSupportVectors, supportVectorsPerFront + 1);
+        SolutionSet marginalSupportVectors = supportVectorsHelper.getSupportVectorsCloseToAxis(population, ranking, nrZonesUsedForSupportVectors, supportVectorsPerAxis, 40, 20);
 
-        SolutionSet supportVectorsCloseToAxis = selectSupportVectorsCloseToAxis(30, ranking, supportVectorsPerAxis);
-
-//        if (supportVectorsCloseToAxis.size() < 2 * supportVectorsPerAxis) {
-//            addVirtualSupportVectors(supportVectorsCloseToAxis, population);
-//        }
-
-        for (int i = 0; i < supportVectorsCloseToAxis.size(); i++) {
-            Solution currentSolution = supportVectorsCloseToAxis.get(i);
-            if (bestSupportVectors.deepContains(currentSolution)) {
-                continue;
-            }
-            bestSupportVectors.add(currentSolution);
-        }
+        bestSupportVectors = supportVectorsHelper.combine(marginalSupportVectors, initialSupportVectors);
 
         if (bestSupportVectors.size() < minSupportVectorNumber) {
             int i = -1;
@@ -175,78 +237,6 @@ public class AFZGA extends NSGAII {
                 bestSupportVectors.add(population.get(i));
             } while (bestSupportVectors.size() < minSupportVectorNumber);
         }
-    }
-
-    //2 dimensions only
-    private SolutionSet selectSupportVectorsCloseToAxis(int angleDegrees, ApparentFrontRanking ranking, int nrFromEachAxis) {
-        SolutionSet supportVectors = new SolutionSet(2 * nrFromEachAxis);
-        double alfa = Math.toRadians(angleDegrees);
-
-        int[] counts = new int[2];
-        for (int i = 0; i < 3; i++) {
-            SolutionSet front = ranking.getSubfront(i);
-
-            GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(front);
-            normalizer.scaleObjectives();
-
-            int j = 0;
-            while (j < front.size() &&
-                    (counts[0] < nrFromEachAxis || counts[1] < nrFromEachAxis)) {
-                double alfa1 = Math.atan(front.get(j).getObjective(0) / front.get(j).getObjective(1));
-                double alfa2 = Math.atan(front.get(j).getObjective(1) / front.get(j).getObjective(0));
-
-                if (alfa1 < alfa) {
-                    supportVectors.add(front.get(j));
-                    counts[0]++;
-                } else if (alfa2 < alfa) {
-                    supportVectors.add(front.get(j));
-                    counts[1]++;
-                }
-
-                j++;
-            }
-
-            normalizer.restoreObjectives();
-        }
-
-        return supportVectors;
-    }
-
-    private void addVirtualSupportVectors(SolutionSet supportVectors, SolutionSet population) {
-        double maxHC = 0;
-        double maxIPC = 0;
-
-        int maxHCIndex = 0;
-        int maxIPCIndex = 0;
-
-        GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(population);
-        normalizer.scaleObjectives();
-
-        for (int i = 0; i < population.size(); i++) {
-            Solution currentSolution = population.get(i);
-            if (currentSolution.getObjective(0) > maxIPC) {
-                maxIPC = currentSolution.getObjective(0);
-                maxHCIndex = i;
-            }
-
-            if (currentSolution.getObjective(1) > maxHC) {
-                maxHC = currentSolution.getObjective(1);
-                maxIPCIndex = i;
-            }
-        }
-
-        normalizer.restoreObjectives();
-
-        Solution solMaxHC = new Solution(population.get(maxHCIndex));
-        solMaxHC.setObjective(0, 0);
-        solMaxHC.setObjective(1, maxHC);
-
-        Solution solMaxIPC = new Solution(population.get(maxIPCIndex));
-        solMaxIPC.setObjective(0, maxIPC);
-        solMaxIPC.setObjective(1, 0);
-
-        supportVectors.add(solMaxHC);
-        supportVectors.add(solMaxIPC);
     }
 
     private SolutionSet GenerateInitialSupportVectors(SolutionSet union, int minNumber) {
@@ -369,24 +359,5 @@ public class AFZGA extends NSGAII {
 
         Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "Leaving RefillPopulation with a new populationsSize of: " + newPopulation.size());
         return newPopulation.union(currentPopulation);
-    }
-
-    private void dumpCurrentFront(String filename, ApparentFront af) {
-        if (problem_ instanceof ServerSimulator) {
-            Environment environment = ((ServerSimulator) problem_).getEnvironment();
-
-            String result = (new Utils()).generateCSVHeaderForApparentFront(af);
-            result += (new Utils()).generateCSVForApparentFront(af);
-
-            try {
-                (new File(environment.getResultsFolder())).mkdirs();
-                BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolder() + System.getProperty("file.separator") + filename + ".csv"));
-                out.write(result);
-                out.close();
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-                e.printStackTrace();
-            }
-        }
     }
 }
