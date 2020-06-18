@@ -12,7 +12,7 @@ public class VirtualSupportVectors {
 
         double startHC = 4500;
         for (int i = 0; i < number; i++) {
-            Solution solMinIPC = new Solution(sortedPopulation.get(5));
+            Solution solMinIPC = new Solution(sortedPopulation.get(3));
             solMinIPC.setObjective(0, sortedPopulation.get(5).getObjective(0));
             solMinIPC.setObjective(1, startHC + i * 50);
 
@@ -29,7 +29,7 @@ public class VirtualSupportVectors {
 
         double startIPC = 2.5;
         for (int i = 0; i < number; i++) {
-            Solution solMinHC = new Solution(sortedPopulation.get(5));
+            Solution solMinHC = new Solution(sortedPopulation.get(3));
             solMinHC.setObjective(0, startIPC + 0.5 * i);
             solMinHC.setObjective(1, sortedPopulation.get(5).getObjective(1));
 

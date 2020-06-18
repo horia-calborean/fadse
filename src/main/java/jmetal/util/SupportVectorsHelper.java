@@ -12,7 +12,9 @@ public class SupportVectorsHelper {
             subFront.sort(new jmetal.base.operator.comparator.CrowdingComparator());
             int maxSolutionsFromFront = Math.min(subFront.size(), supportVectorsPerFront);
             for (int j = 0; j < maxSolutionsFromFront; j++) {
-                supportVectors.add(subFront.get(j));
+                if (!supportVectors.deepContains(subFront.get(j))) {
+                    supportVectors.add(subFront.get(j));
+                }
             }
         }
 
@@ -68,11 +70,15 @@ public class SupportVectorsHelper {
                 double alfa2 = Math.atan(front.get(j).getObjective(1) / front.get(j).getObjective(0));
 
                 if (alfa1 < yAxisRadians && counts[0] < supportVectorsPerAxis) {
-                    supportVectors.add(front.get(j));
-                    counts[0]++;
+                    if (!supportVectors.deepContains(front.get(j))) {
+                        supportVectors.add(front.get(j));
+                        counts[0]++;
+                    }
                 } else if (alfa2 < xAxisRadians && counts[1] < supportVectorsPerAxis) {
-                    supportVectors.add(front.get(j));
-                    counts[1]++;
+                    if (!supportVectors.deepContains(front.get(j))) {
+                        supportVectors.add(front.get(j));
+                        counts[1]++;
+                    }
                 }
 
                 j++;
