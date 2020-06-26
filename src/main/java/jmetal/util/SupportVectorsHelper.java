@@ -88,14 +88,14 @@ public class SupportVectorsHelper {
         }
 
         if (counts[0] < supportVectorsPerAxis) {
-            SolutionSet virtualSupportVectors = VirtualSupportVectors.getVirtualSupportVectorsCloseToX(population, supportVectorsPerAxis - counts[0]);
+            SolutionSet virtualSupportVectors = VirtualSupportVectors.getVirtualSupportVectorsCloseToY(population, supportVectorsPerAxis - counts[0]);
             for (int i = 0; i < virtualSupportVectors.size(); i++) {
                 supportVectors.add(virtualSupportVectors.get(i));
             }
         }
 
         if (counts[1] < supportVectorsPerAxis) {
-            SolutionSet virtualSupportVectors = VirtualSupportVectors.getVirtualSupportVectorsCloseToY(population, supportVectorsPerAxis - counts[1]);
+            SolutionSet virtualSupportVectors = VirtualSupportVectors.getVirtualSupportVectorsCloseToX(population, supportVectorsPerAxis - counts[1]);
             for (int i = 0; i < virtualSupportVectors.size(); i++) {
                 supportVectors.add(virtualSupportVectors.get(i));
             }
