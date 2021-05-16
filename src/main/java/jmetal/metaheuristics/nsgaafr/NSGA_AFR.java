@@ -63,8 +63,8 @@ public class NSGA_AFR extends NSGAII {
 
         af.dumpCurrentFront(problem_, "coefficients_" + System.currentTimeMillis());
 
-        GapObjectivesNormalizer normalizer;
-        normalizer = new GapObjectivesNormalizer(union);
+        SyntheticObjectivesNormalizer normalizer;
+        normalizer = new SyntheticObjectivesNormalizer(union);
         normalizer.scaleObjectives();
 
         for (int i = 0; i < union.size(); i++) {
@@ -81,7 +81,7 @@ public class NSGA_AFR extends NSGAII {
 
         while ((remain > 0) && (remain >= front.size())) {
             //turn to maximization problem
-            normalizer = new GapObjectivesNormalizer(front);
+            normalizer = new SyntheticObjectivesNormalizer(front);
             normalizer.scaleObjectives();
 
             for (int k = 0; k < front.size(); k++) {
@@ -108,7 +108,7 @@ public class NSGA_AFR extends NSGAII {
         // Remain is less than front(index).size, insert only the best ones
         if (remain > 0) {  // front contains individuals to insert
             //turn to maximization problem
-            normalizer = new GapObjectivesNormalizer(front);
+            normalizer = new SyntheticObjectivesNormalizer(front);
             normalizer.scaleObjectives();
 
             for (int k = 0; k < front.size(); k++) {

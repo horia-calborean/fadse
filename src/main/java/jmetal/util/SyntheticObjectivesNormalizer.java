@@ -6,16 +6,16 @@ import jmetal.base.SolutionSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GapObjectivesNormalizer {
+public class SyntheticObjectivesNormalizer {
     SolutionSet solutionSet_;
 
     List<double[]> objectivesBackup_;
 
-    public GapObjectivesNormalizer(SolutionSet solutionSet) {
+    public SyntheticObjectivesNormalizer(SolutionSet solutionSet) {
         solutionSet_ = solutionSet;
     }
 
-   public void scaleObjectives() {
+    public void scaleObjectives() {
         objectivesBackup_ = new ArrayList<double[]>();
 
         for (int i = 0; i < solutionSet_.size(); i++) {
@@ -43,6 +43,6 @@ public class GapObjectivesNormalizer {
     }
 
     private double scaleObjective(double CPI) {
-        return (600 - CPI)/600;
+        return 500 - CPI;
     }
 }

@@ -44,7 +44,11 @@ public class ApparentFront {
     public void fit(SolutionSet supportVectors) {
         int n = supportVectors.size();
         int dims = supportVectors.get(0).numberOfObjectives();
-
+        
+        System.out.println("Dimensions number:" + dims + "\n" + "support vectors size: " + n);
+        
+        dumpCurrentFrontSynthetic(supportVectors, "dumped"+System.currentTimeMillis());
+        
         double[][] d = new double[n][dims + 1];
         for (int i = 0; i < n; i++) {
             double[] row = new double[dims + 1];
@@ -96,6 +100,27 @@ public class ApparentFront {
                 e.printStackTrace();
             }
         }
+    }
+    
+    public void dumpCurrentFrontSynthetic(SolutionSet population, String filename) {
+        //if (problem instanceof ServerSimulator) {
+            //Environment environment = ((ServerSimulator) problem).getEnvironment();
+
+            String resultFolder = "d:/work/outputs/";
+            
+            String result = "objectives\n";
+            result += (new Utils()).generateCSV(population);
+
+            try {
+                (new File(resultFolder)).mkdirs();
+                BufferedWriter out = new BufferedWriter(new FileWriter(resultFolder + System.getProperty("file.separator") + filename + ".csv"));
+                out.write(result);
+                out.close();
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        //}
     }
 
     /**

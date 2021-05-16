@@ -27,7 +27,7 @@ public class AFZGA extends NSGAII {
     private int nrZonesUsedForSupportVectors = 3;
     private int supportVectorsPerFront = 2;
     private int supportVectorsPerAxis = 5;
-    private int defaultSupportVectorsNumber = nrZonesUsedForSupportVectors * supportVectorsPerFront + 2 * supportVectorsPerAxis;
+    private int defaultSupportVectorsNumber =  nrZonesUsedForSupportVectors * supportVectorsPerFront + 2 * supportVectorsPerAxis;
     private SolutionSet bestSupportVectors;
 
     @Override
@@ -162,8 +162,9 @@ public class AFZGA extends NSGAII {
             OutputPopulation(ranking.getSubfront(i), "afz" + (i + 1) + "_");
         }
 
-        OutputPopulation(bestSupportVectors, "supportVectors");
-
+       // OutputPopulation(bestSupportVectors, "supportVectors");
+        String currentMilis = System.currentTimeMillis() + "";
+        OutputPopulationSynthetic(bestSupportVectors, "supportVectors"+currentMilis);
         int nrFronts = ranking.getNumberOfSubfronts();
         int currentFrontNr = (int) ((populationSize * (1 - reductionRate) * Math.pow(reductionRate,
                 index)) / (1 - Math.pow(reductionRate, nrFronts)) + 1);
@@ -223,7 +224,11 @@ public class AFZGA extends NSGAII {
         SupportVectorsHelper supportVectorsHelper = new SupportVectorsHelper();
         SolutionSet initialSupportVectors = supportVectorsHelper.getAFZGASupportVectors(ranking, nrZonesUsedForSupportVectors, supportVectorsPerFront + 1);
         SolutionSet marginalSupportVectors = supportVectorsHelper.getSupportVectorsCloseToAxis(population, ranking, nrZonesUsedForSupportVectors, supportVectorsPerAxis, 40, 20);
-
+        
+        String currentMillis = System.currentTimeMillis() + "";
+        OutputPopulationSynthetic(marginalSupportVectors, "marginal"+currentMillis);
+        OutputPopulationSynthetic(initialSupportVectors, "initial"+currentMillis);
+        
         bestSupportVectors = supportVectorsHelper.combine(marginalSupportVectors, initialSupportVectors);
 
         if (bestSupportVectors.size() < minSupportVectorNumber) {
@@ -298,7 +303,7 @@ public class AFZGA extends NSGAII {
             int i = 0;
             Solution newSolution;
             while (i < populationSize - currentPopulation.size()) {
-                Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "#############################While RefillPopulation with currentSize: " + newPopulation.size());
+                Logger.getLogger(AFZGA.class.getName()).log(Level.INFO, "#############################While RefillPopulation with currentSize: " + newPopulation.size());
                 newSolution = new Solution(problem_);
                 if (mutationOperator instanceof BitFlipMutationFuzzy
                         || mutationOperator instanceof BitFlipMutationRandomDefuzzifier
@@ -344,7 +349,7 @@ public class AFZGA extends NSGAII {
                         } else {
                             if (newPopulation.size() < populationSize - currentPopulation.size()) {
                                 if (!parentPopulation.deepContains(offs) && !newPopulation.deepContains(offs)) {
-                                    Logger.getLogger(NSGAII.class.getName()).log(Level.INFO, "While RefillPopulation Added offsprings " + i);
+                                    Logger.getLogger(AFZGA.class.getName()).log(Level.INFO, "While RefillPopulation Added offsprings " + i);
                                     newPopulation.add(offs);
                                     evaluations += 1;
                                     nrOfFeasible++;

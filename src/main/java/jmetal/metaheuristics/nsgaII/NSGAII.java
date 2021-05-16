@@ -18,11 +18,15 @@ import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationRandomDe
 import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ro.ulbsibiu.fadse.utils.Utils;
 
 /**
  * This class implements the NSGA-II algorithm.
@@ -110,12 +114,36 @@ public class NSGAII extends Algorithm {
             OutputPopulation(population, "filled");
             Ranking ranking_temp = new Ranking(population);
             OutputPopulation(ranking_temp.getSubfront(0), "pareto");
-        } else {
-            if (outputEveryPopulation) {
-                population.printObjectivesToFile(outputPath + System.currentTimeMillis() + ".csv");
-            }
+        } else {    
+            String currentMilis = System.currentTimeMillis() + "";
+            OutputPopulationSynthetic(population, "filled"+currentMilis);
+            Ranking ranking_temp = new Ranking(population);
+            OutputPopulationSynthetic(ranking_temp.getSubfront(0), "pareto"+currentMilis);
         }
     }
+    
+       protected void OutputPopulationSynthetic(SolutionSet population, String populationName) {
+        String result = "objectives\n";
+        result += (new Utils()).generateCSV(population);
+        
+        System.out.println("Result of the population (" + System.currentTimeMillis() + "):\n" + result);
+        
+        try {
+            File file = new File(outputPath + System.currentTimeMillis() + ".csv");
+            String parent = file.getParent();
+           
+            (new File(parent)).mkdirs();
+            BufferedWriter out = new BufferedWriter(new FileWriter(parent+ System.getProperty("file.separator") + populationName+ ".csv"));
+            out.write(result);
+            out.close();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+            
+       }
+    
+    
 
     protected SolutionSet InitializeEverything() throws ClassNotFoundException, JMException {
         ReadParameters();

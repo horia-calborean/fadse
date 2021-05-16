@@ -10,11 +10,11 @@ public class VirtualSupportVectors {
         SolutionSet sortedPopulation = population.deepClone();
         sortedPopulation.sort(new ObjectiveComparator(0));
 
-        double startHC = 4500;
+        double startHC = 500;
         for (int i = 0; i < number; i++) {
             Solution solMinIPC = new Solution(sortedPopulation.get(3));
             solMinIPC.setObjective(0, sortedPopulation.get(5).getObjective(0));
-            solMinIPC.setObjective(1, startHC + i * 50);
+            solMinIPC.setObjective(1, startHC + i * 5);
 
             supportVectors.add(solMinIPC);
         }
@@ -27,10 +27,10 @@ public class VirtualSupportVectors {
         SolutionSet sortedPopulation = population.deepClone();
         sortedPopulation.sort(new ObjectiveComparator(1));
 
-        double startIPC = 2.5;
+        double startIPC = 500;
         for (int i = 0; i < number; i++) {
             Solution solMinHC = new Solution(sortedPopulation.get(3));
-            solMinHC.setObjective(0, startIPC + 0.5 * i);
+            solMinHC.setObjective(0, startIPC + 5 * i);
             solMinHC.setObjective(1, sortedPopulation.get(5).getObjective(1));
 
             supportVectors.add(solMinHC);

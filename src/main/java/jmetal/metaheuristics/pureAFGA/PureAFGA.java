@@ -66,7 +66,7 @@ public class PureAFGA extends NSGAII {
 
     private void FitTheFront(ApparentFront af, SolutionSet supportVectors) {
         //turn to maximization problem
-        GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(supportVectors);
+        SyntheticObjectivesNormalizer normalizer = new SyntheticObjectivesNormalizer(supportVectors);
         normalizer.scaleObjectives();
 
         af.fit(supportVectors);
@@ -103,7 +103,7 @@ public class PureAFGA extends NSGAII {
         FitTheFront(af, supportVectors);
 
         // turn to maximization problem
-        GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(population);
+        SyntheticObjectivesNormalizer normalizer = new SyntheticObjectivesNormalizer(population);
         normalizer.scaleObjectives();
 
         for (int k = 0; k < population.size(); k++) {
