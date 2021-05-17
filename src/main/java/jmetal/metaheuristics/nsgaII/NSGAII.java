@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -123,27 +124,26 @@ public class NSGAII extends Algorithm {
     }
     
        protected void OutputPopulationSynthetic(SolutionSet population, String populationName) {
-        String result = "objectives\n";
-        result += (new Utils()).generateCSV(population);
-        
-        System.out.println("Result of the population (" + System.currentTimeMillis() + "):\n" + result);
-        
-        try {
-            File file = new File(outputPath + System.currentTimeMillis() + ".csv");
-            String parent = file.getParent();
-           
-            (new File(parent)).mkdirs();
-            BufferedWriter out = new BufferedWriter(new FileWriter(parent+ System.getProperty("file.separator") + populationName+ ".csv"));
-            out.write(result);
-            out.close();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
-            
+           String result = "objectives\n";
+           result += (new Utils()).generateCSV(population);
+
+           System.out.println("Result of the population (" + System.currentTimeMillis() + "):\n" + result);
+
+           try {
+               File file = Paths.get(outputPath , System.currentTimeMillis() + ".csv").toFile();
+               String parent = file.getParent();
+
+               (new File(parent)).mkdirs();
+               BufferedWriter out = new BufferedWriter(new FileWriter(parent + System.getProperty("file.separator") + populationName + ".csv"));
+               out.write(result);
+               out.close();
+           } catch (IOException e) {
+               System.err.println(e.getMessage());
+               e.printStackTrace();
+           }
+
        }
-    
-    
+
 
     protected SolutionSet InitializeEverything() throws ClassNotFoundException, JMException {
         ReadParameters();

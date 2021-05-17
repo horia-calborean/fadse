@@ -70,7 +70,7 @@ public class Boot {
             File dir = new File(currentdir);
 
             //String xmlFileName = "falsesimin.xml";
-            String xmlFileName = "gapdistsimin_pureafga.xml";
+            String xmlFileName = "dtlz1in.xml";
             //String xmlFileName = "gapdistsmin_afzga.xml";
             //String xmlFileName = "falsesimin_radu.xml";
             // String xmlFileName = "gapsimin_ralf_uau.xml";

@@ -66,7 +66,7 @@ public class AFZGA_Settings extends Settings {
 
         mutation = MutationFactory.getMutationOperator(mutationOperator_);
         mutation.setParameter("probability", mutationProbability_);
-        mutation.setParameter("distributionIndex", crossoverDistributionIndex_);
+        mutation.setParameter("distributionIndex", mutationDistributionIndex_);
 
         // Selection Operator
         selection = (Selection) SelectionFactory.getSelectionOperator(selectionOperator_);

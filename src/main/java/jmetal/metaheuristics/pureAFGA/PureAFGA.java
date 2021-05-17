@@ -81,7 +81,7 @@ public class PureAFGA extends NSGAII {
         AfMembership afMembership = new AfMembership();
 
         // compute Apparent Front using the entire population
-        ApparentFront af = new ApparentFront(4);
+        ApparentFront af = new ApparentFront(4, outputPath);
         SolutionSet supportVectors = new SolutionSet(population.size() + 2 * virtualSupportVectorsPerAxis);
 
         SolutionSet xVectors = VirtualSupportVectors.getVirtualSupportVectorsCloseToX(population, virtualSupportVectorsPerAxis);

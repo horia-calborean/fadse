@@ -46,7 +46,7 @@ public class NSGA_AFR extends NSGAII {
         // Obtain the next front
         front = ranking.getSubfront(index);
 
-        ApparentFront af = new ApparentFront(4);
+        ApparentFront af = new ApparentFront(4, outputFolder);
         int minVectors = front.get(0).numberOfObjectives() + 1;
 
         SupportVectorsHelper supportVectorsHelper = new SupportVectorsHelper();

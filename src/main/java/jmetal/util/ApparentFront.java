@@ -18,14 +18,15 @@ import java.io.IOException;
 public class ApparentFront {
     private double[] coefficients;
     private double power;
-
+    private String outputFolder;
     /**
      * Instantiates an {@link ApparentFront} representing an ellipses described by an array of coefficients and a power
      *
      * @param power the power considered for the ellipse's equation
      */
-    public ApparentFront(double power) {
+    public ApparentFront(double power, String outputFolder) {
         this.power = power;
+        this.outputFolder = outputFolder;
     }
 
     public double[] getCoefficients() {
@@ -47,7 +48,7 @@ public class ApparentFront {
         
         System.out.println("Dimensions number:" + dims + "\n" + "support vectors size: " + n);
         
-        dumpCurrentFrontSynthetic(supportVectors, "dumped"+System.currentTimeMillis());
+        dumpCurrentFrontSynthetic(supportVectors,  outputFolder, "dumped"+System.currentTimeMillis());
         
         double[][] d = new double[n][dims + 1];
         for (int i = 0; i < n; i++) {
@@ -102,12 +103,7 @@ public class ApparentFront {
         }
     }
     
-    public void dumpCurrentFrontSynthetic(SolutionSet population, String filename) {
-        //if (problem instanceof ServerSimulator) {
-            //Environment environment = ((ServerSimulator) problem).getEnvironment();
-
-            String resultFolder = "d:/work/outputs/";
-            
+    public void dumpCurrentFrontSynthetic(SolutionSet population, String resultFolder, String filename) {
             String result = "objectives\n";
             result += (new Utils()).generateCSV(population);
 
@@ -120,7 +116,6 @@ public class ApparentFront {
                 System.err.println(e.getMessage());
                 e.printStackTrace();
             }
-        //}
     }
 
     /**
