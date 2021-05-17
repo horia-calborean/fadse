@@ -6,43 +6,42 @@ import jmetal.base.SolutionSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GapObjectivesNormalizer {
-    SolutionSet solutionSet_;
-
+public class GapObjectivesNormalizer extends ObjectivesNormalizer {
     List<double[]> objectivesBackup_;
 
-    public GapObjectivesNormalizer(SolutionSet solutionSet) {
-        solutionSet_ = solutionSet;
+    public GapObjectivesNormalizer() {
     }
 
-   public void scaleObjectives() {
+   @Override
+   public void scaleObjectives(SolutionSet solutionSet_) {
         objectivesBackup_ = new ArrayList<double[]>();
 
         for (int i = 0; i < solutionSet_.size(); i++) {
             Solution solution = solutionSet_.get(i);
-            int nrObjectives = solution.numberOfObjectives();
-            double[] objectives = new double[nrObjectives];
-            for (int j = 0; j< solution.numberOfObjectives() ; j++){
-                       objectives[j] = solution.getObjective(j);
-                       solution.setObjective(j, scaleObjective(solution.getObjective(j)));
-            }
-            
-            objectivesBackup_.add(objectives);
+
+            objectivesBackup_.add(new double[]{solution.getObjective(0), solution.getObjective(1)});
+
+            solution.setObjective(0, scaleIPC(solution.getObjective(0)));
+            solution.setObjective(1, scaleHC(solution.getObjective(1)));
         }
     }
 
-    public void restoreObjectives() {
+    @Override
+    public void restoreObjectives(SolutionSet solutionSet_) {
         for (int i = 0; i < solutionSet_.size(); i++) {
             Solution solution = solutionSet_.get(i);
             double[] objectives = objectivesBackup_.get(i);
 
-             for (int j = 0; j< solution.numberOfObjectives() ; j++){
-                  solution.setObjective(j, objectives[j]);
-             }
+            solution.setObjective(0, objectives[0]);
+            solution.setObjective(1, objectives[1]);
         }
     }
 
-    private double scaleObjective(double CPI) {
-        return (600 - CPI)/600;
+    private double scaleIPC(double CPI) {
+        return 1.0 / CPI / 4.0;
+    }
+
+    private double scaleHC(double HC) {
+        return (5000.0 - HC) / 5000.0;
     }
 }

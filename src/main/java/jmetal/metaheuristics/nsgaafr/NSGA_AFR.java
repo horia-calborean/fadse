@@ -59,13 +59,13 @@ public class NSGA_AFR extends NSGAII {
 
         OutputPopulation(supportVectors, "supportVectors");
 
-        ApparentFrontHelper.FitTheFront(af, supportVectors);
+        ApparentFrontHelper.FitTheFront(af, supportVectors, null);
 
         af.dumpCurrentFront(problem_, "coefficients_" + System.currentTimeMillis());
 
         SyntheticObjectivesNormalizer normalizer;
-        normalizer = new SyntheticObjectivesNormalizer(union);
-        normalizer.scaleObjectives();
+        normalizer = new SyntheticObjectivesNormalizer(500);
+        normalizer.scaleObjectives(union);
 
         for (int i = 0; i < union.size(); i++) {
             Solution currentSolution = union.get(i);
@@ -76,13 +76,13 @@ public class NSGA_AFR extends NSGAII {
             ((ServerSimulator) problem_).dumpCurrentPopulation("unionMaximization" + System.currentTimeMillis(), union);
         }
 
-        normalizer.restoreObjectives();
+        normalizer.restoreObjectives(union);
 
 
         while ((remain > 0) && (remain >= front.size())) {
             //turn to maximization problem
-            normalizer = new SyntheticObjectivesNormalizer(front);
-            normalizer.scaleObjectives();
+            normalizer = new SyntheticObjectivesNormalizer(500);
+            normalizer.scaleObjectives(front);
 
             for (int k = 0; k < front.size(); k++) {
                 //Assign afr membership to individual
@@ -94,7 +94,7 @@ public class NSGA_AFR extends NSGAII {
             }
 
             //restore to minimization problem
-            normalizer.restoreObjectives();
+            normalizer.restoreObjectives(front);
 
             //Decrement remain
             remain = remain - front.size();
@@ -108,8 +108,8 @@ public class NSGA_AFR extends NSGAII {
         // Remain is less than front(index).size, insert only the best ones
         if (remain > 0) {  // front contains individuals to insert
             //turn to maximization problem
-            normalizer = new SyntheticObjectivesNormalizer(front);
-            normalizer.scaleObjectives();
+            normalizer = new SyntheticObjectivesNormalizer(500);
+            normalizer.scaleObjectives(front);
 
             for (int k = 0; k < front.size(); k++) {
                 //Assign afr membership to individual
@@ -118,7 +118,7 @@ public class NSGA_AFR extends NSGAII {
             }
 
             //restore to minimization problem
-            normalizer.restoreObjectives();
+            normalizer.restoreObjectives(front);
 
             front.sort(new jmetal.base.operator.comparator.AfrMembershipComparator());
             for (int k = 0; k

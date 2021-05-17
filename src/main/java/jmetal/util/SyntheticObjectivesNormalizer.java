@@ -6,16 +6,15 @@ import jmetal.base.SolutionSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SyntheticObjectivesNormalizer {
-    SolutionSet solutionSet_;
-
+public class SyntheticObjectivesNormalizer extends ObjectivesNormalizer{
     List<double[]> objectivesBackup_;
-
-    public SyntheticObjectivesNormalizer(SolutionSet solutionSet) {
-        solutionSet_ = solutionSet;
+    int maxValue = 100;
+    public SyntheticObjectivesNormalizer(int maxValue) {
+        this.maxValue = maxValue;
     }
 
-    public void scaleObjectives() {
+    @Override
+    public void scaleObjectives( SolutionSet solutionSet_) {
         objectivesBackup_ = new ArrayList<double[]>();
 
         for (int i = 0; i < solutionSet_.size(); i++) {
@@ -31,7 +30,8 @@ public class SyntheticObjectivesNormalizer {
         }
     }
 
-    public void restoreObjectives() {
+    @Override
+    public void restoreObjectives( SolutionSet solutionSet_) {
         for (int i = 0; i < solutionSet_.size(); i++) {
             Solution solution = solutionSet_.get(i);
             double[] objectives = objectivesBackup_.get(i);
@@ -42,7 +42,7 @@ public class SyntheticObjectivesNormalizer {
         }
     }
 
-    private double scaleObjective(double CPI) {
-        return 500 - CPI;
+    private double scaleObjective(double obj) {
+        return (maxValue - obj)/maxValue;
     }
 }

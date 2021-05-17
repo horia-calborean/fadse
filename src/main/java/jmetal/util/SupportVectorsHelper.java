@@ -49,7 +49,14 @@ public class SupportVectorsHelper {
         return supportVectors;
     }
 
-    public SolutionSet getSupportVectorsCloseToAxis(SolutionSet population, IRanking ranking, int nrOfFronts, int supportVectorsPerAxis, int xAxisAngle, int yAxisAngle) {
+    public SolutionSet getSupportVectorsCloseToAxis(
+            SolutionSet population,
+            IRanking ranking,
+            int nrOfFronts,
+            int supportVectorsPerAxis,
+            int xAxisAngle,
+            int yAxisAngle,
+            ObjectivesNormalizer normalizer) {
         SolutionSet supportVectors = new SolutionSet(2 * supportVectorsPerAxis);
 
         double xAxisRadians = Math.toRadians(xAxisAngle);
@@ -60,8 +67,7 @@ public class SupportVectorsHelper {
         for (int i = 0; i < nrOfFronts; i++) {
             SolutionSet front = ranking.getSubfront(i);
 
-            GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(front);
-            normalizer.scaleObjectives();
+            normalizer.scaleObjectives(front);
 
             int j = 0;
             while (j < front.size() &&
@@ -84,7 +90,7 @@ public class SupportVectorsHelper {
                 j++;
             }
 
-            normalizer.restoreObjectives();
+            normalizer.restoreObjectives(front);
         }
 
         if (counts[0] < supportVectorsPerAxis) {

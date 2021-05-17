@@ -25,7 +25,8 @@ public class AFZGA_Settings extends Settings {
     public String crossoverOperator_ = "SBXCrossover";
     public String mutationOperator_ = "PolynomialMutation";
     public String selectionOperator_ = "BinaryTournamentAfr";
-
+    public String normalizer_ = "GapObjectivesNormalizer";
+    public int normalizerMaxValue_ = 1000;
     /**
      * Constructor
      *
@@ -59,6 +60,9 @@ public class AFZGA_Settings extends Settings {
         algorithm.setInputParameter("populationSize", populationSize_);
         algorithm.setInputParameter("maxEvaluations", maxEvaluations_);
         algorithm.setInputParameter("initialGeneration", initialGeneration_);
+        algorithm.setInputParameter("normalizer", normalizer_);
+        algorithm.setInputParameter("normalizerMaxValue", normalizerMaxValue_);
+
         // Mutation and Crossover for Real codification
         crossover = CrossoverFactory.getCrossoverOperator(crossoverOperator_);
         crossover.setParameter("probability", crossoverProbability_);

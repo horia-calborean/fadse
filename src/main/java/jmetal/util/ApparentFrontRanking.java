@@ -9,16 +9,14 @@ public class ApparentFrontRanking implements IRanking {
 
     private SolutionSet[] ranking_;
 
-    public ApparentFrontRanking(ApparentFront apparentFront, SolutionSet solutionSet, int nrZones) {
+    public ApparentFrontRanking(ApparentFront apparentFront, SolutionSet solutionSet, int nrZones, ObjectivesNormalizer normalizer) {
 
         LinkedList<Solution>[] solutionsInZones = new LinkedList[nrZones];
         for (int i = 0; i < nrZones; i++) {
             solutionsInZones[i] = new LinkedList<Solution>();
         }
 
-
-        GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(solutionSet);
-        normalizer.scaleObjectives();
+        normalizer.scaleObjectives(solutionSet);
 
         for (int i = 0; i < solutionSet.size(); i++) {
             Solution currentSolution = solutionSet.get(i);
@@ -38,7 +36,7 @@ public class ApparentFrontRanking implements IRanking {
             }
         }
 
-        normalizer.restoreObjectives();
+        normalizer.restoreObjectives(solutionSet);
 
         ranking_ = new SolutionSet[nrZones];
         for (int i = 0; i < nrZones; i++) {

@@ -31,11 +31,17 @@ public class AFZGA extends NSGAII {
     private int defaultSupportVectorsNumber =  nrZonesUsedForSupportVectors * supportVectorsPerFront + 2 * supportVectorsPerAxis;
     private SolutionSet bestSupportVectors;
     private String resultsFolder;
+    private ObjectivesNormalizer normalizer;
 
     @Override
     public SolutionSet execute() throws JMException, ClassNotFoundException {
 
         SolutionSet population = InitializeEverything();
+
+        String normalizertype = (String)getInputParameter("normalizer");
+        int normalizerMax = ((Integer)getInputParameter("normalizerMaxValue")).intValue();
+
+        this.normalizer = ObjectiveNormalizerFactory.getObjectiveNormalizer(normalizertype, normalizerMax);
 
         resultsFolder = "results" + System.currentTimeMillis();
         super.outputPath = Paths.get(super.outputPath, resultsFolder).toAbsolutePath().toString();
@@ -86,11 +92,11 @@ public class AFZGA extends NSGAII {
             bestSupportVectors = GenerateInitialSupportVectors(union, defaultSupportVectorsNumber);
         }
 
-        ApparentFrontHelper.FitTheFront(af, bestSupportVectors);
+        ApparentFrontHelper.FitTheFront(af, bestSupportVectors, this.normalizer);
 
         af.dumpCurrentFront(problem_, "coefficients_" + System.currentTimeMillis());
 
-        ApparentFrontRanking ranking = new ApparentFrontRanking(af, union, nrZones);
+        ApparentFrontRanking ranking = new ApparentFrontRanking(af, union, nrZones, this.normalizer);
 
         int remain = populationSize;
         int index = 0;
@@ -164,8 +170,18 @@ public class AFZGA extends NSGAII {
         bestSupportVectors.clear();
 
         SupportVectorsHelper supportVectorsHelper = new SupportVectorsHelper();
-        SolutionSet initialSupportVectors = supportVectorsHelper.getAFZGASupportVectors(ranking, nrZonesUsedForSupportVectors, supportVectorsPerFront + 1);
-        SolutionSet marginalSupportVectors = supportVectorsHelper.getSupportVectorsCloseToAxis(population, ranking, nrZonesUsedForSupportVectors, supportVectorsPerAxis, 40, 20);
+        SolutionSet initialSupportVectors = supportVectorsHelper.getAFZGASupportVectors(
+                ranking,
+                nrZonesUsedForSupportVectors,
+                supportVectorsPerFront + 1);
+        SolutionSet marginalSupportVectors = supportVectorsHelper.getSupportVectorsCloseToAxis(
+                population,
+                ranking,
+                nrZonesUsedForSupportVectors,
+                supportVectorsPerAxis,
+                40,
+                20,
+                normalizer);
         
         String currentMillis = System.currentTimeMillis() + "";
         OutputPopulationSynthetic(marginalSupportVectors, "marginal"+currentMillis);

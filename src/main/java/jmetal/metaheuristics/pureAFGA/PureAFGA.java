@@ -66,15 +66,15 @@ public class PureAFGA extends NSGAII {
 
     private void FitTheFront(ApparentFront af, SolutionSet supportVectors) {
         //turn to maximization problem
-        SyntheticObjectivesNormalizer normalizer = new SyntheticObjectivesNormalizer(supportVectors);
-        normalizer.scaleObjectives();
+        SyntheticObjectivesNormalizer normalizer = new SyntheticObjectivesNormalizer(500);
+        normalizer.scaleObjectives(supportVectors);
 
         af.fit(supportVectors);
 
         af.dumpCurrentFront(problem_, "coefficients_" + System.currentTimeMillis());
 
         //restore to minimization problem
-        normalizer.restoreObjectives();
+        normalizer.restoreObjectives(supportVectors);
     }
 
     private void AsignAfrMembership(SolutionSet population) {
@@ -103,8 +103,8 @@ public class PureAFGA extends NSGAII {
         FitTheFront(af, supportVectors);
 
         // turn to maximization problem
-        SyntheticObjectivesNormalizer normalizer = new SyntheticObjectivesNormalizer(population);
-        normalizer.scaleObjectives();
+        SyntheticObjectivesNormalizer normalizer = new SyntheticObjectivesNormalizer(500);
+        normalizer.scaleObjectives(population);
 
         for (int k = 0; k < population.size(); k++) {
             //Assign afr membership to individual
@@ -113,6 +113,6 @@ public class PureAFGA extends NSGAII {
         }
 
         // restore to minimization problem
-        normalizer.restoreObjectives();
+        normalizer.restoreObjectives(population);
     }
 }

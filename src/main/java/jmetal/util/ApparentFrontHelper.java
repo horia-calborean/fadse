@@ -4,15 +4,14 @@ import jmetal.base.SolutionSet;
 
 public class ApparentFrontHelper {
 
-    public static void FitTheFront(ApparentFront af, SolutionSet supportVectors) {
+    public static void FitTheFront(ApparentFront af, SolutionSet supportVectors, ObjectivesNormalizer normalizer) {
         //turn to maximization problem
-        GapObjectivesNormalizer normalizer = new GapObjectivesNormalizer(supportVectors);
-        normalizer.scaleObjectives();
+        normalizer.scaleObjectives(supportVectors);
 
         af.fit(supportVectors);
 
         //restore to minimization problem
-        normalizer.restoreObjectives();
+        normalizer.restoreObjectives(supportVectors);
     }
 
     public static SolutionSet ComputeSupportVectors(Ranking ranking, int index, SolutionSet front, int minVectors) {
