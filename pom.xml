@@ -14,10 +14,12 @@
         <name>&quot;Lucian Blaga&quot; University of Sibiu</name>
         <url>http://www.ulbsibiu.ro/en</url>
     </organization>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>15</maven.compiler.source>
+        <maven.compiler.target>15</maven.compiler.target>
     </properties>
 
     <build>
@@ -232,6 +234,21 @@
             <groupId>jgraphx</groupId>
             <artifactId>jgraphx-api</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.docx4j</groupId>
+            <artifactId>docx4j-MOXy-JAXBContext</artifactId>
+            <version>6.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjax.jaxb</groupId>
+            <artifactId>jaxb-maven-plugin</artifactId>
+            <version>0.8.5</version>
         </dependency>
     </dependencies>
 </project>
