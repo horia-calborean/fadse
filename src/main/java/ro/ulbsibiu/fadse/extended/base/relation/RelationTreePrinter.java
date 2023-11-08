@@ -33,7 +33,6 @@
  */
 package ro.ulbsibiu.fadse.extended.base.relation;
 
-import com.mxgraph.model.mxGraphModel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -42,7 +41,7 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 import java.util.List;
 import java.util.Random;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 
 /**
  *

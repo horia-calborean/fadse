@@ -47,7 +47,7 @@ import ro.ulbsibiu.fadse.environment.Environment;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 
 /**
  *

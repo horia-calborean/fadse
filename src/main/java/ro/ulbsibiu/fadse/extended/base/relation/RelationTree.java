@@ -44,7 +44,7 @@ import jmetal.base.Solution;
 import jmetal.base.Variable;
 import jmetal.base.variable.Int;
 import jmetal.problems.ProblemFactory;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 
 /**
  *

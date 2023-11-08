@@ -7,12 +7,10 @@
 package ro.ulbsibiu.fadse.extended.base.operator.mutation;
 
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import jmetal.base.Solution;
 import jmetal.util.Configuration;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 import jmetal.util.PseudoRandom;
 import jmetal.base.operator.mutation.Mutation;
 

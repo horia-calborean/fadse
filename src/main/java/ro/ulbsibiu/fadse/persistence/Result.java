@@ -17,7 +17,7 @@ import ro.ulbsibiu.fadse.environment.document.InputDocument;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 import jmetal.base.Solution;
 import jmetal.base.Variable;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 
 /**
  *

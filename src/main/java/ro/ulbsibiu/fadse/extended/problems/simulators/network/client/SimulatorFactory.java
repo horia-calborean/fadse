@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
 import jmetal.problems.ProblemFactory;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 
 /**
  *

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jmetal.util.JMException;
+import jmetal.core.util.errorchecking.JMetalException;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
 import ro.ulbsibiu.fadse.tools.monitor.SwingMonitor;
@@ -122,7 +122,7 @@ public class Boot {
             try {
                 AlgorithmRunner algRunner = new AlgorithmRunner();
                 algRunner.run(env);
-            } catch (JMException ex) {
+            } catch (JMetalException ex) {
                 Logger.getLogger(Boot.class.getName()).log(Level.SEVERE, null, ex);
             } catch (SecurityException ex) {
                 Logger.getLogger(Boot.class.getName()).log(Level.SEVERE, null, ex);

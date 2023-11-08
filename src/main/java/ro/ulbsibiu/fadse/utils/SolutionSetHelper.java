@@ -20,7 +20,7 @@ import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
 import jmetal.problems.ProblemFactory;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 
 /**
  *

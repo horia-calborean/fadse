@@ -9,7 +9,7 @@ package ro.ulbsibiu.fadse.extended.base.variable;
 import jmetal.base.variable.*;
 import jmetal.base.Variable;
 import jmetal.util.Configuration;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 import jmetal.util.PseudoRandom;
 import jmetal.util.Configuration.*;
 

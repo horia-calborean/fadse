@@ -11,17 +11,19 @@ package ro.ulbsibiu.fadse;
  *
  * @author Andrei
  */
-import jmetal.qualityIndicator.util.MetricsUtil;
-import jmetal.base.Solution;
-import jmetal.base.SolutionSet;
+import jmetal.core.algorithm.Algorithm;
+import jmetal.core.operator.Operator;
+import jmetal.core.problem.Problem;
+import jmetal.core.qualityindicator.QualityIndicator;
+import jmetal.core.solution.Solution;
+import jmetal.SolutionSet;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import jmetal.metaheuristics.nsgaII.NSGAII;
 import jmetal.problems.DTLZ.DTLZ1;
 import jmetal.qualityIndicator.QualityIndicator;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 import jmetal.base.*;
 import jmetal.base.operator.crossover.*   ;
 import jmetal.base.operator.mutation.*    ;
@@ -31,16 +33,17 @@ import jmetal.problems.DTLZ.DTLZ2;
 import jmetal.problems.DTLZ.DTLZ3;
 import jmetal.problems.DTLZ.DTLZ4;
 
-import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import ro.ulbsibiu.fadse.extended.qualityIndicator.CoverageOfTwoSets;
 import jmetal.base.operator.comparator.FitnessComparator;
 import jmetal.metaheuristics.ibea.IBEA;
 import jmetal.problems.DTLZ.DTLZ5;
 import jmetal.problems.DTLZ.DTLZ6;
 import jmetal.problems.DTLZ.DTLZ7;
+import ro.ulbsibiu.fadse.extended.qualityIndicator.MetricsUtil;
+
+import static jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder.NSGAIIVariant.NSGAII;
 
 public class MetricsBoot {
 
@@ -88,7 +91,7 @@ public static SolutionSet RunAlgorithmNSGAII(Problem problem, int populationSize
 throws JMException, ClassNotFoundException
 {
         Algorithm algorithm ;         // The algorithm to use
-        Operator  crossover ;         // Crossover operator
+        Operator crossover ;         // Crossover operator
         Operator  mutation  ;         // Mutation operator
         Operator  selection ;         // Selection operator
 

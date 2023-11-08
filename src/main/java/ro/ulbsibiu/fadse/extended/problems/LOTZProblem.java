@@ -3,7 +3,7 @@ package ro.ulbsibiu.fadse.extended.problems;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.Variable;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 
 public class LOTZProblem extends Problem {
 

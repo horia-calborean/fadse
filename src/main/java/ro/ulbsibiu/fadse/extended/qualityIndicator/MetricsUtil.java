@@ -56,7 +56,7 @@ import jmetal.base.SolutionSet;
 import jmetal.base.Variable;
 import jmetal.base.variable.Int;
 import jmetal.problems.ProblemFactory;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;

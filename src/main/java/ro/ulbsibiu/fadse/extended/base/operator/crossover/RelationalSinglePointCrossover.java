@@ -40,7 +40,6 @@ package ro.ulbsibiu.fadse.extended.base.operator.crossover;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 import java.util.Properties;
 
 import ro.ulbsibiu.fadse.environment.Environment;
@@ -48,10 +47,9 @@ import ro.ulbsibiu.fadse.extended.base.relation.RelationNode;
 import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
 import jmetal.base.*;
 import jmetal.base.variable.*;
-import jmetal.base.*;
 import jmetal.base.operator.crossover.Crossover;
 import jmetal.util.Configuration;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 import jmetal.util.PseudoRandom;
 import jmetal.util.Configuration.*;
 

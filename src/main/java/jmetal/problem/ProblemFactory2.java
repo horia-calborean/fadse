@@ -3,32 +3,32 @@
  * @author Juan J. Durillo
  * @version 1.0
  */
-package jmetal.problems;
+package jmetal.problem;
 
 import java.lang.reflect.Constructor;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jmetal.core.util.errorchecking.JMetalException;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.extended.problems.simulators.Msim3Simulator;
-import jmetal.base.Problem;
-import jmetal.util.Configuration;
-import jmetal.util.JMException;
+import jmetal.core.problem.Problem;
+import jmetal.core.util.Configuration;
 
 /**
  * This class represents a factory for problems
  */
-public class ProblemFactory {
+public class ProblemFactory2 {
 
     /**
      * Creates an object representing a problem
      * @param name Name of the problem
      * @param params Parameters characterizing the problem
      * @return The object representing the problem
-     * @throws JMException
+     * @throws JMetalException
      */
-    public Problem getProblem(String name, Object[] params) throws JMException {
+    public Problem getProblem(String name, Object[] params) throws JMetalException {
         // Params are the arguments
         // The number of argument must correspond with the problem constructor params
         String base = "jmetal.problems.";
@@ -78,11 +78,11 @@ public class ProblemFactory {
             Configuration.logger_.severe("ProblemFactory.getProblem: "
                     + "Problem '" + name + "' does not exist. "
                     + "Please, check the problem names in jmetal/problems: "+e.getMessage());
-            throw new JMException("Exception in " + name + ".getProblem():"+e.getMessage());
+            throw new JMetalException("Exception in " + name + ".getProblem():"+e.getMessage());
         } // catch
     }
 
-    public Problem getProblem(String name, Properties params) throws JMException {
+    public Problem getProblem(String name, Properties params) throws JMetalException {
         // Params are the arguments
         // The number of argument must correspond with the problem constructor params
 
@@ -122,7 +122,7 @@ public class ProblemFactory {
             Configuration.logger_.severe("ProblemFactory.getProblem: "
                     + "Problem '" + name + "' does not exist. "
                     + "Please, check the problem names in jmetal/problems");
-            throw new JMException("Exception in " + name + ".getProblem()");
+            throw new JMetalException("Exception in " + name + ".getProblem()");
         } // catch
     }
 }

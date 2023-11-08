@@ -49,7 +49,7 @@ import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
 import jmetal.base.Solution;
 import jmetal.base.variable.*;
 import jmetal.util.Configuration;
-import jmetal.util.JMException;
+import jMetal.util.JMException;
 import jmetal.util.PseudoRandom;
 import jmetal.base.operator.mutation.Mutation;
 
