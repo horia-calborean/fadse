@@ -72,7 +72,6 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
         JMetalLogger.logger.info("Variables values have been written to file VAR.csv");
     }
 
-
     public WrappedEvolutionaryAlgorithm(AbstractEvolutionaryAlgorithm<S,R> algorithm) {
         if (algorithm == null) {
             return;
@@ -80,6 +79,23 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
         aea = algorithm;
         methodsDictionary = GetDictionary(aea);
 
+    }
+
+    @Override public void run() {
+        List<S> offspringPopulation;
+        List<S> matingPopulation;
+        population = createInitialPopulation();
+        population = evaluatePopulation(population);
+        initProgress();
+        // checkpoint here
+        while (!isStoppingConditionReached()) {
+            matingPopulation = selection(population);
+            offspringPopulation = reproduction(matingPopulation);
+            offspringPopulation = evaluatePopulation(offspringPopulation);
+            population = replacement(population, offspringPopulation);
+            // checkpoint here
+            updateProgress();
+        }
     }
 
     private Dictionary<String, Method> GetDictionary(AbstractEvolutionaryAlgorithm aea) {
@@ -200,23 +216,6 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    @Override public void run() {
-        List<S> offspringPopulation;
-        List<S> matingPopulation;
-        population = createInitialPopulation();
-        population = evaluatePopulation(population);
-        initProgress();
-        // checkpoint here
-        while (!isStoppingConditionReached()) {
-            matingPopulation = selection(population);
-            offspringPopulation = reproduction(matingPopulation);
-            offspringPopulation = evaluatePopulation(offspringPopulation);
-            population = replacement(population, offspringPopulation);
-            // checkpoint here
-            updateProgress();
         }
     }
 
