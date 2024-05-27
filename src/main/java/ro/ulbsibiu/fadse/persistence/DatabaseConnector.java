@@ -31,6 +31,14 @@ public class DatabaseConnector extends StateMachine {
         return instance;
     }
 
+    public static void setInstance(DatabaseConnector dbc) throws InstantiationException {
+            if (dbc == null) {
+                throw new InstantiationException("dbc is null");
+            }
+            System.out.println("DatabaseConnector - new instance has been set: " + dbc.toString());
+            instance = dbc;
+    }
+
     /**
      * Konstruktur
      *
@@ -61,8 +69,6 @@ public class DatabaseConnector extends StateMachine {
     }
 
     /**
-     * Trennt die Verbindung zur DB
-     * @throws zugang.hardware.DatenSpeicherException
      */
     public void disconnect() throws StateException, SQLException {
         assertState(STATE_ONLINE);
