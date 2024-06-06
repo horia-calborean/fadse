@@ -211,6 +211,7 @@ public class NSGAII extends Algorithm {
             Solution[] parents = new Solution[2];
             int nrOfFeasible = 0;
 //            for (int i = 0; i < (populationSize / 2); i++) {
+            // START TIMER HERE
             while (offspringPopulation.size() < populationSize) {
                 if (evaluations < maxEvaluations) {
                     //obtain parents
@@ -259,6 +260,7 @@ public class NSGAII extends Algorithm {
                 ((ServerSimulator) problem_).join();//blocks until all  the offsprings are evaluated
                 ((ServerSimulator) problem_).dumpCurrentPopulation("offspring" + System.currentTimeMillis(), offspringPopulation);
             }
+            // END TIMER HERE
             //WORKAROUND
             System.out.println("RESEND");
             for (int i = 0; i < populationSize; i++) {
@@ -269,6 +271,7 @@ public class NSGAII extends Algorithm {
                 ((ServerSimulator) problem_).join();//blocks until all  the offsprings are evaluated
                 ((ServerSimulator) problem_).dumpCurrentPopulation("corrected" + System.currentTimeMillis(), population);
             }
+            // OR END TIMER HERE
             //END WORKAROUND
             //END added by Horia
             // Create the solutionSet union of solutionSet and offSpring
