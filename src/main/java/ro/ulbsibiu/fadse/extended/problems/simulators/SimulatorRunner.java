@@ -1,5 +1,6 @@
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -131,8 +132,10 @@ public class SimulatorRunner implements Runnable {
                 "] with the following command: \n" + executeCommand);
 
         try {
+            String path = this.simulator.getInputDocument().getSimulatorParameter("simulator_executable");
+            File simulatorParent = Paths.get(path).getParent().toFile();
             // Execute simulator
-            p = Runtime.getRuntime().exec(CommandLineArgs);
+            p = Runtime.getRuntime().exec(CommandLineArgs, null, simulatorParent);
 
             // Retrieve output of simulator (for debugging only)
             BufferedReader output = new BufferedReader(new InputStreamReader(p.getInputStream()));

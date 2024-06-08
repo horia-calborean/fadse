@@ -34,6 +34,9 @@ public class Result {
      */
     public synchronized static void insertResult(InputDocument doc, Individual ind, String fileContents) {
 //        System.out.println("************************ PERSISTENCE: insertResult");
+        if (true) {
+            return;
+        }
 
         String simulatorName = doc.getSimulatorName();
         if (doc.getSimulatorParameter("realSimulator") != null) {
@@ -202,7 +205,9 @@ public class Result {
     public synchronized static String getTextResuls(InputDocument doc, Individual ind) {
 //        System.out.println("************************ PERSISTENCE: getTextResuls");
         String fileTextContent = null;
-
+        if (true) {
+            return fileTextContent;
+        }
         try {
             String parameterString = createParameterString(ind);
 
@@ -244,7 +249,9 @@ public class Result {
      */
     public synchronized static int isFeasible(Individual ind) {
         int feasible = -1;
-
+        if (true) {
+            return feasible;
+        }
         try {
             String parameterString = createParameterString(ind);
 

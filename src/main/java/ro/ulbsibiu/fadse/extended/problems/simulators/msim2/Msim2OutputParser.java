@@ -21,42 +21,41 @@ import java.io.File;
  */
 public class Msim2OutputParser extends SimulatorOutputParser {
 
-    private PythonInterpreter Python;
-    private PyObject Extractor;
-    private PyObject Analyzer;
+    private double CPI;
     private boolean infeasible;
+    private boolean firstTime = true;
 
     public Msim2OutputParser(SimulatorBase scbSim) {
         super(scbSim);
-        String cwd = System.getProperty("user.dir");
-
-        // Initialize the Python interpreter  
-        Python = new PythonInterpreter();
-        Python.execfile(cwd + "/jython/processLine.py");
-        // Initialize the analyzer with the current directory
-        Python.exec("init(\"" + cwd + "\")");
-
-        Extractor = Python.get("next_extracted_objective");
-        Analyzer = Python.get("analyze");
+        CPI = Double.MAX_VALUE;
         infeasible = false;
     }
 
     private void analyze(String line, int linenumber) {
-        Analyzer.__call__(new PyString(line), new PyInteger(linenumber));
+        if (line.contains("THROUGHPUT IPC:")) {
+            String[] splitLIne = line.split(":");
+            if (splitLIne.length == 2) {
+                double ipc = Double.parseDouble(splitLIne[1].trim());
+                CPI = 1/ipc;
+            }
+
+        }
     }
 
     private String getExtractedObjectiveName() {
-        return (String) Python.get("ExtractedObjectiveName").__tojava__(String.class);
+        return "CPI";
     }
 
     private double getExtractedObjectiveValue() {
-        Double d = (Double) Python.get("ExtractedObjectiveValue").__tojava__(Double.class);
-        return d.doubleValue();
+        return CPI;
     }
 
     private boolean nextExtractedObjective() {
-        Boolean hasnext = (Boolean) Extractor.__call__().__tojava__(Boolean.class);
-        return hasnext.booleanValue();
+        if (firstTime) {
+            firstTime = false;
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -68,12 +67,10 @@ public class Msim2OutputParser extends SimulatorOutputParser {
     }
 
     protected void resetAnalyzer() {
-        Python.exec("reset_analyzer()");
     }
 
     protected boolean isInfeasible() {
-        Boolean b = (Boolean) Python.get("isInfeasible").__tojava__(Boolean.class);
-        return b.booleanValue();
+        return false;
     }
 
     @Override
