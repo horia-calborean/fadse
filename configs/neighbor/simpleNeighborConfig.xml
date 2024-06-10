@@ -9,5 +9,36 @@
 -->
 
 <neighbors>
-	<neighbor ip="localhost" listenPort="4445" availableSlots="1" />
+	<neighbor ip="localhost" listenPort="4450" availableSlots="1" />
+	<neighbor ip="localhost" listenPort="4451" availableSlots="1" />
+	<neighbor ip="localhost" listenPort="4452" availableSlots="1" />
+	<neighbor ip="localhost" listenPort="4453" availableSlots="1" />
+	<!--	<neighbor ip="localhost" listenPort="4454" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4455" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4456" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4457" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4458" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4459" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4460" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4461" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4462" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4463" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4464" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4465" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4466" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4467" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4468" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4469" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4470" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4471" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4472" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4473" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4474" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4475" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4476" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4477" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4478" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4479" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4480" availableSlots="1" />
+        <neighbor ip="localhost" listenPort="4481" availableSlots="1" /> -->
 </neighbors>

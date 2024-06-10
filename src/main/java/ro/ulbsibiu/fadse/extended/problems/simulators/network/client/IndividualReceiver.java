@@ -13,6 +13,9 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -148,9 +151,12 @@ public class IndividualReceiver implements Runnable {
                 closeAllConnections(dis, dos, socket);
             }
             if (simulationStart) {
-                Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, "Now I can start the simulation...");
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                Date date = new Date();
+                Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO,  dateFormat.format(date) + ": Now I can start the simulation...");
                 startSimulation(m, sim);
-                Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, "I've finished the simulation (?)");
+                date = new Date();
+                Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, dateFormat.format(date) + ": I've finished the simulation (?)\n\n\n=================================================================================================");
             }
         }
     }

@@ -7,7 +7,7 @@
 -->
 <design_space>
     <simulator name="ServerSimulator" type="simulator" ><!--type="synthetic"--><!--type can be synthetic or simulator-->
-        <parameter name="maximumTimeOfASimulation" value="420"/><!--in minutes-->
+        <parameter name="maximumTimeOfASimulation" value="5"/><!--in minutes-->
 <!--        <parameter name="realSimulator" value="Msim2Simulator"/>        -->
         <parameter name="realSimulator" value = "Msim2Simulator"/>
 	<parameter name="simulator_executable" value="/home/radu/m-sim_v2.0/sim-outorder" />
@@ -22,14 +22,14 @@
         <!--item name="/opt/acaps/fadse/benchmarks/arg/vpr.arg"/-->
         <item name="/home/radu/m-sim_v2.0/applu.arg"/>
         <item name="/home/radu/m-sim_v2.0/bzip2.arg"/>
-        <item name="/home/radu/m-sim_v2.0/equake.arg"/>
-        <!--item name="/opt/acaps/fadse/benchmarks/arg/galgel.arg"/-->
+       <!-- <item name="/home/radu/m-sim_v2.0/equake.arg"/>
+        -item name="/opt/acaps/fadse/benchmarks/arg/galgel.arg"/>
         <item name="/home/radu/m-sim_v2.0/gcc.arg"/>
         <item name="/home/radu/m-sim_v2.0/gzip.arg"/>
-        <!--item name="/opt/acaps/fadse/benchmarks/arg/lucas.arg"/-->
-        <!--item name="/opt/acaps/fadse/benchmarks/arg/mcf.arg"/-->
+        <item name="/opt/acaps/fadse/benchmarks/arg/lucas.arg"/>
+        <item name="/opt/acaps/fadse/benchmarks/arg/mcf.arg"/>
         <item name="/home/radu/m-sim_v2.0/mesa.arg"/>
-        <!--item name="/opt/acaps/fadse/benchmarks/arg/mgrid.arg"/-->
+        <item name="/opt/acaps/fadse/benchmarks/arg/mgrid.arg"/ -->
     </benchmarks>
     <metaheuristic name="NSGAII" config_path="nsgaii.properties" />
     <parameters>
