@@ -5,7 +5,7 @@
 
 package jmetal.metaheuristics.smpso;
 
-import ro.ulbsibiu.fadse.Boot;
+import ro.ulbsibiu.fadse.SimulationBoot;
 
 /**
  *
@@ -17,6 +17,6 @@ public class SMPSO_Starter {
         smpsoArgs[0] = "falsesimin_radu.xml";
         smpsoArgs[1] = "D:\\Work\\FADSE\\results1303158955283\\filled1303159004530.csv";
         smpsoArgs[2] = "D:\\Work\\FADSE\\results1303158955283\\speed1303159004530.spd";
-        Boot.main(smpsoArgs);
+        SimulationBoot.main(smpsoArgs);
     }
 }

@@ -1,1 +1,1 @@
-java -cp "fadse-0.0.1-SNAPSHOT.jar;dependency-jars/*" ro.ulbsibiu.fadse.Boot gapdistsimin_radu.xml 1>output.txt 2>&1
+java -cp "fadse-0.0.1-SNAPSHOT.jar;dependency-jars/*" ro.ulbsibiu.fadse.SimulationBoot gapdistsimin_radu.xml 1>output.txt 2>&1
