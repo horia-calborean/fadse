@@ -7,8 +7,6 @@
 package ro.ulbsibiu.fadse.extended.base.operator.mutation;
 
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import jmetal.base.Solution;
 import jmetal.util.Configuration;
@@ -18,10 +16,10 @@ import jmetal.base.operator.mutation.Mutation;
 
 import java.util.Iterator;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.parameters.Exp2Parameter;
 import ro.ulbsibiu.fadse.environment.parameters.IntegerParameter;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 import ro.ulbsibiu.fadse.utils.Utils;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
@@ -70,14 +68,14 @@ public class BitFlipMutationFuzzy extends Mutation {
      * @param solution The solution to mutate
      * @throws JMException
      */
-    public void doMutation(double probability, Solution solution, Environment env) throws JMException {
+    public void doMutation(double probability, Solution solution, SimulationIO env) throws JMException {
         try {
-            Parameter[] params = Utils.getParametersAndVitualParameters(solution, env);
+            SimulatorParameter[] params = Utils.getParametersAndVirtualParameters(solution, env);
             // Integer representation
             for (int i = 0; i < params.length; i++) {
                 //i have set the value, now I have to transform it
                 try {
-                    String fuzzyInputFile = env.getFuzzyInputFile();
+                    String fuzzyInputFile = env.getFuzzyInputFilePath();
                     FIS fis = FIS.load(fuzzyInputFile, true);//TODO take from xml
                     if (fis == null) {
                         throw new Exception("FCL file " + fuzzyInputFile + " was not found");
@@ -145,7 +143,7 @@ public class BitFlipMutationFuzzy extends Mutation {
         } // if 
 
         Double probability = (Double) getParameter("probability");
-        Environment env = (Environment) getParameter("environment");
+        SimulationIO env = (SimulationIO) getParameter("environment");
         if (probability == null) {
             Configuration.logger_.severe("BitFlipMutation.execute: probability not "
                     + "specified");
@@ -166,7 +164,7 @@ public class BitFlipMutationFuzzy extends Mutation {
         return solution;
     } // execute
 
-    private int computeCOG(Variable outputVariable, Parameter parameter) throws Exception {
+    private int computeCOG(Variable outputVariable, SimulatorParameter parameter) throws Exception {
         double COG_temp = outputVariable.defuzzify();
         //at this point we know that there is an output defined in the fcl file for this parameter
         if (COG_temp == -1) {
@@ -188,9 +186,9 @@ public class BitFlipMutationFuzzy extends Mutation {
         return COG;
     }
 
-    private void fillFIS(FIS fis, Parameter[] params) {
+    private void fillFIS(FIS fis, SimulatorParameter[] params) {
         //trying to set the input values for all the parameters
-        for (Parameter p : params) {
+        for (SimulatorParameter p : params) {
             try {
                 double val = (new Double((Integer) p.getValue())).doubleValue();
                 fis.setVariable(p.getName(), val);

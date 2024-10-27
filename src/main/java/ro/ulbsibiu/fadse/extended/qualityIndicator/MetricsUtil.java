@@ -53,8 +53,6 @@ import java.util.StringTokenizer;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
-import jmetal.base.Variable;
-import jmetal.base.variable.Int;
 import jmetal.problems.ProblemFactory;
 import jmetal.util.JMException;
 
@@ -65,9 +63,9 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 import ro.ulbsibiu.fadse.utils.Utils;
 
 /**
@@ -112,7 +110,7 @@ public class MetricsUtil {
         outUnique.close();
     }
 
-    public static void computeUniqueIndividualsWithRelations(Environment env, int populationSize, File firstPopulation, LinkedList<File> listOfOffspringFiles, File metricsFolder, String fileName) throws FileNotFoundException, IOException, JMException, ClassNotFoundException {
+    public static void computeUniqueIndividualsWithRelations(SimulationIO env, int populationSize, File firstPopulation, LinkedList<File> listOfOffspringFiles, File metricsFolder, String fileName) throws FileNotFoundException, IOException, JMException, ClassNotFoundException {
         List<File> files = new LinkedList<File>();
         files.add(firstPopulation);
         files.addAll(listOfOffspringFiles);
@@ -125,13 +123,13 @@ public class MetricsUtil {
         outUnique.write("New individuals");
         outUnique.newLine();
         int previousSize = 0;
-        String problemName = env.getInputDocument().getSimulatorName();
+        String problemName = env.getDesignSpaceDocument().getSimulatorName();
         Object[] problemParams = {env};
         Problem problem;
         String currentdir = System.getProperty("user.dir");
         File dir = new File(currentdir);
         String neighborConfig = dir + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + "neighborConfig.xml";
-        env.setNeighborsConfigFile(neighborConfig);//this is going to crash someday :)
+        env.setClientsConfigFilePath(neighborConfig);//this is going to crash someday :)
         problem = (new ProblemFactory()).getProblem(problemName, problemParams);
         for (File file : files) {
             BufferedReader input = new BufferedReader(new FileReader(file));
@@ -146,19 +144,19 @@ public class MetricsUtil {
 
                 StringTokenizer tokenizer = new StringTokenizer(line, ",");
 
-                for (int j = 0; j < env.getInputDocument().getParameters().length; j++) {
+                for (int j = 0; j < env.getDesignSpaceDocument().getParameters().length; j++) {
                     Double value = Double.valueOf(tokenizer.nextToken());
                     solution.getDecisionVariables()[j].setValue(value);
                 }
-                LinkedList<String> benchmarks = env.getInputDocument().getBenchmarks();
+                LinkedList<String> benchmarks = env.getDesignSpaceDocument().getBenchmarks();
                 /**
                  * for all variables... associate them with a parameter
                  */
-                Parameter[] params = Utils.getParameters(solution, env);
+                SimulatorParameter[] params = Utils.getParameters(solution, env);
                 Individual ind = null;
                 ind = new Individual(env, "");
                 ind.setParameters(params);
-                int[] activeParams = env.getInputDocument().getRelationTree1().getActiveNodes(solution);
+                int[] activeParams = env.getDesignSpaceDocument().getRelationTree1().getActiveNodes(solution);
                 // List for all parameters
                 List<String> paralist = new ArrayList<String>();
 
@@ -167,7 +165,7 @@ public class MetricsUtil {
 
                 // Add all parameters
                 for (int k = 0; k < ind.getParameters().length; k++) {
-                    Parameter p = ind.getParameters()[k];
+                    SimulatorParameter p = ind.getParameters()[k];
                     if (activeParams[k] == 1) {
                         paralist.add(p.getName() + "=" + p.getValue());
                     } else {

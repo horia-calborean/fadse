@@ -8,7 +8,7 @@ package ro.ulbsibiu.fadse.extended.problems.simulators.network.client;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
 import jmetal.problems.ProblemFactory;
 import jmetal.util.JMException;
@@ -19,7 +19,7 @@ import jmetal.util.JMException;
  */
 public class SimulatorFactory {
     private static SimulatorWrapper problem = null;
-    public static SimulatorWrapper getSimulator(String name, Environment env){
+    public static SimulatorWrapper getSimulator(String name, SimulationIO env){
         try {
             Object[] problemParams = {env};
             problem = (SimulatorWrapper) (new ProblemFactory()).getProblem(name, problemParams);

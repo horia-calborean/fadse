@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package ro.ulbsibiu.fadse.environment.document;
 
 import java.io.Serializable;
@@ -11,46 +7,37 @@ import java.util.List;
 import java.util.Map;
 
 import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 import ro.ulbsibiu.fadse.environment.rule.Rule;
 import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
 
-/**
- *
- * @author Horia
- */
 public class InputDocument implements Serializable {
-
-    private Parameter[] parameters;
-    private Parameter[] virtualParameters;
-    private Map<String, Objective> objectives;
-    private List<Rule> rules;
-    private List<Rule> relations;
-    private String simulatorName;
-    private String simulatorType;
-    private String metaheuristicName;
-    private String metaheuristicConfigPath;
-    private String databaseIp;
-    private String databasePort;
-    private String databaseName;
-    private String databaseUser;
-    private String databasePassword;
-    private Map<String, String> simulatorParameters;
-    private LinkedList<String> benchmarks;
-    private RelationTree relationTree1;
-    private RelationTree relationTree2;
-    private String outputPath;
+    protected SimulatorParameter[] parameters;
+    protected SimulatorParameter[] virtualParameters;
+    protected Map<String, Objective> objectives;
+    protected List<Rule> rules;
+    protected List<Rule> relations;
+    protected String simulatorName;
+    protected String simulatorType;
+    protected String metaheuristicName;
+    protected String metaheuristicConfigPath;
+    protected String databaseIp;
+    protected String databasePort;
+    protected String databaseName;
+    protected String databaseUser;
+    protected String databasePassword;
+    protected Map<String, String> simulatorParameters;
+    protected LinkedList<String> benchmarks;
+    protected RelationTree relationTree1;
+    protected RelationTree relationTree2;
+    protected String outputPath;
 
     public InputDocument() {
-        this.simulatorParameters = new HashMap<String, String>();
+        this.simulatorParameters = new HashMap<>();
     }
 
     public Map<String, String> getSimulatorParameters() {
         return simulatorParameters;
-    }
-
-    public void setSimulatorParameters(Map<String, String> simulatorParameters) {
-        this.simulatorParameters = simulatorParameters;
     }
 
     public void addSimulatorParameter(String name, String value) {
@@ -61,11 +48,11 @@ public class InputDocument implements Serializable {
         return simulatorParameters.get(name);
     }
 
-    public Parameter[] getParameters() {
+    public SimulatorParameter[] getParameters() {
         return parameters;
     }
 
-    public void setParameters(Parameter[] parameters) {
+    public void setParameters(SimulatorParameter[] parameters) {
         this.parameters = parameters;
     }
 
@@ -189,14 +176,14 @@ public class InputDocument implements Serializable {
         this.relationTree2 = relationTree2;
     }
 
-    public Parameter[] getVirtualParameters() {
+    public SimulatorParameter[] getVirtualParameters() {
         return virtualParameters;
     }
 
-    public void setVirtualParameters(Parameter[] virtualParameters) {
+    public void setVirtualParameters(SimulatorParameter[] virtualParameters) {
         this.virtualParameters = virtualParameters;
     }
-    
+
     public String getOutputPath() {
         return outputPath;
     }
@@ -204,5 +191,4 @@ public class InputDocument implements Serializable {
     public void setOutputPath(String outputPath) {
         this.outputPath = outputPath;
     }
-    
 }

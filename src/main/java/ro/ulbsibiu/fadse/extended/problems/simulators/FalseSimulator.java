@@ -41,12 +41,9 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
-import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
-import jmetal.base.Solution;
 
 /**
  *
@@ -56,7 +53,7 @@ public class FalseSimulator extends SimulatorBase {
 
     public static final long serialVersionUID = 565464569930L;
 
-    public FalseSimulator(Environment environment) throws ClassNotFoundException {
+    public FalseSimulator(SimulationIO environment) throws ClassNotFoundException {
 
         super(environment);
 
@@ -74,7 +71,7 @@ public class FalseSimulator extends SimulatorBase {
         
         LinkedList<Objective> objectives = new LinkedList<Objective>();
 
-        for (Objective o : environment.getInputDocument().getObjectives().values()) {
+        for (Objective o : environment.getDesignSpaceDocument().getObjectives().values()) {
 //            Objective result = new Objective(o.getName(), o.getType(), o.getUnit(), o.getDescription(), 1+r.nextInt(9), o.isMaximize());
             Objective result = new Objective(o.getName(), o.getType(), o.getUnit(), o.getDescription(), 5, o.isMaximize());
             objectives.add(result);

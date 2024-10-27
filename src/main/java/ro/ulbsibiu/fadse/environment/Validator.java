@@ -6,7 +6,7 @@ package ro.ulbsibiu.fadse.environment;
 
 import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 import ro.ulbsibiu.fadse.environment.parameters.VirtualParameter;
 import ro.ulbsibiu.fadse.environment.rule.Rule;
 
@@ -23,21 +23,21 @@ public class Validator {
         int virtualParamsLength = 0;
 
 
-        Parameter[] params = new Parameter[paramsLength];
+        SimulatorParameter[] params = new SimulatorParameter[paramsLength];
         System.arraycopy(ind.getParameters(), 0, params, 0, paramsLength);
-        if (ind.getEnvironment().getInputDocument().getVirtualParameters() != null) {
-            virtualParamsLength = ind.getEnvironment().getInputDocument().getVirtualParameters().length;
-            Parameter[] virtualParams = ind.getEnvironment().getInputDocument().getVirtualParameters();
-            for (Parameter p : virtualParams) {
+        if (ind.getEnvironment().getDesignSpaceDocument().getVirtualParameters() != null) {
+            virtualParamsLength = ind.getEnvironment().getDesignSpaceDocument().getVirtualParameters().length;
+            SimulatorParameter[] virtualParams = ind.getEnvironment().getDesignSpaceDocument().getVirtualParameters();
+            for (SimulatorParameter p : virtualParams) {
                 VirtualParameter e = (VirtualParameter) p;
-                for (Parameter param : ind.getEnvironment().getInputDocument().getParameters()) {
+                for (SimulatorParameter param : ind.getEnvironment().getDesignSpaceDocument().getParameters()) {
                     try {
                         e.addVariable(param.getName(), new Double((Integer) param.getValue()));
                     } catch (Exception ex) {
                     }
                 }
             }
-            Parameter[] paramsTemp = new Parameter[params.length + virtualParamsLength];
+            SimulatorParameter[] paramsTemp = new SimulatorParameter[params.length + virtualParamsLength];
             System.arraycopy(params, 0, paramsTemp, 0, params.length);
             System.arraycopy(virtualParams, 0, paramsTemp, params.length, virtualParams.length);
             params = paramsTemp;

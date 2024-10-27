@@ -108,7 +108,7 @@ public class NSGAII extends Algorithm {
         CheckpointFileParameter fileParam = (CheckpointFileParameter) getInputParameter("checkpointFile");
         String file = "";
         if (fileParam != null) {
-            file = fileParam.GetCheckpointFile();
+            file = fileParam.getCheckpointFilePath();
         }
         String feasible = (String) getInputParameter("forceFeasibleFirstGeneration");
         int feasiblePercentage = Integer

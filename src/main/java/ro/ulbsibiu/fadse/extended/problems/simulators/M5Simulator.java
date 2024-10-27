@@ -4,7 +4,7 @@
  */
 
 package ro.ulbsibiu.fadse.extended.problems.simulators;
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.m5.M5OutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.m5.M5Runner;
 
@@ -18,10 +18,10 @@ public class M5Simulator extends SimulatorBase {
      * class constructor
      * @param inputDocument
      */
-    public M5Simulator(Environment environment) throws ClassNotFoundException{
+    public M5Simulator(SimulationIO environment) throws ClassNotFoundException{
         super(environment);
         // TODO: Where should this constant be kept?
-        this.simulatorOutputFile = environment.getInputDocument().getSimulatorParameter("simulator_output_file");
+        this.simulatorOutputFile = environment.getDesignSpaceDocument().getSimulatorParameter("simulator_output_file");
         this.simulatorOutputParser = new M5OutputParser(this);
         this.simulatorRunner = new M5Runner(this);
     }

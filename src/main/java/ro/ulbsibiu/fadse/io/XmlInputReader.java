@@ -1,11 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package ro.ulbsibiu.fadse.io;
 
 import java.io.File;
-import java.nio.file.Path;
+import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,15 +18,7 @@ import org.xml.sax.SAXParseException;
 
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.environment.document.InputDocument;
-import ro.ulbsibiu.fadse.environment.parameters.ConstantParameter;
-import ro.ulbsibiu.fadse.environment.parameters.DoubleParameter;
-import ro.ulbsibiu.fadse.environment.parameters.Exp2Parameter;
-import ro.ulbsibiu.fadse.environment.parameters.ExpresionParameter;
-import ro.ulbsibiu.fadse.environment.parameters.IntegerParameter;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
-import ro.ulbsibiu.fadse.environment.parameters.PermutationParameter;
-import ro.ulbsibiu.fadse.environment.parameters.StringParameter;
-import ro.ulbsibiu.fadse.environment.parameters.VirtualParameter;
+import ro.ulbsibiu.fadse.environment.parameters.*;
 import ro.ulbsibiu.fadse.environment.relation.IfRelation;
 import ro.ulbsibiu.fadse.environment.relation.Relation;
 import ro.ulbsibiu.fadse.environment.rule.AndRule;
@@ -38,39 +26,38 @@ import ro.ulbsibiu.fadse.environment.rule.IfRule;
 import ro.ulbsibiu.fadse.environment.rule.RelationRule;
 import ro.ulbsibiu.fadse.environment.rule.Rule;
 import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
+import simulation.parameter.NumericParameter;
 
-/**
- *
- * @author Horia
- */
-public class XMLInputReader {
-	public final static String metaheuristicConfigBasePath = 
-			System.getProperty("file.separator") + "configs" 
-    		+ System.getProperty("file.separator") + "metaheuristicConfig"
-    		+ System.getProperty("file.separator");
-	
+public class XmlInputReader {
+	protected String metaheuristicConfigBasePath;
+
+    public XmlInputReader() {
+        String fileSeparator = FileSystems.getDefault().getSeparator();
+        metaheuristicConfigBasePath = fileSeparator + "configs"
+                                    + fileSeparator + "metaheuristic"
+                                    + fileSeparator;
+    }
+
     public InputDocument parse(String xmlFilePath) {
         try {
-            InputDocument inputDoc = new InputDocument();
+            InputDocument inputDocument = new InputDocument();
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
             Document doc = docBuilder.parse(new File(xmlFilePath));
 
-            // normalize text representation
             doc.getDocumentElement().normalize();
-
 //SIMULATOR
             NodeList simulator = doc.getElementsByTagName("simulator");
-            NamedNodeMap simulatorattributes = simulator.item(0).getAttributes();
-            String simulatorName = simulatorattributes.getNamedItem("name").getNodeValue();
-            String simulatorType = simulatorattributes.getNamedItem("type").getNodeValue();
-            inputDoc.setSimulatorName(simulatorName);
-            inputDoc.setSimulatorType(simulatorType);
+            NamedNodeMap simulatorAttributes = simulator.item(0).getAttributes();
+            String simulatorName = simulatorAttributes.getNamedItem("name").getNodeValue();
+            String simulatorType = simulatorAttributes.getNamedItem("type").getNodeValue();
+            inputDocument.setSimulatorName(simulatorName);
+            inputDocument.setSimulatorType(simulatorType);
 
             NodeList simulatorParams = ((Element) simulator.item(0)).getElementsByTagName("parameter");
             for (int i = 0; i < simulatorParams.getLength(); i++) {
                 NamedNodeMap simulatorParamattributes = simulatorParams.item(i).getAttributes();
-                inputDoc.addSimulatorParameter(simulatorParamattributes.getNamedItem("name").getNodeValue(), simulatorParamattributes.getNamedItem("value").getNodeValue());
+                inputDocument.addSimulatorParameter(simulatorParamattributes.getNamedItem("name").getNodeValue(), simulatorParamattributes.getNamedItem("value").getNodeValue());
             }
 //BENCHMARKS
             NodeList benchmarksNode = doc.getElementsByTagName("benchmarks");
@@ -80,7 +67,7 @@ public class XMLInputReader {
                 for (int i = 0; i < benchmarks.getLength(); i++) {
                     values.add(benchmarks.item(i).getAttributes().getNamedItem("name").getNodeValue());
                 }
-                inputDoc.setBenchmarks(values);
+                inputDocument.setBenchmarks(values);
             }
 //DATABASE
             //<database ip="127.0.0.1" port="1527" name="FADS_DB" user="fadse" password="fadse"/>
@@ -91,82 +78,88 @@ public class XMLInputReader {
             String databaseName = databaseattributes.getNamedItem("name").getNodeValue();
             String databaseUser = databaseattributes.getNamedItem("user").getNodeValue();
             String databasePassword = databaseattributes.getNamedItem("password").getNodeValue();
-            inputDoc.setDatabaseIp(databaseIp);
-            inputDoc.setDatabaseName(databaseName);
-            inputDoc.setDatabasePassword(databasePassword);
-            inputDoc.setDatabasePort(databasePort);
-            inputDoc.setDatabaseUser(databaseUser);
+            inputDocument.setDatabaseIp(databaseIp);
+            inputDocument.setDatabaseName(databaseName);
+            inputDocument.setDatabasePassword(databasePassword);
+            inputDocument.setDatabasePort(databasePort);
+            inputDocument.setDatabaseUser(databaseUser);
 //METAHEURISTIC
             NodeList metaheuristicNode = doc.getElementsByTagName("metaheuristic");
             NamedNodeMap metaheuristicattributes = metaheuristicNode.item(0).getAttributes();
             String metaheuristicName = metaheuristicattributes.getNamedItem("name").getNodeValue();
             String metaheuristicConfigPath = metaheuristicattributes.getNamedItem("config_path").getNodeValue();
-            inputDoc.setMetaheuristicName(metaheuristicName);
+            inputDocument.setMetaheuristicName(metaheuristicName);
             if(Paths.get(metaheuristicConfigPath).isAbsolute()) { //
-            	inputDoc.setMetaheuristicConfigPath(metaheuristicConfigPath);
+            	inputDocument.setMetaheuristicConfigPath(metaheuristicConfigPath);
             } else {
-            	inputDoc.setMetaheuristicConfigPath(metaheuristicConfigBasePath + metaheuristicConfigPath);            	
+            	inputDocument.setMetaheuristicConfigPath(metaheuristicConfigBasePath + metaheuristicConfigPath);
             }     
 //PARAMETERS
-
             NodeList parameters = ((Element) doc.getElementsByTagName("parameters").item(0)).getElementsByTagName("parameter");
-            Parameter[] params = new Parameter[parameters.getLength()];
-            for (int i = 0; i < parameters.getLength(); i++) {
-                Node parameter = parameters.item(i);
-                NamedNodeMap attributes = parameter.getAttributes();
-                String name = attributes.getNamedItem("name").getNodeValue();
-                String type = attributes.getNamedItem("type").getNodeValue();
-                String description = "";
-                Parameter p = null;
-                if (attributes.getNamedItem("description") != null) {
-                    description = attributes.getNamedItem("description").getNodeValue();
-                }
-                if (type.equalsIgnoreCase("integer")) {
-                    p = createIntegerParameter(name, type, description, parameter, params);
-                } else if (type.equalsIgnoreCase("string")) {
-                    p = createStringParameter(name, type, description, parameter);
-                } else if (type.equalsIgnoreCase("exp2")) {
-                    p = createExp2Parameter(name, type, description, parameter, params);
-                } else if (type.equalsIgnoreCase("permutation")) {
-                    p = createPermutationParameter(name, type, description, parameter, params);
-                } else if (type.equalsIgnoreCase("boolean")) {//it is an Integer parameter with 0/1 min/max value
-                    p = createBooleanParameter(name, "boolean", description, parameter);
-                } else if (type.equalsIgnoreCase("on_off_mask")) {
-                    System.err.println("Unsuported parameter type: " + type);
-                } else if (type.equalsIgnoreCase("float")) {
-                    p = createFloatParameter(name, "float", description, parameter, params);
-                } else {
-                    System.err.println("Unsuported parameter type: " + type);
-                }
-                if (p != null) {
-                    params[i] = p;
-                }
+            int noOfParameters = parameters.getLength();
+            SimulatorParameter[] allParameters = new SimulatorParameter[noOfParameters];
 
+            NumericParameter[] numericParameters;
+            PermutationParameter[] permParam;
+
+            for (int parameterIndex = 0; parameterIndex < noOfParameters; parameterIndex++) {
+                Node xmlParameterNode = parameters.item(parameterIndex);
+
+                NamedNodeMap xmlParameterAttributes = xmlParameterNode.getAttributes();
+                String name = xmlParameterAttributes.getNamedItem("name").getNodeValue();
+                String type = xmlParameterAttributes.getNamedItem("type").getNodeValue();
+                Node xmlDescriptionNode = xmlParameterAttributes.getNamedItem("description");
+                String description = (xmlDescriptionNode != null) ? xmlDescriptionNode.getNodeValue() : "";
+
+                SimulatorParameter newParameter = null;
+
+                if (type.equalsIgnoreCase("integer")) {
+                    newParameter = createIntegerParameter(name, description, xmlParameterNode);
+                } else if (type.equalsIgnoreCase("string")) {
+                    newParameter = createStringParameter(name, description, xmlParameterNode);
+                } else if (type.equalsIgnoreCase("exp2")) {
+                    newParameter = createExp2Parameter(name, description, xmlParameterNode);
+                } else if (type.equalsIgnoreCase("permutation")) {
+                    newParameter = createPermutationParameter(name, description, xmlParameterNode);
+                } else if (type.equalsIgnoreCase("boolean")) {
+                    newParameter = createBooleanParameter(name, description);
+                } else if (type.equalsIgnoreCase("on_off_mask")) {
+                    System.err.println("Unsupported parameter type: " + type);
+                } else if (type.equalsIgnoreCase("float")) {
+                    newParameter = createDoubleParameter(name, description, xmlParameterNode);
+                } else {
+                    System.err.println("Unsupported parameter type: " + type);
+                }
+                if (newParameter != null) {
+                    allParameters[parameterIndex] = newParameter;
+                }
             }
-            inputDoc.setParameters(params);
+
+            inputDocument.setParameters(allParameters);
+
 //VIRTUAL PARAMETERS
             try {
                 System.out.println("EXTRACTING THE VIRTUAL PARAMS");
                 NodeList virtualParameters = ((Element) doc.getElementsByTagName("virtual_parameters").item(0)).getElementsByTagName("parameter");
-                Parameter[] virtualParams = new Parameter[virtualParameters.getLength()];
+                SimulatorParameter[] virtualParams = new SimulatorParameter[virtualParameters.getLength()];
                 for (int i = 0; i < virtualParameters.getLength(); i++) {
                     Node parameter = virtualParameters.item(i);
                     NamedNodeMap attributes = parameter.getAttributes();
                     String name = attributes.getNamedItem("name").getNodeValue();
                     String description = "";
-                    Parameter p = createVirtualParameter(name, description, parameter, virtualParams);
+                    SimulatorParameter p = createVirtualParameter(name, description, parameter);
                     if (p != null) {
                         virtualParams[i] = p;
                     }
                 }
                 System.out.println("FOUND: "+virtualParams.length);
-                inputDoc.setVirtualParameters(virtualParams);
-                Parameter[] paramsTemp = new Parameter[params.length+virtualParams.length];
-                System.out.println("NORMAL PARAMS: "+params.length);
-                System.arraycopy(params, 0, paramsTemp, 0, params.length);
-                System.arraycopy(virtualParams, 0, paramsTemp, params.length, virtualParams.length);
-                params = paramsTemp;
-                System.out.println("NORMAL PARAMS (after): "+params.length);
+                inputDocument.setVirtualParameters(virtualParams);
+                SimulatorParameter[] paramsTemp = new SimulatorParameter[allParameters.length+virtualParams.length];
+                System.out.println("NORMAL PARAMS: "+allParameters.length);
+                System.arraycopy(allParameters, 0, paramsTemp, 0, allParameters.length);
+                System.arraycopy(virtualParams, 0, paramsTemp, allParameters.length, virtualParams.length);
+                allParameters = paramsTemp;
+                System.out.println("NORMAL PARAMS (after): "+allParameters.length);
             } catch (Exception e) {
                 System.out.println("Problem at the virtual parameters (not fatal if you are not using them): " + e.getMessage());
             }
@@ -193,7 +186,7 @@ public class XMLInputReader {
                 Objective obj = new Objective(name, type, unit, description, !desired.equalsIgnoreCase("small"));
                 objectives.put(name, obj);
             }
-            inputDoc.setObjectives(objectives);
+            inputDocument.setObjectives(objectives);
 
 //RULES
             NodeList rules = ((Element) doc.getElementsByTagName("rules").item(0)).getElementsByTagName("rule");
@@ -206,7 +199,7 @@ public class XMLInputReader {
                 //RELATION RULES
                 //identify rule type
                 for (int j = 0; j < ruleTypes.length; j++) {//see if the current rule contains elements such as <equal>, <greater-equal> ...
-                    List<RelationRule> rulz = getRelationRule(ruleNode, ruleTypes[j], params);//get all the elements of type <equal> that are child of the current rule
+                    List<RelationRule> rulz = getRelationRule(ruleNode, ruleTypes[j], allParameters);//get all the elements of type <equal> that are child of the current rule
 //the above function is used in other situations too (for and rules) where multiple sub relation rules can exist
                     if (rulz != null && rulz.size() > 0) {//if the current rule has a relationRule (= , >=, <= ...) child
                         rule = rulz.get(0);//in this situation it should be only one element in each rule
@@ -217,27 +210,27 @@ public class XMLInputReader {
                     }
                 }
                 //AND RULES
-                rule = getAndRule(ruleNode, ruleTypes, params);//find rules of type<and>
+                rule = getAndRule(ruleNode, ruleTypes, allParameters);//find rules of type<and>
                 if (rule != null) {
                     rulesList.add(rule);
 //                    System.out.println("and rule" + rule);
                 }
                 //IF RULES
-                rule = getIfRule(ruleNode, ruleTypes, params);//find rules of type<if>
+                rule = getIfRule(ruleNode, ruleTypes, allParameters);//find rules of type<if>
                 if (rule != null) {
                     rulesList.add(rule);
 //                    System.out.println("if rule" + rule);
                 }
             }
 //            System.out.println(rulesList);
-            inputDoc.setRules(rulesList);
+            inputDocument.setRules(rulesList);
 
 //RELATIONS
             NodeList relations = ((Element) doc.getElementsByTagName("relations").item(0)).getElementsByTagName("relation");
             List<Relation> relationsList = new LinkedList<Relation>();
             for (int i = 0; i < relations.getLength(); i++) {//takes each relation
                 Element relationNode = (Element) relations.item(i);//relation node repesents a <relation> element
-                Relation relation = getIfRelation(relationNode, params);//find relations of type<if>
+                Relation relation = getIfRelation(relationNode, allParameters);//find relations of type<if>
                 relationsList.add(relation);
                 System.out.println(relation);
             }
@@ -245,12 +238,12 @@ public class XMLInputReader {
             RelationTree relationTree = new RelationTree();
             RelationTree relationTreeCopy = new RelationTree();
             //detect the root nodes
-            for (int i = 0; i < params.length; i++) {
+            for (int i = 0; i < allParameters.length; i++) {
                 boolean isRoot = true;
                 for (int j = 0; j < relationsList.size(); j++) {
                     String[] dependentParams = relationsList.get(j).getChildrenNames();
                     for (int k = 0; k < dependentParams.length; k++) {
-                        if (params[i].getName().equals(dependentParams[k])) {
+                        if (allParameters[i].getName().equals(dependentParams[k])) {
                             isRoot = false;
                         }
                     }
@@ -261,12 +254,12 @@ public class XMLInputReader {
                     relationTreeCopy.addRootNode(i);
                 }
                 //add the subnodes
-                addSubNodesToRelationTrees(relationTree, params, relationsList, i);
-                addSubNodesToRelationTrees(relationTreeCopy, params, relationsList, i);
+                addSubNodesToRelationTrees(relationTree, allParameters, relationsList, i);
+                addSubNodesToRelationTrees(relationTreeCopy, allParameters, relationsList, i);
             }
             System.out.println("RelationTree: " + relationTree);
-            inputDoc.setRelationTree1(relationTree);
-            inputDoc.setRelationTree2(relationTreeCopy);
+            inputDocument.setRelationTree1(relationTree);
+            inputDocument.setRelationTree2(relationTreeCopy);
 
 			// Uncomment this to see graphical representation
             // relationTree.printToScreen();
@@ -275,9 +268,9 @@ public class XMLInputReader {
             NodeList outputNode = doc.getElementsByTagName("output");
             NamedNodeMap outputAttributes = outputNode.item(0).getAttributes();
             String outputPath = outputAttributes.getNamedItem("output_path").getNodeValue();           
-            inputDoc.setOutputPath(outputPath);                        
+            inputDocument.setOutputPath(outputPath);
             
-            return inputDoc;
+            return inputDocument;
         } catch (SAXParseException err) {
             System.out.println("** Parsing error" + ", line "
                     + err.getLineNumber() + ", uri " + err.getSystemId());
@@ -295,151 +288,121 @@ public class XMLInputReader {
 
     }
 
-    /**
-     * Creates an integer parameter
-     * @param name name of the parameter - very important - used to identify the parameter from now on
-     * @param type type of the parameter - can be only "integer"
-     * @param description - description of the parameter
-     * @param parameter - the Node so that this method can extract other attributes such as min/max value and the "step"
-     * @return the newly created Parameter, Attention Parameters should be created only here since these objects are searched when creating rules
-     */
-    private Parameter createIntegerParameter(String name, String type, String description, Node parameter, Parameter[] params) {
-        IntegerParameter p = new IntegerParameter(name, type, description);
-        NamedNodeMap attributes = parameter.getAttributes();
+    private SimulatorParameter createIntegerParameter(String name, String description, Node xmlParameterNode) {
+        NamedNodeMap attributes = xmlParameterNode.getAttributes();
 
-        //IMPORTANT SET STEP BEFORE SET MAX AND MIN
-        int stepI = 1;//default step
+        int step;
+
         if (attributes.getNamedItem("step") != null) {
-            String step = attributes.getNamedItem("step").getNodeValue();
-            stepI = getValue(step, params);
+            String stepAsString = attributes.getNamedItem("step").getNodeValue();
+            step = Integer.parseInt(stepAsString);
         }
-        p.setStep(stepI);
+        else{
+            step = 1;
+        }
+
+        IntegerParameter integerParameter = new IntegerParameter(name, step);
+        integerParameter.setDescription(description);
+
         String minValue = attributes.getNamedItem("min").getNodeValue();
         String maxValue = attributes.getNamedItem("max").getNodeValue();
 
-        p.setMinValue(getValue(minValue, params));
-        p.setMaxValue(getValue(maxValue, params));
+        integerParameter.setLowerBound(Integer.parseInt(minValue));
+        integerParameter.setUpperBound(Integer.parseInt(maxValue));
 
-        int divideBy = 1;
+        int divideBy;
+
         if (attributes.getNamedItem("divideBy") != null) {
-            String divide = attributes.getNamedItem("divideBy").getNodeValue();
-            divideBy = getValue(divide, params);
+            String divideByAsString = attributes.getNamedItem("divideBy").getNodeValue();
+            divideBy = Integer.parseInt(divideByAsString);
         }
-        p.setDivideBy(divideBy);
+        else{
+            divideBy = 1;
+        }
+
+        integerParameter.setDivideBy(divideBy);
         
-        return p;
+        return integerParameter;
     }
 
-    /**
-     *Creates a Boolean parameter. In fact this is an integer parameter with min = 0 and max = 1
-     * @param name name of the parameter - very important - used to identify the parameter from now on
-     * @param type type of the parameter - can be only "boolean"
-     * @param description - description of the parameter
-     * @param parameter - the Node so that this method can extract other attributes (not necessary for Boolean but I wanted to cheep the common list of params for further improvements)
-     * @return the newly created Parameter, Attention Parameters should be created only here since these objects are searched when creating rules
-     */
-    private Parameter createBooleanParameter(String name, String type, String description, Node parameter) {
-        IntegerParameter p = new IntegerParameter(name, type, description);
-        p.setMinValue(0);
-        p.setMaxValue(1);
-        p.setStep(1);
-        return p;
+    private SimulatorParameter createBooleanParameter(String name, String description) {
+        IntegerParameter booleanParameter = new IntegerParameter(name, 1);
+
+        booleanParameter.setLowerBound(0);
+        booleanParameter.setUpperBound(1);
+
+        booleanParameter.setDescription(description);
+
+        return booleanParameter;
     }
 
-    /**
-     *Creates a String parameter. It holds a string of possible values (items)
-     * @param name name of the parameter - very important - used to identify the parameter from now on
-     * @param type type of the parameter - can be only "string"
-     * @param description - description of the parameter
-     * @param parameter - the Node so that this method can extract other attributes
-     * @return the newly created Parameter, Attention Parameters should be created only here since these objects are searched when creating rules
-     */
-    private Parameter createStringParameter(String name, String type, String description, Node parameter) {
-        StringParameter p = new StringParameter(name, type, description);
-        NodeList items = ((Element) parameter).getElementsByTagName("item");
-        LinkedList<String> values = new LinkedList<String>();
+    private SimulatorParameter createStringParameter(String name, String description, Node xmlParameterNode) {
+
+
+        NodeList items = ((Element) xmlParameterNode).getElementsByTagName("item");
+        LinkedList<String> values = new LinkedList<>();
+
         for (int i = 0; i < items.getLength(); i++) {
             values.add(items.item(i).getAttributes().getNamedItem("value").getNodeValue());
         }
-        p.setValues(values);
-//        try {
-//            System.out.println("....");
-//            System.out.println(p.getVariable().getLowerBound());
-//            System.out.println(p.getVariable().getUpperBound());
-//        } catch (JMException ex) {
-//            Logger.getLogger(XMLInputReader.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+
+        StringParameter p = new StringParameter(name, values);
+        p.setDescription(description);
+
         return p;
     }
 
-    public static void main(String args[]) {
-        XMLInputReader inputReader = new XMLInputReader();
-        InputDocument id = inputReader.parse("configs/falsesimin.xml");
-        System.out.println(id.getRelationTree1().findNode(0));
-        System.out.println(id.getRelationTree1().findNode(1));
+    private SimulatorParameter createExp2Parameter(String name, String description, Node xmlParameterNode) {
+        NamedNodeMap attributes = xmlParameterNode.getAttributes();
 
-        System.out.println(id.getRelationTree1().findNode(2));
-
-
-    }
-
-    /**
-     *Creates a Exp2Parameter parameter. it will produce values like: 2,4,8,16,32,64 if min = 2 and max = 64
-     * @param name name of the parameter - very important - used to identify the parameter from now on
-     * @param type type of the parameter - can be only "exp2"
-     * @param description - description of the parameter
-     * @param parameter - the Node so that this method can extract other attributes (min max values)
-     * @return the newly created Parameter, Attention Parameters should be created only here since these objects are searched when creating rules
-     */
-    private Exp2Parameter createExp2Parameter(String name, String type, String description, Node parameter, Parameter[] params) {
-        Exp2Parameter p = new Exp2Parameter(name, type, description);
-        NamedNodeMap attributes = parameter.getAttributes();
         String minValue = attributes.getNamedItem("min").getNodeValue();
         String maxValue = attributes.getNamedItem("max").getNodeValue();
-        p.setMinValue(getValue(minValue, params));
-        p.setMaxValue(getValue(maxValue, params));
-        return p;
+
+        int lowerBound = Integer.parseInt(minValue);
+        int upperBound = Integer.parseInt(maxValue);
+
+        Exp2Parameter exp2Parameter = new Exp2Parameter(name, lowerBound, upperBound);
+        exp2Parameter.setDescription(description);
+
+        return exp2Parameter;
     }
 
-    private Parameter createFloatParameter(String name, String type, String description, Node parameter, Parameter[] params) {
-        DoubleParameter p = new DoubleParameter(name, type, description);
-        NamedNodeMap attributes = parameter.getAttributes();
+    private SimulatorParameter createDoubleParameter(String name, String description, Node xmlParameterNode) {
+        NamedNodeMap attributes = xmlParameterNode.getAttributes();
         String minValue = attributes.getNamedItem("min").getNodeValue();
         String maxValue = attributes.getNamedItem("max").getNodeValue();
-        double stepI = 0.01;//default step
-//        if (attributes.getNamedItem("step") != null) {
-//            String step = attributes.getNamedItem("step").getNodeValue();
-//            stepI = Double.parseDouble(step);
-//        }
-        p.setMinValue(getValue(minValue, params));
-        p.setMaxValue(getValue(maxValue, params));
-//        p.setStep(stepI);
-        return p;
+
+        double lowerBound = Integer.parseInt(minValue);
+        double upperBound = Integer.parseInt(maxValue);
+
+        DoubleParameter doubleParameter = new DoubleParameter(name, lowerBound, upperBound);
+        doubleParameter.setDescription(description);
+
+        return doubleParameter;
     }
 
-    private Parameter createPermutationParameter(String name, String type, String description, Node parameter, Parameter[] params) {
-        PermutationParameter p = new PermutationParameter(name, type, description);
-        NamedNodeMap attributes = parameter.getAttributes();
+    private SimulatorParameter createPermutationParameter(String name, String description, Node xmlParameterNode) {
+        PermutationParameter permutationParameter = new PermutationParameter(name);
+
+        NamedNodeMap attributes = xmlParameterNode.getAttributes();
         String size = attributes.getNamedItem("dimension").getNodeValue();
-        int value = getValue(size, params);
-        p.setSize(value);
-        return p;
+        int value = Integer.parseInt(size);
+        permutationParameter.setSize(value);
+        permutationParameter.setDescription(description);
+
+        return permutationParameter;
     }
 
-    private Parameter createVirtualParameter(String name, String description, Node parameter, Parameter[] params) {
-        NamedNodeMap attributes = parameter.getAttributes();
+    private SimulatorParameter createVirtualParameter(String name, String description, Node xmlParameterNode) {
+        NamedNodeMap attributes = xmlParameterNode.getAttributes();
+
         String expression = attributes.getNamedItem("value").getNodeValue();
-        VirtualParameter p = new VirtualParameter(name,expression, description);
-        return p;
+        VirtualParameter virtualParameter = new VirtualParameter(name, expression);
+        virtualParameter.setDescription(description);
+
+        return virtualParameter;
     }
 
-    /**
-     * finds all the children of a given Element rule that match a certain tag
-     * it searches for all the elements that match the tag under the "Element rule" but only retains the ones that are direct children to the Element
-     * @param node the parent element
-     * @param tag the tag to search for
-     * @return list of direct child elements
-     */
     private List<Element> findNodeSubElements(Element node, String tag) {
         NodeList tags = node.getElementsByTagName(tag);
         List<Element> subNodes = new LinkedList<Element>();
@@ -455,16 +418,7 @@ public class XMLInputReader {
         return r;
     }
 
-    /**
-     * Used to discover all the relation rules under an element node
-     * If the element node is a "rule" then only one Relation rule is found
-     * If this method is used to discover the rules in an AND rule then multiple rules will be found
-     * @param ruleNode the parent node
-     * @param relationType what type of relation should this function search (equal, greater-equal ...)
-     * @param params the list of already discovered parameters - these parameters will be stored as a reference in the rule also and later when the rule is validated the rule will extract the current value of the parameter
-     * @return a list of relation rules if it founds one or an empty list
-     */
-    private List<RelationRule> getRelationRule(Element ruleNode, String relationType, Parameter[] params) {
+    private List<RelationRule> getRelationRule(Element ruleNode, String relationType, SimulatorParameter[] params) {
         List<Element> rs = findNodeSubElements(ruleNode, relationType);//ginds <equal> or <greater> or ...
         List<RelationRule> relationRules = new LinkedList<RelationRule>();
         if (rs != null) {
@@ -472,8 +426,8 @@ public class XMLInputReader {
                 RelationRule rule = null;
                 if (r != null) {
                     NodeList ruleParameters = r.getElementsByTagName("parameter");//search for parameters in the relation rule
-                    Parameter p1 = null;
-                    Parameter p2 = null;
+                    SimulatorParameter p1 = null;
+                    SimulatorParameter p2 = null;
                     if (ruleParameters != null && ruleParameters.getLength() > 0) {//TODO replace with for
                         if (ruleParameters.item(0) != null) {
                             String parameterName = ruleParameters.item(0).getAttributes().getNamedItem("name").getNodeValue();
@@ -508,8 +462,8 @@ public class XMLInputReader {
                             if (ruleConstants.item(k) != null) {
                                 String parameterValue = ruleConstants.item(k).getAttributes().getNamedItem("value").getNodeValue();
 
-                                Parameter c = null;
-                                c = new ConstantParameter("", "constant", "");//TODO assign name, description
+                                SimulatorParameter c = null;
+                                c = new ConstantParameter("");//TODO assign name, description
                                 c.setValue(parameterValue);
                                 if (p1 == null) {
                                     p1 = c;
@@ -530,14 +484,7 @@ public class XMLInputReader {
         return relationRules;
     }
 
-    /**
-     * searches for an AND rule under the current node and if it founds it returns it
-     * @param ruleNode the parent node where the rule will be searched
-     * @param ruleTypes a list of all the relation rules that can be found in the and rule
-     * @param params the parameters so that the included relation rules can add them
-     * @return and And rule if it founds one or null
-     */
-    private AndRule getAndRule(Element ruleNode, String[] ruleTypes, Parameter[] params) {
+    private AndRule getAndRule(Element ruleNode, String[] ruleTypes, SimulatorParameter[] params) {
         List<Element> rs = findNodeSubElements(ruleNode, "and");//
         AndRule andRule = null;
         Element r = null;
@@ -566,7 +513,7 @@ public class XMLInputReader {
         return andRule;
     }
 
-    private IfRule getIfRule(Element ruleNode, String[] ruleTypes, Parameter[] params) {
+    private IfRule getIfRule(Element ruleNode, String[] ruleTypes, SimulatorParameter[] params) {
         List<Element> rs = findNodeSubElements(ruleNode, "if");
         Element r = null;
         IfRule ifRule = null;
@@ -612,21 +559,7 @@ public class XMLInputReader {
         return ifRule;
     }
 
-    private int getValue(String value, Parameter[] params) {
-        int valueI = 0;
-        if (value.startsWith("@")) {//
-            for (Parameter param : params) {
-                if (param.getName().equalsIgnoreCase(value.substring(1))) {
-                    valueI = (Integer) param.getValue();
-                }
-            }
-        } else {
-            valueI = Integer.parseInt(value);
-        }
-        return valueI;
-    }
-
-    private Relation getIfRelation(Element relationNode, Parameter[] params) {
+    private Relation getIfRelation(Element relationNode, SimulatorParameter[] params) {
         List<Element> rs = findNodeSubElements(relationNode, "if");
         IfRelation ifRelation = null;
         if (rs != null && rs.size() > 0) {
@@ -644,7 +577,7 @@ public class XMLInputReader {
         return ifRelation;
     }
 
-    private void addSubNodesToRelationTrees(RelationTree relationTree, Parameter[] params, List<Relation> relationsList, int parentPosition) throws Exception {
+    private void addSubNodesToRelationTrees(RelationTree relationTree, SimulatorParameter[] params, List<Relation> relationsList, int parentPosition) throws Exception {
         //get the relations that are dependent of this node
         for (int i = 0; i < relationsList.size(); i++) {
             Relation relation = relationsList.get(i);

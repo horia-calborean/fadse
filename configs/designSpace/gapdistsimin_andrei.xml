@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--
-    Document   : params.xml
-    Created on : April 13, 2010, 10:25 AM
-    Author     : Horia
-    Description:
-        this is the input file for the DTLZ1problem
--->
 <design_space>
     <simulator name="ServerSimulator" type="simulator" ><!--type="synthetic"--><!--type can be synthetic or simulator-->
         <parameter name="maximumTimeOfASimulation" value="140"/><!--in minutes-->

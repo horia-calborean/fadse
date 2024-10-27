@@ -4,11 +4,9 @@
  */
 package ro.ulbsibiu.fadse.environment.rule;
 
-import java.util.List;
-
 import ro.ulbsibiu.fadse.environment.parameters.ConstantParameter;
 import ro.ulbsibiu.fadse.environment.parameters.ExpresionParameter;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 
 /**
  *Supports only integer parameters for now
@@ -28,7 +26,7 @@ public class RelationRule implements Rule {
     ExpresionParameter e1 = null;
     ExpresionParameter e2 = null;
 
-    public RelationRule(String type, String description, Parameter p1, Parameter p2) {
+    public RelationRule(String type, String description, SimulatorParameter p1, SimulatorParameter p2) {
         this.type = type;
         this.description = description;
         if (p1 instanceof ConstantParameter) {//TODO think this better - the problem is that the constant parameter is likely to not have any name and also to not be included in the parameters list of the individual
@@ -49,11 +47,11 @@ public class RelationRule implements Rule {
 
     }
 
-    public boolean validate(Parameter[] parameters) {
+    public boolean validate(SimulatorParameter[] parameters) {
         Integer val1 = null;
         //TODO perform tests and throw errors if parameter not found
         if (p1 != null) {
-            for (Parameter p : parameters) {
+            for (SimulatorParameter p : parameters) {
                 if (p.getName().equalsIgnoreCase(p1)) {
                     val1 = (Integer) p.getValue();
                 }
@@ -61,7 +59,7 @@ public class RelationRule implements Rule {
         } else if (c1 != null) {
             val1 = (Integer) c1.getValue();
         } else if (e1 != null) {
-            for (Parameter p : parameters) {
+            for (SimulatorParameter p : parameters) {
                 try{
                     e1.addVariable(p.getName(), new Double((Integer) p.getValue()));
                 } catch (Exception e){}
@@ -70,7 +68,7 @@ public class RelationRule implements Rule {
         }
         Integer val2 = null;
         if (p2 != null) {
-            for (Parameter p : parameters) {
+            for (SimulatorParameter p : parameters) {
                 if (p.getName().equalsIgnoreCase(p2)) {
                     val2 = (Integer) p.getValue();
                 }
@@ -80,7 +78,7 @@ public class RelationRule implements Rule {
         } else if (c2 != null) {
             val2 = (Integer) c2.getValue();
         } else if (e2 != null) {
-            for (Parameter p : parameters) {
+            for (SimulatorParameter p : parameters) {
                 try{
                     e2.addVariable(p.getName(), new Double((Integer) p.getValue()));
                 } catch (Exception e){}

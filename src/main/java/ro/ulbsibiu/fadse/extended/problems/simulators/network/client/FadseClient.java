@@ -91,9 +91,9 @@ public class FadseClient implements Runnable {
 
                 message.setServerIP(socketChannel.getInetAddress());
 
-                message.getIndividual().getEnvironment().getInputDocument().setSimulatorName(message.getSimulatorName());
+                message.getIndividual().getEnvironment().getDesignSpaceDocument().setSimulatorName(message.getSimulatorName());
 
-                InputDocument inputDocument = message.getIndividual().getEnvironment().getInputDocument();
+                InputDocument inputDocument = message.getIndividual().getEnvironment().getDesignSpaceDocument();
 
                 for (String key : inputDocument.getSimulatorParameters().keySet()) {
                     String p = inputDocument.getSimulatorParameters().get(key);
@@ -111,7 +111,7 @@ public class FadseClient implements Runnable {
                     outputStream.writeObject(message);
                     outputStream.flush();
                 } else {
-                    ConnectionPool.setInputDocument(message.getIndividual().getEnvironment().getInputDocument());
+                    ConnectionPool.setInputDocument(message.getIndividual().getEnvironment().getDesignSpaceDocument());
                     message.setType(Message.TYPE_ACK);
                     outputStream.writeObject(message);
                     outputStream.flush();

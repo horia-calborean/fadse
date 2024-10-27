@@ -6,18 +6,17 @@
 package ro.ulbsibiu.fadse.extended.base.stopCondition;
 
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 
 /**
  *
  * @author Horia
  */
 public abstract class StopCondition {
-protected Environment environment;
-    public StopCondition(Environment environment) {
+protected SimulationIO environment;
+    public StopCondition(SimulationIO environment) {
         this.environment = environment;
     }
     

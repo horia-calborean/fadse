@@ -33,7 +33,7 @@
  */
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.unimap.FileRemover;
 import ro.ulbsibiu.fadse.extended.problems.simulators.unimap.UniMapOutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.unimap.UniMapRunner;
@@ -50,9 +50,9 @@ public class UniMapSimulator extends SimulatorBase {
 	 * 
 	 * @param inputDocument
 	 */
-	public UniMapSimulator(Environment environment) throws ClassNotFoundException {
+	public UniMapSimulator(SimulationIO environment) throws ClassNotFoundException {
 		super(environment);
-		this.simulatorOutputFile = environment.getInputDocument().getSimulatorParameter("simulator_output_file");
+		this.simulatorOutputFile = environment.getDesignSpaceDocument().getSimulatorParameter("simulator_output_file");
 		this.simulatorRunner = new UniMapRunner(this);
 		FileRemover fileRemover = ((UniMapRunner) simulatorRunner).getXmlFileCleaner();
 		this.simulatorOutputParser = new UniMapOutputParser(this, fileRemover);

@@ -1,102 +1,69 @@
-/**
- * BitFlipMutationFuzzy.java
- * @author Juan J. Durillo
- * @author Antonio J. Nebro
- * @version 1.1
- */
 package ro.ulbsibiu.fadse.extended.base.operator.mutation;
 
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jmetal.base.Solution;
 import jmetal.util.Configuration;
 import jmetal.util.JMException;
 import jmetal.util.PseudoRandom;
-import jmetal.base.operator.mutation.Mutation;
+import org.uma.jmetal.operator.mutation.MutationOperator;
+import org.uma.jmetal.solution.Solution;
 
 import java.util.Iterator;
+import java.util.Random;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import org.uma.jmetal.solution.binarysolution.BinarySolution;
+import org.uma.jmetal.solution.integersolution.impl.DefaultIntegerSolution;
+import org.uma.jmetal.util.binarySet.BinarySet;
+import org.uma.jmetal.util.errorchecking.Check;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.parameters.Exp2Parameter;
 import ro.ulbsibiu.fadse.environment.parameters.IntegerParameter;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 import ro.ulbsibiu.fadse.utils.Utils;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
 
-/**
- * This class implements a bit flip mutation operator.
- * NOTE: the operator is applied to binary or integer solutions, considering the
- * whole solution as a single variable.
- */
-public class BitFlipMutationFuzzyVirtualParameters extends Mutation {
+public class BitFlipMutationFuzzyVirtualParameters<S extends BinarySolution> implements MutationOperator<S>  {
+    private final double mutationProbability;
 
-    private static int STATS_CALLS = 0;
-    private static int STATS_APPLIED_FUZZY = 0;
-    private static int STATS_APPLIED = 0;
-    private static int STATS_IND_CHANGED = 0;
-    private static double STATS_CURRENT_PROB = 0;
-    private static boolean IND_CHANGED = false;
-    /**
-     * INT_SOLUTION represents class jmetal.base.solutionType.IntSolutionType
-     */
-    private static Class INT_SOLUTION;
+    protected static int STATS_CALLS = 0;
+    protected static int STATS_APPLIED_FUZZY = 0;
+    protected static int STATS_APPLIED = 0;
+    protected static int STATS_IND_CHANGED = 0;
+    protected static double STATS_CURRENT_PROB = 0;
+    protected static boolean IND_CHANGED = false;
+    protected static Class<DefaultIntegerSolution> INT_SOLUTION;
 
-    /**
-     * Constructor
-     * Creates a new instance of the Bit Flip mutation operator
-     */
-    public BitFlipMutationFuzzyVirtualParameters() {
+    public BitFlipMutationFuzzyVirtualParameters(double mutationProbability) {
+        Check.probabilityIsValid(mutationProbability);
+        this.mutationProbability = mutationProbability;
+
+        INT_SOLUTION = DefaultIntegerSolution.class;
+    }
+
+    protected void doMutation(double probability, S solution, SimulationIO environment) throws JMException {
         try {
-            INT_SOLUTION = Class.forName("jmetal.base.solutionType.IntSolutionType");
-        } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } // catch
-    } // BitFlipMutationFuzzy
+            // TODO - GO AND UPDATE getParametersAndVirtualParameters(..., ...)
+            SimulatorParameter[] params = Utils.getParametersAndVirtualParameters(solution, environment);
 
-    /**
-     * Constructor
-     * Creates a new instance of the Bit Flip mutation operator
-     */
-    public BitFlipMutationFuzzyVirtualParameters(Properties properties) {
-        this();
-    } // BitFlipMutationFuzzy
-
-    /**
-     * Perform the mutation operation
-     * @param probability Mutation probability
-     * @param solution The solution to mutate
-     * @throws JMException
-     */
-    public void doMutation(double probability, Solution solution, Environment env) throws JMException {
-        try {
-            //System.out.println("BEFORE");
-            Parameter[] params = Utils.getParametersAndVitualParameters(solution, env);
-            // Integer representation
             for (int i = 0; i < params.length; i++) {
-                //i have set the value, now I have to transform it
                 try {
-                    String fuzzyInputFile = env.getFuzzyInputFile();
-                    FIS fis = FIS.load(fuzzyInputFile, true);//TODO take from xml
+                    String fuzzyInputFile = environment.getFuzzyInputFilePath();
+                    FIS fis = FIS.load(fuzzyInputFile, true);
                     if (fis == null) {
                         throw new Exception("FCL file " + fuzzyInputFile + " was not found");
                     }
                     fillFIS(fis, params);
                     fis.evaluate();
-                    //trying to get the output for this variable. if it thrwos an exception (the current varaible is not defined in the fcl file we turn to original bit flip mutation - see catch)
+
                     Variable outputVariable = fis.getVariable("out" + params[i].getName());
                     if (outputVariable.isOutputVarable()) {
                         int COG = computeCOG(outputVariable, params[i]);
-                        //Should we apply the mutation according to fuzzy info?
+
                         double prob = PseudoRandom.randDouble();
                         double fuzzyMutationProbability = computeProbabilityGaussian(outputVariable, probability);
                         STATS_CURRENT_PROB = fuzzyMutationProbability;
                         if (prob < fuzzyMutationProbability) {
                             params[i].setValue(COG);
-                            solution.getDecisionVariables()[i].setValue((double) params[i].getVariable().getValue());
+                            solution.variables().set(i, (BinarySet) params[i].getValue());
                             STATS_APPLIED_FUZZY++;
                             IND_CHANGED = true;
                         } else {
@@ -106,71 +73,80 @@ public class BitFlipMutationFuzzyVirtualParameters extends Mutation {
                         throw new Exception("It is not an output variable in the FCL file");
                     }
                 } catch (Exception e) {
-//                    Logger.getLogger(BitFlipMutationFuzzyVirtualParameters.class.getName()).log(Level.INFO, "Something went wrong for(" + e.getMessage() + "): " + params[i].getName() + ". Switching to old bit flip mutation");
-                    if (i < solution.getDecisionVariables().length) {
-                        if (PseudoRandom.randDouble() < probability) {
-                            int value = (int) (PseudoRandom.randInt(
-                                    (int) solution.getDecisionVariables()[i].getUpperBound(),
-                                    (int) solution.getDecisionVariables()[i].getLowerBound()));
-                            solution.getDecisionVariables()[i].setValue(value);
+                    if (i < solution.variables().size()) {
+                        if (new Random().nextDouble() < probability) {
+                            int lowerBound = (int) solution.variables().get(i).getLowerBound();
+                            int upperBound = (int) solution.variables().get(i).getUpperBound();
+
+                            int value = new Random().nextInt(upperBound - lowerBound + 1) + lowerBound;
+
+                            solution.variables().set(i, (BinarySet) value);
                             STATS_APPLIED++;
                             IND_CHANGED = true;
                         }
                     }
                 }
-
             }
         } catch (ClassCastException e1) {
             Configuration.logger_.severe("BitFlipMutation.doMutation: "
                     + "ClassCastException error" + e1.getMessage());
-            Class cls = java.lang.String.class;
+            Class<String> cls = java.lang.String.class;
             String name = cls.getName();
             throw new JMException("Exception in " + name + ".doMutation()");
         }
-    } // doMutation
+    }
 
-    /**
-     * Executes the operation
-     * @param object An object containing a solution to mutate
-     * @return An object containing the mutated solution
-     * @throws JMException 
-     */
-    public Object execute(Object object) throws JMException {
-        //System.out.println("BitFlipMutationFuzzy called");
+    @Override
+    public S execute(S object) {
         Solution solution = (Solution) object;
 
-        if (solution.getType().getClass() != INT_SOLUTION) {
+        if (solution.getClass() != INT_SOLUTION) {
             Configuration.logger_.severe("BitFlipMutation.execute: the solution "
-                    + "is not of the right type. 'Int', but " + solution.getType() + " is obtained");
+                    + "is not of the right type. 'Int', but " + solution.getClass() + " is obtained");
 
-            Class cls = java.lang.String.class;
+            Class<String> cls = java.lang.String.class;
             String name = cls.getName();
-            throw new JMException("Exception in " + name + ".execute()");
-        } // if 
+            try {
+                throw new JMException("Exception in " + name + ".execute()");
+            } catch (JMException exception) {
+                throw new RuntimeException(exception);
+            }
+        }
 
         Double probability = (Double) getParameter("probability");
-        Environment env = (Environment) getParameter("environment");
+        SimulationIO env = (SimulationIO) getParameter("environment");
         if (probability == null) {
             Configuration.logger_.severe("BitFlipMutation.execute: probability not "
                     + "specified");
             Class cls = java.lang.String.class;
             String name = cls.getName();
-            throw new JMException("Exception in " + name + ".execute()");
+            try {
+                throw new JMException("Exception in " + name + ".execute()");
+            } catch (JMException e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        doMutation(probability.doubleValue(), solution, env);
+        try {
+            doMutation(probability.doubleValue(), (S) solution, env);
+        } catch (JMException e) {
+            throw new RuntimeException(e);
+        }
         STATS_CALLS++;
         if (IND_CHANGED) {
             STATS_IND_CHANGED++;
         }
         IND_CHANGED = false;
 
-//        System.out.println("CALLS: " + STATS_CALLS + " APPLIED BIT FLIP: " + STATS_APPLIED + " APPLIED FUZZY: " + STATS_APPLIED_FUZZY + " CHANGED INDIVIDUALS: " + STATS_IND_CHANGED + " Curent prob: " + STATS_CURRENT_PROB);
+        return (S) solution;
+    }
 
-        return solution;
-    } // execute
+    @Override
+    public double mutationProbability() {
+        return 0;
+    }
 
-    private int computeCOG(Variable outputVariable, Parameter parameter) throws Exception {
+    private int computeCOG(Variable outputVariable, SimulatorParameter parameter) throws Exception {
         double COG_temp = outputVariable.defuzzify();
         //at this point we know that there is an output defined in the fcl file for this parameter
         if (COG_temp == -1) {
@@ -192,9 +168,9 @@ public class BitFlipMutationFuzzyVirtualParameters extends Mutation {
         return COG;
     }
 
-    private void fillFIS(FIS fis, Parameter[] params) {
+    private void fillFIS(FIS fis, SimulatorParameter[] params) {
         //trying to set the input values for all the parameters
-        for (Parameter p : params) {
+        for (SimulatorParameter p : params) {
             try {
                 double val = (new Double((Integer) p.getValue())).doubleValue();
                 fis.setVariable(p.getName(), val);
@@ -269,12 +245,4 @@ public class BitFlipMutationFuzzyVirtualParameters extends Mutation {
         x = x + 1;
         return y;
     }
-
-    public static void main(String[] args) {
-        BitFlipMutationFuzzyVirtualParameters mutation = new BitFlipMutationFuzzyVirtualParameters();
-        for (int i = 0; i < 500; i++) {
-            System.out.print(mutation.computeGauss(0.10) + ",");
-        }
-    }
-} // BitFlipMutationFuzzy
-
+}

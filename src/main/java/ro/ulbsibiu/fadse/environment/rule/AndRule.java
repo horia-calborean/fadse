@@ -7,7 +7,7 @@ package ro.ulbsibiu.fadse.environment.rule;
 
 import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 
 /**
  *
@@ -26,7 +26,7 @@ public class AndRule implements Rule{
     }
     
 
-     public boolean validate(Parameter[] parameters){
+     public boolean validate(SimulatorParameter[] parameters){
         boolean result = true;
         for(Rule r: rules){
             result = result && r.validate(parameters);

@@ -34,7 +34,7 @@
 
 package ro.ulbsibiu.fadse.persistence;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.Individual;
 
 /**
@@ -42,9 +42,9 @@ import ro.ulbsibiu.fadse.environment.Individual;
  * @author Horia Calborean
  */
 public interface Database {
-    public boolean startDatabase(Environment environment);
-    public void shutdownDatabase(Environment environment);
-    public boolean testConnection(Environment environment);
+    public boolean startDatabase(SimulationIO environment);
+    public void shutdownDatabase(SimulationIO environment);
+    public boolean testConnection(SimulationIO environment);
     public boolean insertIndividual(Individual individual);
     public boolean isIndividualInDatabase(Individual individual);
 }

@@ -4,7 +4,7 @@
  */
 
 package ro.ulbsibiu.fadse.extended.problems.simulators;
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.tem.TemOutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.tem.TemRunner;
 
@@ -18,9 +18,9 @@ public class TemSimulator extends SimulatorBase {
      * class constructor
      * @param inputDocument
      */
-    public TemSimulator(Environment environment) throws ClassNotFoundException{
+    public TemSimulator(SimulationIO environment) throws ClassNotFoundException{
         super(environment);
-        this.simulatorOutputFile = environment.getInputDocument().getSimulatorParameter("simulator_output_file");
+        this.simulatorOutputFile = environment.getDesignSpaceDocument().getSimulatorParameter("simulator_output_file");
         this.simulatorOutputParser = new TemOutputParser(this);
         this.simulatorRunner = new TemRunner(this);
     }

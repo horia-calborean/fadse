@@ -6,7 +6,7 @@ package ro.ulbsibiu.fadse.utils;
 
 import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import jmetal.base.SolutionSet;
 
 /**
@@ -15,5 +15,5 @@ import jmetal.base.SolutionSet;
  */
 public class SolutionSetHelperResult {
     public List<SolutionSet> Populations;
-    public Environment Environment;
+    public SimulationIO Environment;
 }

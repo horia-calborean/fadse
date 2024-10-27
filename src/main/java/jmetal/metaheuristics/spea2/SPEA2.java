@@ -11,8 +11,6 @@ import java.io.IOException;
 
 import jmetal.base.*;
 
-import java.util.Comparator;
-import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -83,7 +81,7 @@ public class SPEA2 extends Algorithm {
         CheckpointFileParameter fileParam = (CheckpointFileParameter) getInputParameter("checkpointFile");
         String file ="";
         if(fileParam !=null){
-            file = fileParam.GetCheckpointFile();
+            file = fileParam.getCheckpointFilePath();
         }
         if (file != null && !file.equals("")) {
             Logger.getLogger(SPEA2.class.getName()).log(Level.WARNING, "Using a checkpoint file: " + file);

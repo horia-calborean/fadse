@@ -242,8 +242,8 @@ public class OMOPSO extends Algorithm {
         String speedFile = "";
 
         if (fileParam != null) {
-            file = fileParam.GetCheckpointFile();
-            speedFile = fileParam.GetSecondFile();
+            file = fileParam.getCheckpointFilePath();
+            speedFile = fileParam.getAdditionalDataFilePath();
         }
 
 

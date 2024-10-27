@@ -14,7 +14,7 @@ import java.util.Map;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.environment.document.InputDocument;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 import jmetal.base.Solution;
 import jmetal.base.Variable;
 import jmetal.util.JMException;
@@ -56,7 +56,7 @@ public class Result {
 
             int simulation_id = DatabaseConnector.getInstance().executeUpdate(sql_statement);
 
-            for (Objective o : ind.getEnvironment().getInputDocument().getObjectives().values()) {
+            for (Objective o : ind.getEnvironment().getDesignSpaceDocument().getObjectives().values()) {
                 sql_statement =
                         "INSERT INTO tbl_result "
                         + "(simulation_id, name, value) values ("
@@ -96,7 +96,7 @@ public class Result {
 
         int[] activeParams;
         try {
-            activeParams = ind.getEnvironment().getInputDocument().getRelationTree1().getActiveNodes(solution);
+            activeParams = ind.getEnvironment().getDesignSpaceDocument().getRelationTree1().getActiveNodes(solution);
         } catch (ArrayIndexOutOfBoundsException ex) {
             System.err.println("there is a problem in the relation tree (active/innactive parameters). If you are not using this ignore this message");
             activeParams = new int[ind.getParameters().length];
@@ -113,7 +113,7 @@ public class Result {
 
         // Add all parameters
         for (int i = 0; i < ind.getParameters().length; i++) {
-            Parameter p = ind.getParameters()[i];
+            SimulatorParameter p = ind.getParameters()[i];
             if (activeParams[i] == 1) {
                 paralist.add(p.getName() + "=" + p.getValue());
             } else {
@@ -251,7 +251,7 @@ public class Result {
             String sql_statement =
                     " SELECT feasible FROM tbl_simulation AS TS"
                     + " WHERE TS.parameter_string_hash = MD5('" + parameterString + "') AND "
-                    + " TS.simulator_name like '" + ind.getEnvironment().getInputDocument().getSimulatorName() + "'";
+                    + " TS.simulator_name like '" + ind.getEnvironment().getDesignSpaceDocument().getSimulatorName() + "'";
 
             // Connect
             DatabaseConnector.getInstance().connect();

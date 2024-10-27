@@ -4,7 +4,7 @@
  */
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.sniper.SniperOutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.sniper.SniperRunner;
 
@@ -18,10 +18,10 @@ import ro.ulbsibiu.fadse.extended.problems.simulators.sniper.SniperRunner;
  */
 public class SniperSimulator extends SimulatorBase {
 
-    public SniperSimulator(Environment environment) throws ClassNotFoundException {
+    public SniperSimulator(SimulationIO environment) throws ClassNotFoundException {
         super(environment);
         // TODO: Where should this constant be kept?
-        this.simulatorOutputFile = environment.getInputDocument().getSimulatorParameter("simulator_final_results");
+        this.simulatorOutputFile = environment.getDesignSpaceDocument().getSimulatorParameter("simulator_final_results");
         this.simulatorOutputParser = new SniperOutputParser(this);
         this.simulatorRunner = new SniperRunner(this);
     }

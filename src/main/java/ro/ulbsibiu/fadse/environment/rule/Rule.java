@@ -6,15 +6,14 @@
 package ro.ulbsibiu.fadse.environment.rule;
 
 import java.io.Serializable;
-import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 
 /**
  *
  * @author Horia
  */
 public interface Rule extends Serializable{
-    public boolean validate(Parameter[] parameters);
+    public boolean validate(SimulatorParameter[] parameters);
     
 }

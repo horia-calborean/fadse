@@ -4,8 +4,7 @@
  */
 
 package ro.ulbsibiu.fadse.extended.problems.simulators;
-import ro.ulbsibiu.fadse.environment.Environment;
-import ro.ulbsibiu.fadse.extended.problems.simulators.*;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.gap.GAPOutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.gap.GAPRunner;
 
@@ -19,9 +18,9 @@ public class GAPSimulator extends SimulatorBase {
      * class constructor
      * @param inputDocument
      */
-    public GAPSimulator(Environment environment) throws ClassNotFoundException{
+    public GAPSimulator(SimulationIO environment) throws ClassNotFoundException{
         super(environment);
-        this.simulatorOutputFile = environment.getInputDocument().getSimulatorParameter("simulator_output_file");
+        this.simulatorOutputFile = environment.getDesignSpaceDocument().getSimulatorParameter("simulator_output_file");
         this.simulatorOutputParser = new GAPOutputParser(this);
         this.simulatorRunner = new GAPRunner(this);
     }

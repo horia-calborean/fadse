@@ -43,7 +43,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
@@ -57,9 +57,9 @@ public class CheckpointHelper {
 
     StringBuilder content;
     String fileName;
-    Environment environment;
+    SimulationIO environment;
 
-    public CheckpointHelper(String fileName, Environment environment) {
+    public CheckpointHelper(String fileName, SimulationIO environment) {
         this.fileName = fileName;
         this.environment = environment;
         content = new StringBuilder();
@@ -162,7 +162,7 @@ public class CheckpointHelper {
 
     public boolean flush() {
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolder() + System.getProperty("file.separator") + fileName + ".csv"));
+            BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolderPath() + System.getProperty("file.separator") + fileName + ".csv"));
             out.write(content.toString());
             out.close();
             return true;

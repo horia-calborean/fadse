@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.extended.qualityIndicator.MetricsUtil;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
@@ -36,9 +36,9 @@ public class SolutionSetHelper {
         File dir = new File(currentdir);
         String neighborConfig = dir + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + "neighborConfig.xml";
 
-        Environment env = new Environment(environmentConfigFile);
-        env.setNeighborsConfigFile(neighborConfig);
-        String problemName = env.getInputDocument().getSimulatorName();
+        SimulationIO env = new SimulationIO(environmentConfigFile);
+        env.setClientsConfigFilePath(neighborConfig);
+        String problemName = env.getDesignSpaceDocument().getSimulatorName();
 
         // is a simulator
         Object[] problemParams = {env};
@@ -84,8 +84,8 @@ public class SolutionSetHelper {
         return sshr;
     }
 
-    public static void DumpPopulationToFile(String folderName, String fileName, SolutionSet ss, Environment env) {
-        String result = (new Utils()).generateCSVHeadder(env);
+    public static void DumpPopulationToFile(String folderName, String fileName, SolutionSet ss, SimulationIO env) {
+        String result = (new Utils()).generateCSVHeader(env);
         result += (new Utils()).generateCSV(ss);
         try {
             (new File(folderName)).mkdirs();

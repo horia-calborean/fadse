@@ -1,7 +1,7 @@
 
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.continental.ContinentalOutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.continental.ContinentalRunner;
 
@@ -12,9 +12,9 @@ import ro.ulbsibiu.fadse.extended.problems.simulators.continental.ContinentalRun
  */
 public class ContinentalSimulator extends SimulatorBase {
 
-    public ContinentalSimulator(Environment environment) throws ClassNotFoundException {
+    public ContinentalSimulator(SimulationIO environment) throws ClassNotFoundException {
         super(environment);
-        this.simulatorOutputFile = environment.getInputDocument().getSimulatorParameter("simulator_output_file");
+        this.simulatorOutputFile = environment.getDesignSpaceDocument().getSimulatorParameter("simulator_output_file");
         this.simulatorOutputParser = new ContinentalOutputParser(this);
         this.simulatorRunner = new ContinentalRunner(this);
     }

@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 
 /**
  * Generic class for starting a simulator
@@ -17,7 +17,7 @@ import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 public class SimulatorRunner implements Runnable {
     protected SimulatorBase simulator;
     protected LinkedHashMap<String, String> simpleParameters;
-    protected Parameter[] currentParameters;
+    protected SimulatorParameter[] currentParameters;
     protected Process p = null;
     protected Individual individual;
 
@@ -90,14 +90,14 @@ public class SimulatorRunner implements Runnable {
      */
     protected void prepareParameters(){
         // this.simpleParameters = new LinkedHashMap<String, String>();
-        for (Parameter param:   this.currentParameters) {
+        for (SimulatorParameter param:   this.currentParameters) {
             // System.out.println("- AddParameter: " + param.getName() + " = " +  param.getValue().toString());
             this.addSimpleParameter(param.getName(), param.getValue().toString());
         }
     }
 
-    public void setParameters(Parameter[] parameters){
-        this.currentParameters = new Parameter[parameters.length];
+    public void setParameters(SimulatorParameter[] parameters){
+        this.currentParameters = new SimulatorParameter[parameters.length];
         this.currentParameters = parameters;
         this.prepareParameters();
     }

@@ -44,10 +44,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
 import jmetal.base.Solution;
-import jmetal.base.variable.*;
 import jmetal.util.Configuration;
 import jmetal.util.JMException;
 import jmetal.util.PseudoRandom;
@@ -137,7 +136,7 @@ public class RelationalBitFlipMutation extends Mutation {
             String name = cls.getName();
             throw new JMException("Exception in " + name + ".execute()");
         } // if
-        Environment environment  = (Environment) getParameter("environment");
+        SimulationIO environment  = (SimulationIO) getParameter("environment");
         Double probability = (Double) getParameter("probability");
         if (probability == null) {
             Configuration.logger_.severe("RelationalBitFlipMutation.execute: probability not "
@@ -146,7 +145,7 @@ public class RelationalBitFlipMutation extends Mutation {
             String name = cls.getName();
             throw new JMException("Exception in " + name + ".execute()");
         }
-        doMutation(probability.doubleValue(), solution, environment.getInputDocument().getRelationTree1());
+        doMutation(probability.doubleValue(), solution, environment.getDesignSpaceDocument().getRelationTree1());
         return solution;
     } // execute
      public void waitForEnter() {

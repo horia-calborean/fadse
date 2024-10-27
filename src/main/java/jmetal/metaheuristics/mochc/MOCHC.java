@@ -13,7 +13,6 @@ import java.io.IOException;
 import jmetal.base.*;
 import jmetal.util.archive.*;
 import jmetal.base.operator.comparator.CrowdingComparator;
-import jmetal.base.variable.Binary;
 import jmetal.util.JMException;
 
 import java.util.*;
@@ -165,7 +164,7 @@ public class MOCHC extends Algorithm {
         CheckpointFileParameter fileParam = (CheckpointFileParameter) getInputParameter("checkpointFile");
         String file = "";
         if (fileParam != null) {
-            file = fileParam.GetCheckpointFile();
+            file = fileParam.getCheckpointFilePath();
         }
         String feasible = (String) getInputParameter("forceFeasibleFirstGeneration");
         int feasiblePercentage = Integer

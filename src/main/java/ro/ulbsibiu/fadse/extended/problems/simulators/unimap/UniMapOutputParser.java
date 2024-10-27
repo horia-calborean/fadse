@@ -38,12 +38,10 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorBase;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorOutputParser;
 
@@ -125,8 +123,8 @@ public class UniMapOutputParser extends SimulatorOutputParser {
             System.out.println("Note that out files are kept for infeasible individuals.");
             setWorstObjectives(finalResults);
         } else {
-        	Environment environment = individual.getEnvironment();
-        	Map<String, String> simulatorParameters = environment.getInputDocument().getSimulatorParameters();
+        	SimulationIO environment = individual.getEnvironment();
+        	Map<String, String> simulatorParameters = environment.getDesignSpaceDocument().getSimulatorParameters();
         	String outFilePath = simulatorParameters.get("simulator_output_file");
 			if (outFilePath != null && !outFilePath.isEmpty()) {
 				fileRemover.addFileToBeCleaned(outFilePath);

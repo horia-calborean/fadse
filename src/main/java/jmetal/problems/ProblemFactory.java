@@ -7,11 +7,7 @@ package jmetal.problems;
 
 import java.lang.reflect.Constructor;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Environment;
-import ro.ulbsibiu.fadse.extended.problems.simulators.Msim3Simulator;
 import jmetal.base.Problem;
 import jmetal.util.Configuration;
 import jmetal.util.JMException;

@@ -26,7 +26,7 @@ import jmetal.base.SolutionSet;
 
 import org.ini4j.Wini;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
@@ -52,10 +52,10 @@ public class ServerSimulator extends SimulatorWrapper {
     private SimulationStatus simulationStatus;
     private Map<Individual, Solution> individualsToSend;//there are multiple individuals for a single solution (10 benchmarks , 1 solution)
 
-    public ServerSimulator(Environment environment) throws ClassNotFoundException, IOException, ParserConfigurationException {
+    public ServerSimulator(SimulationIO environment) throws ClassNotFoundException, IOException, ParserConfigurationException {
         super(environment);
         Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, "ServerSimulator started...");
-        neighbors = (Neighborhood.getInstance(environment.getNeighborsConfigFile())).getNeighbors();
+        neighbors = (Neighborhood.getInstance(environment.getClientsConfigFilePath())).getNeighbors();
         Logger.getLogger(ServerSimulator.class.getName()).log(Level.CONFIG, "Loaded " + neighbors.size() + " neighbors...");
         //start a thread that monitors the responses of the neighbors
         receiver = ResultsReceiver.getInstance();
@@ -163,7 +163,7 @@ public class ServerSimulator extends SimulatorWrapper {
                     if (duplicateDetector.contains(localKeptMessage.getIndividual())) {
                         //we already have its results but we should look in the received one if it is in fact better than the one before
                         Individual rec = receivedMessage.getIndividual();
-                        if (rec.isFeasible() && rec.getObjectives().size() != environment.getInputDocument().getObjectives().size()) {//is feasible and has all of its objective
+                        if (rec.isFeasible() && rec.getObjectives().size() != environment.getDesignSpaceDocument().getObjectives().size()) {//is feasible and has all of its objective
                             //it does not matter if the old one was also feasible we just copy the results either way
                             copy = true;
                             for (int i = 0; i < rec.getObjectives().size(); i++) {
@@ -193,7 +193,7 @@ public class ServerSimulator extends SimulatorWrapper {
             List<Objective> objs = localKeptMessage.getIndividual().getObjectives();
             //FAILSAFE mechanism check if the number of objectives is correct
             try {
-                if (objs.size() != environment.getInputDocument().getObjectives().size()) {
+                if (objs.size() != environment.getDesignSpaceDocument().getObjectives().size()) {
                     localKeptMessage.getIndividual().markAsInfeasibleAndSetBadValuesForObjectives("Wrong number of objectives [2]");
                     Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "individual has not all the objectives filled");
                     infeasible = true;
@@ -236,7 +236,7 @@ public class ServerSimulator extends SimulatorWrapper {
             boolean infeasible = false;
             //FAILSAFE test individual for corectness - test if ind has the correct number of objectives
             try {
-                if (localkeptMessage.getIndividual().getObjectives().size() != environment.getInputDocument().getObjectives().size()) {
+                if (localkeptMessage.getIndividual().getObjectives().size() != environment.getDesignSpaceDocument().getObjectives().size()) {
                     localkeptMessage.getIndividual().markAsInfeasibleAndSetBadValuesForObjectives("Wrong number of objectives [1]");
                     Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "individual has not all the objectives filled[1]");
                     infeasible = true;
@@ -251,9 +251,9 @@ public class ServerSimulator extends SimulatorWrapper {
                 }
                 Solution localKeptSolution = simulationStatus.getSolution(localkeptMessage.getMessageId());
                 //FAILSAFE - not all the benchmarks responded
-                if (localKeptSolution.getCounter() != environment.getInputDocument().getBenchmarks().size() * environment.getInputDocument().getObjectives().values().size()) {
-                    Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "individual does not have results for all the benchmarks, or has more results (" + (localKeptSolution.getCounter() + "!=" + environment.getInputDocument().getBenchmarks().size() * environment.getInputDocument().getObjectives().values().size()) + ") : ");
-                    for (int i = 0; i < environment.getInputDocument().getObjectives().values().size(); i++) {
+                if (localKeptSolution.getCounter() != environment.getDesignSpaceDocument().getBenchmarks().size() * environment.getDesignSpaceDocument().getObjectives().values().size()) {
+                    Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "individual does not have results for all the benchmarks, or has more results (" + (localKeptSolution.getCounter() + "!=" + environment.getDesignSpaceDocument().getBenchmarks().size() * environment.getDesignSpaceDocument().getObjectives().values().size()) + ") : ");
+                    for (int i = 0; i < environment.getDesignSpaceDocument().getObjectives().values().size(); i++) {
                         Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, localKeptSolution.getSum(i));
                     }
                     infeasible = true;
@@ -272,9 +272,9 @@ public class ServerSimulator extends SimulatorWrapper {
             //System.out.println(s.getNumberOfViolatedConstraint() != 0 ? "Infeasible" : "Feasible");
             for (int i = 0; i < s.numberOfObjectives(); i++) {
                 double value = s.getObjective(i);
-                value = value / environment.getInputDocument().getBenchmarks().size();//compute the average
-                s.setObjective(i, s.getTempSum(i) / environment.getInputDocument().getBenchmarks().size());
-                System.out.println(s.getSum(i) + "/" + environment.getInputDocument().getBenchmarks().size() + " = " + s.getTempSum(i) / environment.getInputDocument().getBenchmarks().size() + "=" + value);
+                value = value / environment.getDesignSpaceDocument().getBenchmarks().size();//compute the average
+                s.setObjective(i, s.getTempSum(i) / environment.getDesignSpaceDocument().getBenchmarks().size());
+                System.out.println(s.getSum(i) + "/" + environment.getDesignSpaceDocument().getBenchmarks().size() + " = " + s.getTempSum(i) / environment.getDesignSpaceDocument().getBenchmarks().size() + "=" + value);
                 //cleaning up the solution - has to be done for algorithms that reuse the same object like PSO algorithms
                 s.setSum(i, null);
                 s.setTempSum(i, 0);
@@ -305,7 +305,7 @@ public class ServerSimulator extends SimulatorWrapper {
         Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, "redistributeUnfinishedSimulations called...");
         long startTime = System.currentTimeMillis();
         while (simulationStatus.getNumberOfActiveSimulations() > 0) {
-            int maxTime = Integer.parseInt(environment.getInputDocument().getSimulatorParameter("maximumTimeOfASimulation"));
+            int maxTime = Integer.parseInt(environment.getDesignSpaceDocument().getSimulatorParameter("maximumTimeOfASimulation"));
             if (System.currentTimeMillis() - startTime > 1000 * 60 * maxTime * 2) {//we have been waiting for too long something might have happened in detectAndRescheduleCrashedClients
                 //just make them all infeasible and move on with our life
                 for (String messageId : simulationStatus.getActiveSimulationsIds()) {
@@ -342,7 +342,7 @@ public class ServerSimulator extends SimulatorWrapper {
         for (String messageId : simulationStatus.getActiveSimulationsIds()) {
 //            Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, "handling messageID " + messageId + "...");
             Simulation s = simulationStatus.getSimulation(messageId);
-            int maxTime = Integer.parseInt(environment.getInputDocument().getSimulatorParameter("maximumTimeOfASimulation"));
+            int maxTime = Integer.parseInt(environment.getDesignSpaceDocument().getSimulatorParameter("maximumTimeOfASimulation"));
             if (s != null && System.currentTimeMillis() - s.getSimulationStartedTime().getTime() > 1000 * 60 * maxTime) {
                 //maximum allocated time has passed - check how many retries and mark ind as infeasible if number of retries exceeded
                 //avoid deadlock if all the clients are simulating indefinitely
@@ -388,14 +388,14 @@ public class ServerSimulator extends SimulatorWrapper {
     }
 
     public void dumpCurrentPopulation(String filename, SolutionSet population) {
-        String result = (new Utils()).generateCSVHeadder(simulationStatus.getEnvironment());
+        String result = (new Utils()).generateCSVHeader(simulationStatus.getEnvironment());
         result += (new Utils()).generateCSV(population);
         
         System.out.println("Result of the population (" + filename + "):\n" + result);
         
         try {
-            (new File(environment.getResultsFolder())).mkdirs();
-            BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolder() + System.getProperty("file.separator") + filename + ".csv"));
+            (new File(environment.getResultsFolderPath())).mkdirs();
+            BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolderPath() + System.getProperty("file.separator") + filename + ".csv"));
             out.write(result);
             out.close();
         } catch (IOException e) {
@@ -404,7 +404,7 @@ public class ServerSimulator extends SimulatorWrapper {
         }
     }
 
-    public Environment getEnvironment(){
+    public SimulationIO getEnvironment(){
         return this.environment;
     }
 }

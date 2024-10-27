@@ -122,12 +122,12 @@ public class StatusObserver implements Runnable {
 
                             SolutionSet solutionSet = u.insertObjectivesValuesIntoSolutions(simulationStatus);
 
-                            String headder = u.generateCSVHeadder(simulationStatus.getEnvironment());
+                            String headder = u.generateCSVHeader(simulationStatus.getEnvironment());
                             result = headder;
                             result += u.generateCSV(solutionSet);
                         } else if (command.startsWith("getCurrentOptimalSet")) {
                             SolutionSet solutionSet =u.insertObjectivesValuesIntoSolutions(simulationStatus);
-                            String headder = u.generateCSVHeadder(simulationStatus.getEnvironment());
+                            String headder = u.generateCSVHeader(simulationStatus.getEnvironment());
                             result = headder;
                             SolutionSet finalSolutionSet = new SolutionSet(solutionSet.size());
                             Iterator i = solutionSet.iterator();

@@ -8,30 +8,30 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ro.ulbsibiu.fadse.environment.document.InputDocument;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.gap.GapLogger;
 
 public class Individual implements Cloneable, Serializable {
 
-    private Parameter[] parameters;
+    private SimulatorParameter[] parameters;
     private String benchmark;
     private LinkedList<Objective> objectives;
     private int offspringCount;
-    private Environment environment;
+    private SimulationIO environment;
     private boolean feasible = true;
 
-    public Individual(Environment env, String benchmark) {
+    public Individual(SimulationIO env, String benchmark) {
         this.benchmark = benchmark;
-        parameters = new Parameter[env.getInputDocument().getParameters().length];
+        parameters = new SimulatorParameter[env.getDesignSpaceDocument().getParameters().length];
         objectives = new LinkedList<Objective>();
-        for (Objective o : env.getInputDocument().getObjectives().values()) {
+        for (Objective o : env.getDesignSpaceDocument().getObjectives().values()) {
             objectives.add(new Objective(o.getName(), o.getType(), o.getUnit(), o.getDescription(), o.isMaximize()));
         }
-        InputDocument init = env.getInputDocument();
+        InputDocument init = env.getDesignSpaceDocument();
         int i = 0;
-        for (Parameter p : init.getParameters()) {
+        for (SimulatorParameter p : init.getParameters()) {
             try {
-                parameters[i] = ((Parameter) p.clone());
+                parameters[i] = ((SimulatorParameter) p.clone());
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(Individual.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -53,7 +53,7 @@ public class Individual implements Cloneable, Serializable {
         this.offspringCount = offspringCount;
     }
 
-    public Parameter[] getParameters() {
+    public SimulatorParameter[] getParameters() {
         return parameters;
     }
 
@@ -65,14 +65,14 @@ public class Individual implements Cloneable, Serializable {
         this.objectives = objectives;
     }
 
-    public void setParameters(Parameter[] parameters) {
+    public void setParameters(SimulatorParameter[] parameters) {
         this.parameters = parameters;
     }
 
     @Override
     public Individual clone() throws CloneNotSupportedException {
         Individual newInd = new Individual(environment, benchmark);
-        Parameter[] newParameters = new Parameter[environment.getInputDocument().getParameters().length];
+        SimulatorParameter[] newParameters = new SimulatorParameter[environment.getDesignSpaceDocument().getParameters().length];
         LinkedList<Objective> newObjectives = new LinkedList<Objective>();
         Objective newObjective;
         for (Objective o : objectives) {
@@ -80,10 +80,10 @@ public class Individual implements Cloneable, Serializable {
             newObjective.setValue(o.getValue());
             newObjectives.add(newObjective);
         }
-        Parameter temp;
+        SimulatorParameter temp;
         int i = 0;
-        for (Parameter p : parameters) {
-            temp = (Parameter) p.clone();
+        for (SimulatorParameter p : parameters) {
+            temp = (SimulatorParameter) p.clone();
             newParameters[i] = (temp);
             i++;
         }
@@ -127,7 +127,7 @@ public class Individual implements Cloneable, Serializable {
         /* return "[o" + objectives.toString() + " # " + parameters.toString() + "]"; */
     }
 
-    public Environment getEnvironment() {
+    public SimulationIO getEnvironment() {
         return environment;
     }
 
@@ -141,7 +141,7 @@ public class Individual implements Cloneable, Serializable {
     public void markAsInfeasibleAndSetBadValuesForObjectives(String reason) {
         this.markAsInfeasible(reason);
         this.setObjectives(new LinkedList<Objective>());
-        for (Objective o : environment.getInputDocument().getObjectives().values()) {
+        for (Objective o : environment.getDesignSpaceDocument().getObjectives().values()) {
             this.getObjectives().add(new Objective(o.getName(), o.getType(), o.getUnit(), o.getDescription(), o.isMaximize()));
         }
         this.setBadValuesForObjectives();

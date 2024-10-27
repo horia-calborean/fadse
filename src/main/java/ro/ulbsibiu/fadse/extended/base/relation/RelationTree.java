@@ -37,7 +37,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 import ro.ulbsibiu.fadse.environment.rule.Rule;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
@@ -59,7 +59,7 @@ public class RelationTree implements Serializable {
         roots = new LinkedList<RelationNode>();
     }
 
-    public void buildTree(List<Rule> relations, Parameter[] parameter) {
+    public void buildTree(List<Rule> relations, SimulatorParameter[] parameter) {
 //        for(Rule r: relations){
 //            IfRule rule = (IfRule) r;
 //            Rule ifExpr =rule.getIfExpresion();

@@ -36,24 +36,20 @@
  */
 package ro.ulbsibiu.fadse.extended.problems;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.environment.Validator;
 import ro.ulbsibiu.fadse.environment.document.InputDocument;
 import ro.ulbsibiu.fadse.environment.parameters.DoubleParameter;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 import ro.ulbsibiu.fadse.environment.parameters.PermutationParameter;
 import ro.ulbsibiu.fadse.utils.Utils;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
-import jmetal.base.Variable;
 import jmetal.base.solutionType.IntRealPermutationSolutionType;
 import jmetal.base.solutionType.IntRealSolutionType;
 import jmetal.base.solutionType.IntSolutionType;
@@ -67,14 +63,14 @@ import jmetal.util.JMException;
 public abstract class SimulatorWrapper extends Problem {
 
     /** Class to hold state of application */
-    protected Environment environment;
+    protected SimulationIO environment;
     protected Solution currentSolution;
 
-    public SimulatorWrapper(Environment environment) throws ClassNotFoundException {
+    public SimulatorWrapper(SimulationIO environment) throws ClassNotFoundException {
         // persistence.DerbyDB.createConnection(environment.getInputDocument());
 
         this.environment = environment;
-        InputDocument input = environment.getInputDocument();
+        InputDocument input = environment.getDesignSpaceDocument();
         this.problemName_ = input.getSimulatorName();
         this.numberOfConstraints_ = input.getRules().size();
         this.numberOfObjectives_ = input.getObjectives().values().size();
@@ -88,14 +84,14 @@ public abstract class SimulatorWrapper extends Problem {
             lowerLimit_[var] = 0;
             upperLimit_[var] = 1.0;
             try {
-                lowerLimit_[var] = environment.getInputDocument().getParameters()[var].getVariable().getLowerBound();
-                upperLimit_[var] = environment.getInputDocument().getParameters()[var].getVariable().getUpperBound();
+                lowerLimit_[var] = environment.getDesignSpaceDocument().getParameters()[var].getVariable().getLowerBound();
+                upperLimit_[var] = environment.getDesignSpaceDocument().getParameters()[var].getVariable().getUpperBound();
             } catch (JMException ex) {
                // Logger.getLogger(SimulatorWrapper.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         } //for
-        for (Parameter p : input.getParameters()) {
+        for (SimulatorParameter p : input.getParameters()) {
             if (p instanceof DoubleParameter) {
                 numberOfFloatParameters++;
             } else if (p instanceof PermutationParameter) {
@@ -129,9 +125,9 @@ public abstract class SimulatorWrapper extends Problem {
         Validator validator = new Validator();
 
 
-        LinkedList<String> benchmarks = environment.getInputDocument().getBenchmarks();
+        LinkedList<String> benchmarks = environment.getDesignSpaceDocument().getBenchmarks();
         /** for all variables... associate them with a parameter */
-        Parameter[] params = Utils.getParameters(solution, environment);
+        SimulatorParameter[] params = Utils.getParameters(solution, environment);
         Individual ind = null;
         boolean[] feasible = new boolean[benchmarks.size()];//not used, but it will be in the future
         for (int i = 0; i < benchmarks.size(); i++) {
@@ -141,7 +137,7 @@ public abstract class SimulatorWrapper extends Problem {
             ind = new Individual(environment, benchmark);
             ind.setParameters(params);
             // Validate individual to the rules
-            boolean result = 0 == validator.validate(ind, environment.getInputDocument().getRules());
+            boolean result = 0 == validator.validate(ind, environment.getDesignSpaceDocument().getRules());
 
             //if validation passed
             if (result) {
@@ -170,7 +166,7 @@ public abstract class SimulatorWrapper extends Problem {
                 for (int k = 0; k < solution.numberOfObjectives(); k++) {
                     solution.setObjective(k, Double.MAX_VALUE);
                 }
-                solution.setNumberOfViolatedConstraint(environment.getInputDocument().getRules().size());
+                solution.setNumberOfViolatedConstraint(environment.getDesignSpaceDocument().getRules().size());
                 solution.setOverallConstraintViolation(Integer.MAX_VALUE);//TODO think of a value to put here
             }
         }
@@ -180,7 +176,7 @@ public abstract class SimulatorWrapper extends Problem {
     }
 
     public InputDocument getInputDocument() {
-        return this.environment.getInputDocument();
+        return this.environment.getDesignSpaceDocument();
     }
 
     public abstract void performSimulation(Individual individual);
@@ -192,14 +188,14 @@ public abstract class SimulatorWrapper extends Problem {
         super.evaluateConstraints(solution);
         Validator validator = new Validator();
         Individual ind = new Individual(environment, "");//benchmark is not important in this case
-        Parameter[] params = environment.getInputDocument().getParameters();
+        SimulatorParameter[] params = environment.getDesignSpaceDocument().getParameters();
         ind.setParameters(params);
-        solution.setNumberOfViolatedConstraint(validator.validate(ind, environment.getInputDocument().getRules()));
-        solution.setOverallConstraintViolation(validator.validate(ind, environment.getInputDocument().getRules()));//TODO think of an importance of a rule??
+        solution.setNumberOfViolatedConstraint(validator.validate(ind, environment.getDesignSpaceDocument().getRules()));
+        solution.setOverallConstraintViolation(validator.validate(ind, environment.getDesignSpaceDocument().getRules()));//TODO think of an importance of a rule??
     }
 
     @Override
     public int getNumberOfConstraints() {
-        return environment.getInputDocument().getRules().size();
+        return environment.getDesignSpaceDocument().getRules().size();
     }
 }

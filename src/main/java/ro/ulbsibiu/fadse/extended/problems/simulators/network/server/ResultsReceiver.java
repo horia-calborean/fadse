@@ -88,7 +88,7 @@ public class ResultsReceiver implements Runnable {
                                 }
                                 try {
                                     // utils.Utils.loadNeighbors(null)
-                                    Neighbor n = Neighborhood.getInstance(response.getIndividual().getEnvironment().getNeighborsConfigFile()).getByIpAndPort(socket.getInetAddress(), response.getClientListenport());
+                                    Neighbor n = Neighborhood.getInstance(response.getIndividual().getEnvironment().getClientsConfigFilePath()).getByIpAndPort(socket.getInetAddress(), response.getClientListenport());
                                     if (n != null) {
                                         n.setNumberOfOcupiedSlots(n.getNumberOfOcupiedSlots() - 1);
                                     } else {

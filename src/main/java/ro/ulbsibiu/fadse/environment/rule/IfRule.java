@@ -34,9 +34,7 @@
 
 package ro.ulbsibiu.fadse.environment.rule;
 
-import java.util.List;
-
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 
 /**
  *
@@ -56,7 +54,7 @@ public class IfRule implements Rule {
         this.thenExpresion = thenExpresion;
     }
 
-    public boolean validate(Parameter[] parameters) {
+    public boolean validate(SimulatorParameter[] parameters) {
         boolean result = true;
         if (ifExpresion.validate(parameters)) {
             result = thenExpresion.validate(parameters);

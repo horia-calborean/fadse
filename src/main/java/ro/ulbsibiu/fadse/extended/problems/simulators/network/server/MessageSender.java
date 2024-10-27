@@ -73,7 +73,7 @@ public class MessageSender {
         m.setIndividual(individual);
         m.setType(type);
         m.setMessageId(messageId);
-        m.setSimulatorName(individual.getEnvironment().getInputDocument().getSimulatorParameter("realSimulator"));
+        m.setSimulatorName(individual.getEnvironment().getDesignSpaceDocument().getSimulatorParameter("realSimulator"));
         m.setClientListenport(n.getPort());
         String currentdir = System.getProperty("user.dir");
         File dir = new File(currentdir);

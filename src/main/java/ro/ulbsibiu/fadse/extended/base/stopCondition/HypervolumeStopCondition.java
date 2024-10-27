@@ -7,13 +7,12 @@ package ro.ulbsibiu.fadse.extended.base.stopCondition;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.document.InputDocument;
 import ro.ulbsibiu.fadse.extended.qualityIndicator.HypervolumeNoTruePareto;
 import ro.ulbsibiu.fadse.extended.qualityIndicator.MetricsUtil;
@@ -24,13 +23,13 @@ import ro.ulbsibiu.fadse.extended.qualityIndicator.MetricsUtil;
  */
 public class HypervolumeStopCondition extends StopCondition {
 
-    public HypervolumeStopCondition(Environment environment) {
+    public HypervolumeStopCondition(SimulationIO environment) {
         super(environment);
     }
 
     public boolean stopConditionFulfilled(List<File> listOfPopulationFiles) {
         boolean result = false;
-        InputDocument id = environment.getInputDocument();
+        InputDocument id = environment.getDesignSpaceDocument();
         //***********INITIALIZATION*************
         //TODO 
         int populationSize = 100;
@@ -76,10 +75,10 @@ public class HypervolumeStopCondition extends StopCondition {
         String currentdir = System.getProperty("user.dir");
         File dir = new File(currentdir);
         String xmlFileName = "falsesimin.xml";
-        Environment env = new Environment(dir + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + xmlFileName);
+        SimulationIO env = new SimulationIO(dir + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + xmlFileName);
         env.setResultsFolder(currentdir + System.getProperty("file.separator") + "test");
         HypervolumeStopCondition condition = new HypervolumeStopCondition(env);
-        String resultsFolder = env.getResultsFolder();
+        String resultsFolder = env.getResultsFolderPath();
         LinkedList<File> listOfPopulationFiles = MetricsUtil.getListOfFiles(resultsFolder, "filled");
         for (int i = 0; i < listOfPopulationFiles.size(); i++) {
             List<File> subLsit = listOfPopulationFiles.subList(0, i);

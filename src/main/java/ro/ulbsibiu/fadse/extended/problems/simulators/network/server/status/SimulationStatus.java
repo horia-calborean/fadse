@@ -4,23 +4,17 @@
  */
 package ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.Neighbor;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.ResultsReceiver;
-import ro.ulbsibiu.fadse.utils.Utils;
 import jmetal.base.Algorithm;
 import jmetal.base.Solution;
 
@@ -38,7 +32,7 @@ public class SimulationStatus {
     private Map<String, Simulation> simulations;
     private List<String> toRemove;
     private Algorithm algorithm;//might be or might not be set
-    private Environment environment;//might be or might not be set
+    private SimulationIO environment;//might be or might not be set
 
     private SimulationStatus() {
         toRemove = Collections.synchronizedList(new LinkedList<String>());
@@ -190,11 +184,11 @@ public class SimulationStatus {
         this.algorithm = algorithm;
     }
 
-    public Environment getEnvironment() {
+    public SimulationIO getEnvironment() {
         return environment;
     }
 
-    public void setEnvironment(Environment environment) {
+    public void setEnvironment(SimulationIO environment) {
         this.environment = environment;
     }
 

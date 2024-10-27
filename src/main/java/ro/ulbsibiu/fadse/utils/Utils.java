@@ -1,83 +1,75 @@
 package ro.ulbsibiu.fadse.utils;
 
-//
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import org.uma.jmetal.util.VectorUtils;
+import org.uma.jmetal.util.errorchecking.JMetalException;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.parameters.ExpresionParameter;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
+import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
 import ro.ulbsibiu.fadse.environment.parameters.VirtualParameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status.SimulationStatus;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
 import jmetal.base.Variable;
-import jmetal.util.JMException;
 
-public class Utils {
+public class Utils<S extends org.uma.jmetal.solution.Solution<?>> {
+    public String generateCSV(List<S> solutionList) {
+        StringBuilder csvOutput = new StringBuilder();
+        int noOfSolutions = solutionList.size();
 
-    private Random r;
+        for (int solutionIndex = 0; solutionIndex <= noOfSolutions - 1; solutionIndex++) {
+            StringBuilder csvLine = new StringBuilder();
+            S solution = solutionList.get(solutionIndex);
 
-    public Random getRandom() {
-        if (r == null) {
-            r = new Random();
-        }
-        return r;
-    }
+            List<?> variables = solution.variables();
+            int noOfVariables = variables.size();
 
-    public String generateCSV(SolutionSet s) {
-        String csvOutput = "";
-        for (int i = 0; i < s.size(); i++) {
-            String csvLine = "";
-            Solution solution = s.get(i);
-            for (Variable v : solution.getDecisionVariables()) {
+            for (int variableIndex = 0; variableIndex <= noOfVariables - 1; variableIndex++) {
                 try {
-                    csvLine += v.getValue() + ",";
-                } catch (JMException ex) {
+                    csvLine.append(variables.get(variableIndex)).append(",");
+                } catch (JMetalException ex) {
                     Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-                    csvLine += "unknown" + ",";
+                    csvLine.append("unknown" + ",");
                 }
             }
-            for (int j = 0; j < solution.numberOfObjectives(); j++) {
-                double objVal = solution.getObjective(j);
-                csvLine += Double.toString(objVal) + ",";
+
+            double[] objectives = solution.objectives();
+            int noOfObjectives = solution.objectives().length;
+
+            for (int objectiveIndex = 0; objectiveIndex <= noOfObjectives - 1; objectiveIndex++) {
+                double objective = objectives[objectiveIndex];
+                csvLine.append(objective).append(",");
             }
-            csvLine = csvLine.substring(0, csvLine.length() - 1);
-            csvLine += System.getProperty("line.separator");
-            csvOutput += csvLine;
+            csvLine = new StringBuilder(csvLine.substring(0, csvLine.length() - 1));
+            csvLine.append(System.lineSeparator());
+            csvOutput.append(csvLine);
         }
-        return csvOutput;
+        return csvOutput.toString();
     }
 
-    public String generateCSVHeadder(Environment environment) {
-        String headder = "";
-        for (Parameter p : environment.getInputDocument().getParameters()) {
-            headder += p.getName() + ",";
+    public String generateCSVHeader(SimulationIO simulationIO) {
+        StringBuilder header = new StringBuilder();
+
+        SimulatorParameter[] designSpaceParameters = simulationIO.getDesignSpaceDocument().getParameters();
+
+        for (SimulatorParameter p : designSpaceParameters) {
+            header.append(p.getName()).append(",");
         }
-        for (Objective o : environment.getInputDocument().getObjectives().values()) {
-            headder += o.getName() + ",";
+
+        for (Objective o : simulationIO.getDesignSpaceDocument().getObjectives().values()) {
+            header.append(o.getName()).append(",");
         }
-        headder = headder.substring(0, headder.length() - 1);
-        headder += System.getProperty("line.separator");
-        return headder;
+
+        header = new StringBuilder(header.substring(0, header.length() - 1));
+        header.append(System.lineSeparator());
+
+        return header.toString();
     }
 
-    /**
-     *
-     * @param simulationStatus
-     * @return a new SolutionSet containing solutions with filled objectives
-     */
     public SolutionSet insertObjectivesValuesIntoSolutions(SimulationStatus simulationStatus) {
         //extract all the solutions from the simualtion status and build new objects so we will work on local data
         List<Message> filledMessages = simulationStatus.getReceiver().getResults();
@@ -122,7 +114,7 @@ public class Utils {
         for (Solution s : solutions) {
             for (int i = 0; i < s.numberOfObjectives(); i++) {
                 double value = s.getObjective(i);
-                value = value / simulationStatus.getEnvironment().getInputDocument().getBenchmarks().size();//compute the average
+                value = value / simulationStatus.getEnvironment().getDesignSpaceDocument().getBenchmarks().size();//compute the average
 //                System.out.println("FINAL for solution["+s.getDecisionVariables()+"] for objective["+i+"] = "+value);
                 s.setObjective(i, value);
             }
@@ -130,43 +122,15 @@ public class Utils {
         return solSet;
     }
 
-    public static <T> T[] concat(T[] first, T[] second) {
-        T[] result = Arrays.copyOf(first, first.length + second.length);
-        System.arraycopy(second, 0, result, first.length, second.length);
-        return result;
-    }
-
-    public static double[] concat(double[] first, double[] second) {
-        double[] result = Arrays.copyOf(first, first.length + second.length);
-        System.arraycopy(second, 0, result, first.length, second.length);
-        return result;
-    }
-
-    public static <T> T[] concatAll(T[] first, T[]... rest) {
-        int totalLength = first.length;
-        for (T[] array : rest) {
-            totalLength += array.length;
-        }
-        T[] result = Arrays.copyOf(first, totalLength);
-        int offset = first.length;
-        for (T[] array : rest) {
-            System.arraycopy(array, 0, result, offset, array.length);
-            offset += array.length;
-        }
-        return result;
-    }
-
-    public static Parameter[] getParameters(Solution solution, Environment environment) {
+    public static SimulatorParameter[] getParameters(Solution solution, SimulationIO environment) {
         Variable[] vars = solution.getDecisionVariables();
-        Parameter[] params = environment.getInputDocument().getParameters();
+        SimulatorParameter[] params = environment.getDesignSpaceDocument().getParameters();
         /** for all variables... associate them with a parameter */
         for (int i = 0; i < vars.length; i++) {
             try {
-                Parameter p = params[i];
-                Parameter parameter = (Parameter) p.clone();
-//                System.out.printf("param %s - variable %s\n", parameter.getName(), vars[i].getValue());
-                parameter.setVariable(vars[i]);
-                //System.out.printf("%d - %d", vars[i].getValue(), parameter.getValue());
+                SimulatorParameter p = params[i];
+                SimulatorParameter parameter = (SimulatorParameter) p.clone();
+                parameter.setValue(vars[i]);
                 params[i] = parameter;
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, "cloning of the parameter was not supported", ex);
@@ -175,33 +139,32 @@ public class Utils {
         return params;
     }
 
-    public static Parameter[] getParametersAndVitualParameters(Solution solution, Environment environment) {
-        Variable[] vars = solution.getDecisionVariables();
-        Parameter[] params = new Parameter[environment.getInputDocument().getParameters().length+environment.getInputDocument().getVirtualParameters().length];
-        /** for all variables... associate them with a parameter */
+    public static SimulatorParameter[] getParametersAndVirtualParameters(org.uma.jmetal.solution.Solution solution, SimulationIO environment) {
+        double[] vars = VectorUtils.toArray(solution.variables());
+        int paramsLength = environment.getDesignSpaceDocument().getParameters().length * 2;
+        SimulatorParameter[] params = new SimulatorParameter[paramsLength];
+
         for (int i = 0; i < vars.length; i++) {
             try {
-                Parameter p = environment.getInputDocument().getParameters()[i];
-                Parameter parameter = (Parameter) p.clone();
-//                System.out.printf("param %s - variable %s\n", parameter.getName(), vars[i].getValue());
-                parameter.setVariable(vars[i]);
-                //System.out.printf("%d - %d", vars[i].getValue(), parameter.getValue());
+                SimulatorParameter p = environment.getDesignSpaceDocument().getParameters()[i];
+                SimulatorParameter parameter = (SimulatorParameter) p.clone();
+                parameter.setValue(vars[i]);
                 params[i] = parameter;
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, "cloning of the parameter was not supported", ex);
             }
         }
-        if (environment.getInputDocument().getVirtualParameters() != null) {
-            for (Parameter p : environment.getInputDocument().getVirtualParameters()) {
+        if (environment.getDesignSpaceDocument().getVirtualParameters() != null) {
+            for (SimulatorParameter p : environment.getDesignSpaceDocument().getVirtualParameters()) {
                 VirtualParameter e = (VirtualParameter) p;
-                for (Parameter param : environment.getInputDocument().getParameters()) {
+                for (SimulatorParameter param : environment.getDesignSpaceDocument().getParameters()) {
                     try {
                         e.addVariable(param.getName(), new Double((Integer) param.getValue()));
                     } catch (Exception ex) {}
                 }
             }
-            Parameter[] virtualParameters = environment.getInputDocument().getVirtualParameters();
-            Parameter[] origParams = environment.getInputDocument().getParameters();
+            SimulatorParameter[] virtualParameters = environment.getDesignSpaceDocument().getVirtualParameters();
+            SimulatorParameter[] origParams = environment.getDesignSpaceDocument().getParameters();
             System.arraycopy(virtualParameters, 0, params, origParams.length, virtualParameters.length);
 
         }

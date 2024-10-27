@@ -1,15 +1,13 @@
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
 import ro.ulbsibiu.fadse.persistence.Result;
-import jmetal.base.Solution;
 
 /**
  * Base Class for simulator configuration.
@@ -31,7 +29,7 @@ public abstract class SimulatorBase extends SimulatorWrapper {
      * Class constructor, initialize variables and calls {@link #parseXml(String)}
      * @param xmlFilePath String the complete path to the configuration fill
      */
-    public SimulatorBase(Environment environment) throws ClassNotFoundException {
+    public SimulatorBase(SimulationIO environment) throws ClassNotFoundException {
         super(environment);
         this.InitSimulator();
     }
@@ -90,7 +88,7 @@ public abstract class SimulatorBase extends SimulatorWrapper {
         this.simulatorRunner.setParameters(individual.getParameters());
         // Configure the SimulatorOutputparser
         this.simulatorOutputParser.setObjectives(
-                this.environment.getInputDocument().getObjectives());
+                this.environment.getDesignSpaceDocument().getObjectives());
         LinkedList<Objective> results = null;
         // Look for results in database
         int feasible = -1;
@@ -109,7 +107,7 @@ public abstract class SimulatorBase extends SimulatorWrapper {
             results = this.simulatorOutputParser.getResults(individual);
             individual.setObjectives(results);
             try {
-                Result.insertResult(individual.getEnvironment().getInputDocument(),
+                Result.insertResult(individual.getEnvironment().getDesignSpaceDocument(),
                         individual, simulatorOutputParser.fileContents.toString());
             } catch (Exception e) {
                 System.out.println("ERROR WHILE ACCESING THE DATABASE");
@@ -133,12 +131,12 @@ public abstract class SimulatorBase extends SimulatorWrapper {
     public String toString() {
         StringBuilder str = new StringBuilder();
         str.append("\n------------------------------------------------\n");
-        str.append(this.environment.getInputDocument().getSimulatorName() + "\n");
-        str.append(this.environment.getInputDocument().getSimulatorParameter("simulator_executable") + "\n");
+        str.append(this.environment.getDesignSpaceDocument().getSimulatorName() + "\n");
+        str.append(this.environment.getDesignSpaceDocument().getSimulatorParameter("simulator_executable") + "\n");
         str.append("------------------- PARAMETERS -----------------\n");
-        str.append(this.environment.getInputDocument().getParameters().toString() + "\n");
+        str.append(this.environment.getDesignSpaceDocument().getParameters().toString() + "\n");
         str.append("------------------- OBJECTIVES -----------------\n");
-        str.append(this.environment.getInputDocument().getObjectives().toString() + "\n");
+        str.append(this.environment.getDesignSpaceDocument().getObjectives().toString() + "\n");
         str.append("------------------------------------------------\n");
 
         return str.toString();

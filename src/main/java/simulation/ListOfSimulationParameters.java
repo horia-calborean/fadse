@@ -1,6 +1,5 @@
 package simulation;
 
-import java.util.Dictionary;
 import java.util.Hashtable;
 
 public class ListOfSimulationParameters {

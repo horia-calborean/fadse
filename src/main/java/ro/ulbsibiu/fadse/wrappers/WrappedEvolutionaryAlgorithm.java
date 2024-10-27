@@ -1,4 +1,4 @@
-package wrappers;
+package ro.ulbsibiu.fadse.wrappers;
 
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
 import ro.ulbsibiu.fadse.extended.base.operator.mutation.BitFlipMutationFuzzyVirtualParameters;

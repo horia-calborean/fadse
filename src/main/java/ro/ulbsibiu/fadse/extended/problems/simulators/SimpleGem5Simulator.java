@@ -5,7 +5,7 @@
 
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 
-import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.environment.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.simplegem5.SimpleGem5OutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.simplegem5.SimpleGem5Runner;
 
@@ -19,10 +19,10 @@ public class SimpleGem5Simulator extends SimulatorBase {
      * class constructor
      * @param inputDocument
      */
-    public SimpleGem5Simulator(Environment environment) throws ClassNotFoundException{
+    public SimpleGem5Simulator(SimulationIO environment) throws ClassNotFoundException{
         super(environment);
         // TODO: Where should this constant be kept?
-        this.simulatorOutputFile = environment.getInputDocument().getSimulatorParameter("simulator_output_file");
+        this.simulatorOutputFile = environment.getDesignSpaceDocument().getSimulatorParameter("simulator_output_file");
         this.simulatorOutputParser = new SimpleGem5OutputParser(this);
         this.simulatorRunner = new SimpleGem5Runner(this);
     }
