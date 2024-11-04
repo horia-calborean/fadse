@@ -1,22 +1,17 @@
 
 package ro.ulbsibiu.fadse.extended.problems.simulators.continental;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.Objective;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
+import ro.ulbsibiu.fadse.simulationIO.Objective;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorBase;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorOutputParser;
 

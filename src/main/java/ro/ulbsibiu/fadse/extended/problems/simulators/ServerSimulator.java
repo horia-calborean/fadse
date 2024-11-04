@@ -26,9 +26,9 @@ import jmetal.base.SolutionSet;
 
 import org.ini4j.Wini;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
-import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.Objective;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
+import ro.ulbsibiu.fadse.simulationIO.Objective;
 import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.MessageSender;

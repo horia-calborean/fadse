@@ -16,8 +16,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.parameters.IntegerParameter;
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric.IntegerParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorBase;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorRunner;
 

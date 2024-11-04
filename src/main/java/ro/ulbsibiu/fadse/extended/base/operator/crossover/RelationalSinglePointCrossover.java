@@ -42,7 +42,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 import ro.ulbsibiu.fadse.extended.base.relation.RelationNode;
 import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
 import jmetal.base.*;

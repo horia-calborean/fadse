@@ -1,4 +1,4 @@
-package ro.ulbsibiu.fadse.environment.document;
+package ro.ulbsibiu.fadse.simulationIO.document;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
-import ro.ulbsibiu.fadse.environment.rule.Rule;
+import ro.ulbsibiu.fadse.simulationIO.Objective;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.rule.Rule;
 import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
 
 public class InputDocument implements Serializable {

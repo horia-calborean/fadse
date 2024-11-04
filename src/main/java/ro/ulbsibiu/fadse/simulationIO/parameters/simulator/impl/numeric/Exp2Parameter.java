@@ -1,6 +1,8 @@
-package ro.ulbsibiu.fadse.environment.parameters;
+package ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric;
 
-public class Exp2Parameter extends SimulatorParameter<Integer> {
+import simulation.parameter.NumericParameter;
+
+public class Exp2Parameter extends NumericParameter {
     protected Integer initialLowerBound;
     protected Integer initialUpperBound;
     protected Integer lowerBound;
@@ -15,7 +17,7 @@ public class Exp2Parameter extends SimulatorParameter<Integer> {
     }
 
     @Override
-    public Exp2Parameter clone() throws CloneNotSupportedException {
+    public Exp2Parameter clone() {
         Exp2Parameter clone = new Exp2Parameter(name, initialLowerBound, initialUpperBound);
 
         clone.setValue(value);

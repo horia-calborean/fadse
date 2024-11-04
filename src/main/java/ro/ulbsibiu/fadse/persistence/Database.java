@@ -34,8 +34,8 @@
 
 package ro.ulbsibiu.fadse.persistence;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
-import ro.ulbsibiu.fadse.environment.Individual;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
 
 /**
  *

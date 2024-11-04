@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 import ro.ulbsibiu.fadse.extended.qualityIndicator.MetricsUtil;
 import jmetal.base.Problem;
 import jmetal.base.Solution;

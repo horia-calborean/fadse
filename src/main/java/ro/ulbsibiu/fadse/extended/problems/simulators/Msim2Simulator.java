@@ -1,6 +1,6 @@
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.msim2.Msim2OutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.msim2.Msim2Runner;
 

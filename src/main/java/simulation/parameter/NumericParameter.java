@@ -1,37 +1,37 @@
 package simulation.parameter;
 
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 
 public abstract class NumericParameter extends SimulatorParameter {
-    protected T value;
-    protected T lowerBound;
-    protected T upperBound;
+    protected Number value;
+    protected Number lowerBound;
+    protected Number upperBound;
 
     public NumericParameter(String name) {
         super(name);
     }
 
-    public T getValue(){
+    public Number getValue(){
         return value;
     }
 
-    public void setValue(T value){
+    public void setValue(Number value){
         this.value = value;
     }
 
-    public T getLowerBound() {
+    public Number getLowerBound() {
         return lowerBound;
     }
 
-    public void setLowerBound(T lowerBound) {
+    public void setLowerBound(Number lowerBound) {
         this.lowerBound = lowerBound;
     }
 
-    public T getUpperBound() {
+    public Number getUpperBound() {
         return upperBound;
     }
 
-    public void setUpperBound(T upperBound) {
+    public void setUpperBound(Number upperBound) {
         this.upperBound = upperBound;
     }
 }

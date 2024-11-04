@@ -32,7 +32,7 @@
 
  */
 
-package ro.ulbsibiu.fadse.environment.relation;
+package ro.ulbsibiu.fadse.simulationIO.relation;
 
 /**
  *

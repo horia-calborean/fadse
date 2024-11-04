@@ -1,4 +1,4 @@
-package ro.ulbsibiu.fadse.environment;
+package ro.ulbsibiu.fadse.simulationIO;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.document.InputDocument;
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.document.InputDocument;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.gap.GapLogger;
 
 public class Individual implements Cloneable, Serializable {

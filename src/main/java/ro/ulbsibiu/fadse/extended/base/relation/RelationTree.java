@@ -37,8 +37,8 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
-import ro.ulbsibiu.fadse.environment.rule.Rule;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.rule.Rule;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.Variable;

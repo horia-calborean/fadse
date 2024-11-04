@@ -43,7 +43,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;

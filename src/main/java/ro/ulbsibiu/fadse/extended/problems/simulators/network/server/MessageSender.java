@@ -45,7 +45,7 @@ import java.util.logging.Logger;
 
 import org.ini4j.Wini;
 
-import ro.ulbsibiu.fadse.environment.Individual;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
 
 /**

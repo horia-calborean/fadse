@@ -6,7 +6,7 @@ package ro.ulbsibiu.fadse.utils;
 
 import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 import jmetal.base.SolutionSet;
 
 /**

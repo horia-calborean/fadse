@@ -1,4 +1,4 @@
-package ro.ulbsibiu.fadse.environment;
+package ro.ulbsibiu.fadse.simulationIO;
 
 import java.util.LinkedList;
 import java.util.List;

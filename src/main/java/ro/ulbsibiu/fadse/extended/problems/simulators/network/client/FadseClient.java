@@ -1,7 +1,7 @@
 package ro.ulbsibiu.fadse.extended.problems.simulators.network.client;
 
 import org.ini4j.Wini;
-import ro.ulbsibiu.fadse.environment.document.InputDocument;
+import ro.ulbsibiu.fadse.simulationIO.document.InputDocument;
 import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
 import ro.ulbsibiu.fadse.persistence.ConnectionPool;

@@ -4,9 +4,6 @@
  */
 package ro.ulbsibiu.fadse.extended.qualityIndicator;
 
-import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.Population;
-
 /**
  *
  * @author Horia Andrei Calborean <horia.calborean@ulbsibiu.ro>

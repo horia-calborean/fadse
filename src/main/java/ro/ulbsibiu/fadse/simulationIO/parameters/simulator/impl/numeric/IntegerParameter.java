@@ -1,10 +1,10 @@
-package ro.ulbsibiu.fadse.environment.parameters;
+package ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric;
 
 import simulation.parameter.NumericParameter;
 
-public class IntegerParameter extends NumericParameter<Integer> {
-    protected int step;
-    protected int divideBy ;
+public class IntegerParameter extends NumericParameter {
+    protected Integer step;
+    protected Integer divideBy ;
     protected Integer initialLowerBound;
     protected Integer initialUpperBound;
 
@@ -15,20 +15,20 @@ public class IntegerParameter extends NumericParameter<Integer> {
     }
 
     @Override
-    public void setLowerBound(Integer lowerBound){
-        initialLowerBound = lowerBound;
-        this.lowerBound = lowerBound / step;
+    public void setLowerBound(Number lowerBound){
+        initialLowerBound = (Integer) lowerBound;
+        this.lowerBound = ((Integer) lowerBound) / step;
     }
 
     @Override
-    public void setUpperBound(Integer upperBound){
-        initialUpperBound = upperBound;
-        this.upperBound = upperBound / step;
+    public void setUpperBound(Number upperBound){
+        initialUpperBound = (Integer) upperBound;
+        this.upperBound = ((Integer) upperBound) / step;
     }
 
     @Override
-    public Integer getValue() {
-        return (value * step);
+    public Number getValue() {
+        return (((Integer)value)* step);
     }
 
     @Override

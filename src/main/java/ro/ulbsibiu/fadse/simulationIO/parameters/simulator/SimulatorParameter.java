@@ -1,4 +1,4 @@
-package ro.ulbsibiu.fadse.environment.parameters;
+package ro.ulbsibiu.fadse.simulationIO.parameters.simulator;
 
 import java.io.Serializable;
 

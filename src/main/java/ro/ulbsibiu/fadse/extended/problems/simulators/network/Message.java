@@ -8,7 +8,7 @@ package ro.ulbsibiu.fadse.extended.problems.simulators.network;
 import java.io.Serializable;
 import java.net.InetAddress;
 
-import ro.ulbsibiu.fadse.environment.Individual;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
 
 /**
  *

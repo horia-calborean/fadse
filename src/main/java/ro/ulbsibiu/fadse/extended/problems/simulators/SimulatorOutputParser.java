@@ -7,9 +7,8 @@ import java.util.Scanner;
 import java.util.LinkedList;
 import java.util.Locale;
 
-import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorBase;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
+import ro.ulbsibiu.fadse.simulationIO.Objective;
 import ro.ulbsibiu.fadse.persistence.Result;
 
 /**

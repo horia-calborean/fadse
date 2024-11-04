@@ -1,6 +1,8 @@
-package ro.ulbsibiu.fadse.environment.parameters;
+package ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric;
 
-public class DoubleParameter extends SimulatorParameter<Double> {
+import simulation.parameter.NumericParameter;
+
+public class DoubleParameter extends NumericParameter {
     protected Double lowerBound;
     protected Double upperBound;
 
@@ -11,7 +13,7 @@ public class DoubleParameter extends SimulatorParameter<Double> {
     }
 
     @Override
-    public DoubleParameter clone() throws CloneNotSupportedException {
+    public DoubleParameter clone() {
         DoubleParameter clone = new DoubleParameter(name, lowerBound, upperBound);
 
         clone.setValue(value);

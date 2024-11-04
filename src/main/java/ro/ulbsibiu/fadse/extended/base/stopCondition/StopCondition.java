@@ -8,7 +8,7 @@ package ro.ulbsibiu.fadse.extended.base.stopCondition;
 import java.io.File;
 import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 
 /**
  *

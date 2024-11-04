@@ -6,10 +6,10 @@ import java.util.logging.Logger;
 
 import org.uma.jmetal.util.VectorUtils;
 import org.uma.jmetal.util.errorchecking.JMetalException;
-import ro.ulbsibiu.fadse.environment.SimulationIO;
-import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
-import ro.ulbsibiu.fadse.environment.parameters.VirtualParameter;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.Objective;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.special.VirtualParameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status.SimulationStatus;
 import jmetal.base.Solution;

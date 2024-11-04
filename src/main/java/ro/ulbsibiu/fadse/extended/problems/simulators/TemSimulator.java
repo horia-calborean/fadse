@@ -4,7 +4,7 @@
  */
 
 package ro.ulbsibiu.fadse.extended.problems.simulators;
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.tem.TemOutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.tem.TemRunner;
 

@@ -1,8 +1,9 @@
-package ro.ulbsibiu.fadse.environment.parameters;
+package ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.special;
 
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 import ro.ulbsibiu.fadse.utils.MathEvaluator;
 
-public class VirtualParameter extends SimulatorParameter<Integer> {
+public class VirtualParameter extends SimulatorParameter {
     protected String expression;
     protected MathEvaluator evaluator;
 
@@ -13,7 +14,7 @@ public class VirtualParameter extends SimulatorParameter<Integer> {
     }
 
     @Override
-    public VirtualParameter clone() throws CloneNotSupportedException {
+    public VirtualParameter clone() {
         VirtualParameter clone = new VirtualParameter(name, expression);
 
         clone.setDescription(description);

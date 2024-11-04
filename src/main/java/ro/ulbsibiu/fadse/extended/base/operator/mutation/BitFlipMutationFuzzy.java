@@ -16,10 +16,10 @@ import jmetal.base.operator.mutation.Mutation;
 
 import java.util.Iterator;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
-import ro.ulbsibiu.fadse.environment.parameters.Exp2Parameter;
-import ro.ulbsibiu.fadse.environment.parameters.IntegerParameter;
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric.Exp2Parameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric.IntegerParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 import ro.ulbsibiu.fadse.utils.Utils;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.rule.Variable;

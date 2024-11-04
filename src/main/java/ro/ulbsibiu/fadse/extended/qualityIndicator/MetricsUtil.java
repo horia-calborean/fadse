@@ -63,9 +63,9 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
-import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 import ro.ulbsibiu.fadse.utils.Utils;
 
 /**

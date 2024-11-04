@@ -16,7 +16,7 @@ import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ro.ulbsibiu.fadse.environment.document.InputDocument;
+import ro.ulbsibiu.fadse.simulationIO.document.InputDocument;
 
 import com.mysql.jdbc.PreparedStatement;
 

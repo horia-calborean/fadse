@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.CheckpointFileParameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
 import ro.ulbsibiu.fadse.extended.qualityIndicator.MetricsUtil;
 import ro.ulbsibiu.fadse.extended.qualityIndicator.TwoSetHypervolumeDifferenceResult;

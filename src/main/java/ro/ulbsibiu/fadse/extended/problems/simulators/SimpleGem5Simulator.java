@@ -5,7 +5,7 @@
 
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.simplegem5.SimpleGem5OutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.simplegem5.SimpleGem5Runner;
 

@@ -15,7 +15,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.CheckpointFileParameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.ServerSimulator;
 import jmetal.util.*;
 

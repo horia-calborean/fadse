@@ -7,8 +7,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.uma.jmetal.util.errorchecking.JMetalException;
-import ro.ulbsibiu.fadse.environment.SimulationIO;
-import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.parameters.CheckpointFileParameter;
 import ro.ulbsibiu.fadse.tools.monitor.SwingMonitor;
 
 public class SimulationBoot {
@@ -62,7 +62,7 @@ public class SimulationBoot {
             }
 
             SimulationIO simulationIO = new SimulationIO(designSpaceConfigFilePath);
-            CheckpointFileParameter checkpointFileParameter = new CheckpointFileParameter("Checkpointing", checkpointFilePath, smpsoDataFilePath);
+            CheckpointFileParameter checkpointFileParameter = new CheckpointFileParameter(checkpointFilePath, smpsoDataFilePath);
             simulationIO.setCheckpointFileParameter(checkpointFileParameter);
             simulationIO.setFuzzyInputFilePath(fuzzyConfigFilePath);
             simulationIO.setClientsConfigFilePath(clientConfigFilePath);

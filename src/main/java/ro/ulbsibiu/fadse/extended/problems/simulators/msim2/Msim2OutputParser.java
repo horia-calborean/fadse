@@ -7,8 +7,8 @@ import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.util.PythonInterpreter;
 
-import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.Objective;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
+import ro.ulbsibiu.fadse.simulationIO.Objective;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorBase;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorOutputParser;
 

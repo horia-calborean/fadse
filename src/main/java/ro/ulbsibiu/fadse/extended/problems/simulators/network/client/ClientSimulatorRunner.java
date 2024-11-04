@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Individual;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
 import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
 

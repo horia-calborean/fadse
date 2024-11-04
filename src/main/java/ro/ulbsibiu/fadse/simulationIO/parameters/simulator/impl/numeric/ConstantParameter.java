@@ -1,12 +1,14 @@
-package ro.ulbsibiu.fadse.environment.parameters;
+package ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric;
 
-public class ConstantParameter extends SimulatorParameter<Double> {
+import simulation.parameter.NumericParameter;
+
+public class ConstantParameter extends NumericParameter {
     public ConstantParameter(String name) {
         super(name);
     }
 
     @Override
-    public ConstantParameter clone() throws CloneNotSupportedException {
+    public ConstantParameter clone() {
         ConstantParameter clone = new ConstantParameter(name);
 
         clone.setValue(value);

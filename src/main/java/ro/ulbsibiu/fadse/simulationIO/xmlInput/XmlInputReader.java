@@ -1,12 +1,9 @@
-package ro.ulbsibiu.fadse.io;
+package ro.ulbsibiu.fadse.simulationIO.xmlInput;
 
 import java.io.File;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.w3c.dom.*;
 
@@ -16,26 +13,30 @@ import javax.xml.parsers.DocumentBuilder;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.document.InputDocument;
-import ro.ulbsibiu.fadse.environment.parameters.*;
-import ro.ulbsibiu.fadse.environment.relation.IfRelation;
-import ro.ulbsibiu.fadse.environment.relation.Relation;
-import ro.ulbsibiu.fadse.environment.rule.AndRule;
-import ro.ulbsibiu.fadse.environment.rule.IfRule;
-import ro.ulbsibiu.fadse.environment.rule.RelationRule;
-import ro.ulbsibiu.fadse.environment.rule.Rule;
+import ro.ulbsibiu.fadse.simulationIO.Objective;
+import ro.ulbsibiu.fadse.simulationIO.document.InputDocument;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric.*;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.special.PermutationParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.special.StringParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.special.VirtualParameter;
+import ro.ulbsibiu.fadse.simulationIO.relation.IfRelation;
+import ro.ulbsibiu.fadse.simulationIO.relation.Relation;
+import ro.ulbsibiu.fadse.simulationIO.rule.AndRule;
+import ro.ulbsibiu.fadse.simulationIO.rule.IfRule;
+import ro.ulbsibiu.fadse.simulationIO.rule.RelationRule;
+import ro.ulbsibiu.fadse.simulationIO.rule.Rule;
 import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
 import simulation.parameter.NumericParameter;
 
 public class XmlInputReader {
-	protected String metaheuristicConfigBasePath;
+    protected String metaheuristicConfigBasePath;
 
     public XmlInputReader() {
         String fileSeparator = FileSystems.getDefault().getSeparator();
         metaheuristicConfigBasePath = fileSeparator + "configs"
-                                    + fileSeparator + "metaheuristic"
-                                    + fileSeparator;
+                + fileSeparator + "metaheuristic"
+                + fileSeparator;
     }
 
     public InputDocument parse(String xmlFilePath) {
@@ -71,7 +72,7 @@ public class XmlInputReader {
             }
 //DATABASE
             //<database ip="127.0.0.1" port="1527" name="FADS_DB" user="fadse" password="fadse"/>
-            NodeList databaseNode = doc.getElementsByTagName("database");            
+            NodeList databaseNode = doc.getElementsByTagName("database");
             NamedNodeMap databaseattributes = databaseNode.item(0).getAttributes();
             String databaseIp = databaseattributes.getNamedItem("ip").getNodeValue();
             String databasePort = databaseattributes.getNamedItem("port").getNodeValue();
@@ -89,18 +90,20 @@ public class XmlInputReader {
             String metaheuristicName = metaheuristicattributes.getNamedItem("name").getNodeValue();
             String metaheuristicConfigPath = metaheuristicattributes.getNamedItem("config_path").getNodeValue();
             inputDocument.setMetaheuristicName(metaheuristicName);
-            if(Paths.get(metaheuristicConfigPath).isAbsolute()) { //
-            	inputDocument.setMetaheuristicConfigPath(metaheuristicConfigPath);
+            if (Paths.get(metaheuristicConfigPath).isAbsolute()) { //
+                inputDocument.setMetaheuristicConfigPath(metaheuristicConfigPath);
             } else {
-            	inputDocument.setMetaheuristicConfigPath(metaheuristicConfigBasePath + metaheuristicConfigPath);
-            }     
+                inputDocument.setMetaheuristicConfigPath(metaheuristicConfigBasePath + metaheuristicConfigPath);
+            }
 //PARAMETERS
             NodeList parameters = ((Element) doc.getElementsByTagName("parameters").item(0)).getElementsByTagName("parameter");
-            int noOfParameters = parameters.getLength();
-            SimulatorParameter[] allParameters = new SimulatorParameter[noOfParameters];
 
-            NumericParameter[] numericParameters;
-            PermutationParameter[] permParam;
+            int noOfParameters = parameters.getLength();
+
+            ArrayList<NumericParameter> numericParameters = new ArrayList<>();
+            ArrayList<SimulatorParameter> specialParameters = new ArrayList<>();
+
+            XmlParameterReader xmlParameterReader = new XmlParameterReader();
 
             for (int parameterIndex = 0; parameterIndex < noOfParameters; parameterIndex++) {
                 Node xmlParameterNode = parameters.item(parameterIndex);
@@ -111,57 +114,72 @@ public class XmlInputReader {
                 Node xmlDescriptionNode = xmlParameterAttributes.getNamedItem("description");
                 String description = (xmlDescriptionNode != null) ? xmlDescriptionNode.getNodeValue() : "";
 
-                SimulatorParameter newParameter = null;
+                NumericParameter newNumericParameter = null;
 
                 if (type.equalsIgnoreCase("integer")) {
-                    newParameter = createIntegerParameter(name, description, xmlParameterNode);
-                } else if (type.equalsIgnoreCase("string")) {
-                    newParameter = createStringParameter(name, description, xmlParameterNode);
+                    newNumericParameter = xmlParameterReader.createIntegerParameter(name, description, xmlParameterNode);
                 } else if (type.equalsIgnoreCase("exp2")) {
-                    newParameter = createExp2Parameter(name, description, xmlParameterNode);
-                } else if (type.equalsIgnoreCase("permutation")) {
-                    newParameter = createPermutationParameter(name, description, xmlParameterNode);
+                    newNumericParameter = xmlParameterReader.createExp2Parameter(name, description, xmlParameterNode);
                 } else if (type.equalsIgnoreCase("boolean")) {
-                    newParameter = createBooleanParameter(name, description);
-                } else if (type.equalsIgnoreCase("on_off_mask")) {
-                    System.err.println("Unsupported parameter type: " + type);
+                    newNumericParameter = xmlParameterReader.createBooleanParameter(name, description);
                 } else if (type.equalsIgnoreCase("float")) {
-                    newParameter = createDoubleParameter(name, description, xmlParameterNode);
-                } else {
-                    System.err.println("Unsupported parameter type: " + type);
+                    newNumericParameter = xmlParameterReader.createDoubleParameter(name, description, xmlParameterNode);
                 }
-                if (newParameter != null) {
-                    allParameters[parameterIndex] = newParameter;
+
+                if (newNumericParameter != null) {
+                    numericParameters.add(newNumericParameter);
+                }
+
+                SimulatorParameter newSimulatorParameter = null;
+
+                if (type.equalsIgnoreCase("string")) {
+                    newSimulatorParameter = xmlParameterReader.createStringParameter(name, description, xmlParameterNode);
+                } else if (type.equalsIgnoreCase("permutation")) {
+                    newSimulatorParameter = xmlParameterReader.createPermutationParameter(name, description, xmlParameterNode);
+                }
+
+                if (newSimulatorParameter != null) {
+                    specialParameters.add(newSimulatorParameter);
                 }
             }
 
-            inputDocument.setParameters(allParameters);
+            // TODO - MODIFY InputDocument CLASS
+            inputDocument.setParameters(numericParameters);
 
 //VIRTUAL PARAMETERS
             try {
-                System.out.println("EXTRACTING THE VIRTUAL PARAMS");
-                NodeList virtualParameters = ((Element) doc.getElementsByTagName("virtual_parameters").item(0)).getElementsByTagName("parameter");
-                SimulatorParameter[] virtualParams = new SimulatorParameter[virtualParameters.getLength()];
-                for (int i = 0; i < virtualParameters.getLength(); i++) {
-                    Node parameter = virtualParameters.item(i);
+                System.out.println("Extracting virtual parameters...");
+                NodeList virtualParametersNode = ((Element) doc.getElementsByTagName("virtual_parameters").item(0)).getElementsByTagName("parameter");
+                int noOfVirtualParameters = virtualParametersNode.getLength();
+                SimulatorParameter[] virtualParameters = new SimulatorParameter[noOfVirtualParameters];
+
+                XmlParameterReader xmlParameterReader2 = new XmlParameterReader();
+
+                for (int parameterIndex = 0; parameterIndex < noOfVirtualParameters; parameterIndex++) {
+                    Node parameter = virtualParametersNode.item(parameterIndex);
                     NamedNodeMap attributes = parameter.getAttributes();
                     String name = attributes.getNamedItem("name").getNodeValue();
                     String description = "";
-                    SimulatorParameter p = createVirtualParameter(name, description, parameter);
-                    if (p != null) {
-                        virtualParams[i] = p;
+                    SimulatorParameter newVirtualParameter = xmlParameterReader2.createVirtualParameter(name, description, parameter);
+
+                    if (newVirtualParameter != null) {
+                        virtualParameters[parameterIndex] = newVirtualParameter;
                     }
                 }
-                System.out.println("FOUND: "+virtualParams.length);
-                inputDocument.setVirtualParameters(virtualParams);
-                SimulatorParameter[] paramsTemp = new SimulatorParameter[allParameters.length+virtualParams.length];
-                System.out.println("NORMAL PARAMS: "+allParameters.length);
-                System.arraycopy(allParameters, 0, paramsTemp, 0, allParameters.length);
-                System.arraycopy(virtualParams, 0, paramsTemp, allParameters.length, virtualParams.length);
-                allParameters = paramsTemp;
-                System.out.println("NORMAL PARAMS (after): "+allParameters.length);
-            } catch (Exception e) {
-                System.out.println("Problem at the virtual parameters (not fatal if you are not using them): " + e.getMessage());
+
+                System.out.println("Number of virtual parameters found: " + virtualParameters.length);
+                // TODO -  MODIFY InputDocument CLASS
+                inputDocument.setVirtualParameters(virtualParameters);
+
+                SimulatorParameter[] paramsTemp = new SimulatorParameter[numericParameters.size() + virtualParameters.length];
+
+                System.out.println("Number of numeric parameters found: " + numericParameters.size());
+                System.arraycopy(numericParameters.toArray(), 0, paramsTemp, 0, numericParameters.size());
+                System.arraycopy(virtualParameters, 0, paramsTemp, numericParameters.size(), virtualParameters.length);
+                numericParameters = paramsTemp;
+                System.out.println("NORMAL PARAMS (after): " + numericParameters.size());
+            } catch (Exception exception) {
+                System.out.println("Problem at the virtual parameters (not fatal if you are not using them): " + exception.getMessage());
             }
 //SYSTEM METRICS
             NodeList systemMetrics = ((Element) doc.getElementsByTagName("system_metrics").item(0)).getElementsByTagName("system_metric");
@@ -199,7 +217,7 @@ public class XmlInputReader {
                 //RELATION RULES
                 //identify rule type
                 for (int j = 0; j < ruleTypes.length; j++) {//see if the current rule contains elements such as <equal>, <greater-equal> ...
-                    List<RelationRule> rulz = getRelationRule(ruleNode, ruleTypes[j], allParameters);//get all the elements of type <equal> that are child of the current rule
+                    List<RelationRule> rulz = getRelationRule(ruleNode, ruleTypes[j], numericParameters);//get all the elements of type <equal> that are child of the current rule
 //the above function is used in other situations too (for and rules) where multiple sub relation rules can exist
                     if (rulz != null && rulz.size() > 0) {//if the current rule has a relationRule (= , >=, <= ...) child
                         rule = rulz.get(0);//in this situation it should be only one element in each rule
@@ -210,13 +228,13 @@ public class XmlInputReader {
                     }
                 }
                 //AND RULES
-                rule = getAndRule(ruleNode, ruleTypes, allParameters);//find rules of type<and>
+                rule = getAndRule(ruleNode, ruleTypes, numericParameters);//find rules of type<and>
                 if (rule != null) {
                     rulesList.add(rule);
 //                    System.out.println("and rule" + rule);
                 }
                 //IF RULES
-                rule = getIfRule(ruleNode, ruleTypes, allParameters);//find rules of type<if>
+                rule = getIfRule(ruleNode, ruleTypes, numericParameters);//find rules of type<if>
                 if (rule != null) {
                     rulesList.add(rule);
 //                    System.out.println("if rule" + rule);
@@ -230,7 +248,7 @@ public class XmlInputReader {
             List<Relation> relationsList = new LinkedList<Relation>();
             for (int i = 0; i < relations.getLength(); i++) {//takes each relation
                 Element relationNode = (Element) relations.item(i);//relation node repesents a <relation> element
-                Relation relation = getIfRelation(relationNode, allParameters);//find relations of type<if>
+                Relation relation = getIfRelation(relationNode, numericParameters);//find relations of type<if>
                 relationsList.add(relation);
                 System.out.println(relation);
             }
@@ -238,12 +256,12 @@ public class XmlInputReader {
             RelationTree relationTree = new RelationTree();
             RelationTree relationTreeCopy = new RelationTree();
             //detect the root nodes
-            for (int i = 0; i < allParameters.length; i++) {
+            for (int i = 0; i < numericParameters.size(); i++) {
                 boolean isRoot = true;
                 for (int j = 0; j < relationsList.size(); j++) {
                     String[] dependentParams = relationsList.get(j).getChildrenNames();
                     for (int k = 0; k < dependentParams.length; k++) {
-                        if (allParameters[i].getName().equals(dependentParams[k])) {
+                        if (numericParameters[i].getName().equals(dependentParams[k])) {
                             isRoot = false;
                         }
                     }
@@ -254,22 +272,22 @@ public class XmlInputReader {
                     relationTreeCopy.addRootNode(i);
                 }
                 //add the subnodes
-                addSubNodesToRelationTrees(relationTree, allParameters, relationsList, i);
-                addSubNodesToRelationTrees(relationTreeCopy, allParameters, relationsList, i);
+                addSubNodesToRelationTrees(relationTree, numericParameters, relationsList, i);
+                addSubNodesToRelationTrees(relationTreeCopy, numericParameters, relationsList, i);
             }
             System.out.println("RelationTree: " + relationTree);
             inputDocument.setRelationTree1(relationTree);
             inputDocument.setRelationTree2(relationTreeCopy);
 
-			// Uncomment this to see graphical representation
+            // Uncomment this to see graphical representation
             // relationTree.printToScreen();
 
             //OUTPUT
             NodeList outputNode = doc.getElementsByTagName("output");
             NamedNodeMap outputAttributes = outputNode.item(0).getAttributes();
-            String outputPath = outputAttributes.getNamedItem("output_path").getNodeValue();           
+            String outputPath = outputAttributes.getNamedItem("output_path").getNodeValue();
             inputDocument.setOutputPath(outputPath);
-            
+
             return inputDocument;
         } catch (SAXParseException err) {
             System.out.println("** Parsing error" + ", line "
@@ -286,121 +304,6 @@ public class XmlInputReader {
         //System.exit (0);
         return null;
 
-    }
-
-    private SimulatorParameter createIntegerParameter(String name, String description, Node xmlParameterNode) {
-        NamedNodeMap attributes = xmlParameterNode.getAttributes();
-
-        int step;
-
-        if (attributes.getNamedItem("step") != null) {
-            String stepAsString = attributes.getNamedItem("step").getNodeValue();
-            step = Integer.parseInt(stepAsString);
-        }
-        else{
-            step = 1;
-        }
-
-        IntegerParameter integerParameter = new IntegerParameter(name, step);
-        integerParameter.setDescription(description);
-
-        String minValue = attributes.getNamedItem("min").getNodeValue();
-        String maxValue = attributes.getNamedItem("max").getNodeValue();
-
-        integerParameter.setLowerBound(Integer.parseInt(minValue));
-        integerParameter.setUpperBound(Integer.parseInt(maxValue));
-
-        int divideBy;
-
-        if (attributes.getNamedItem("divideBy") != null) {
-            String divideByAsString = attributes.getNamedItem("divideBy").getNodeValue();
-            divideBy = Integer.parseInt(divideByAsString);
-        }
-        else{
-            divideBy = 1;
-        }
-
-        integerParameter.setDivideBy(divideBy);
-        
-        return integerParameter;
-    }
-
-    private SimulatorParameter createBooleanParameter(String name, String description) {
-        IntegerParameter booleanParameter = new IntegerParameter(name, 1);
-
-        booleanParameter.setLowerBound(0);
-        booleanParameter.setUpperBound(1);
-
-        booleanParameter.setDescription(description);
-
-        return booleanParameter;
-    }
-
-    private SimulatorParameter createStringParameter(String name, String description, Node xmlParameterNode) {
-
-
-        NodeList items = ((Element) xmlParameterNode).getElementsByTagName("item");
-        LinkedList<String> values = new LinkedList<>();
-
-        for (int i = 0; i < items.getLength(); i++) {
-            values.add(items.item(i).getAttributes().getNamedItem("value").getNodeValue());
-        }
-
-        StringParameter p = new StringParameter(name, values);
-        p.setDescription(description);
-
-        return p;
-    }
-
-    private SimulatorParameter createExp2Parameter(String name, String description, Node xmlParameterNode) {
-        NamedNodeMap attributes = xmlParameterNode.getAttributes();
-
-        String minValue = attributes.getNamedItem("min").getNodeValue();
-        String maxValue = attributes.getNamedItem("max").getNodeValue();
-
-        int lowerBound = Integer.parseInt(minValue);
-        int upperBound = Integer.parseInt(maxValue);
-
-        Exp2Parameter exp2Parameter = new Exp2Parameter(name, lowerBound, upperBound);
-        exp2Parameter.setDescription(description);
-
-        return exp2Parameter;
-    }
-
-    private SimulatorParameter createDoubleParameter(String name, String description, Node xmlParameterNode) {
-        NamedNodeMap attributes = xmlParameterNode.getAttributes();
-        String minValue = attributes.getNamedItem("min").getNodeValue();
-        String maxValue = attributes.getNamedItem("max").getNodeValue();
-
-        double lowerBound = Integer.parseInt(minValue);
-        double upperBound = Integer.parseInt(maxValue);
-
-        DoubleParameter doubleParameter = new DoubleParameter(name, lowerBound, upperBound);
-        doubleParameter.setDescription(description);
-
-        return doubleParameter;
-    }
-
-    private SimulatorParameter createPermutationParameter(String name, String description, Node xmlParameterNode) {
-        PermutationParameter permutationParameter = new PermutationParameter(name);
-
-        NamedNodeMap attributes = xmlParameterNode.getAttributes();
-        String size = attributes.getNamedItem("dimension").getNodeValue();
-        int value = Integer.parseInt(size);
-        permutationParameter.setSize(value);
-        permutationParameter.setDescription(description);
-
-        return permutationParameter;
-    }
-
-    private SimulatorParameter createVirtualParameter(String name, String description, Node xmlParameterNode) {
-        NamedNodeMap attributes = xmlParameterNode.getAttributes();
-
-        String expression = attributes.getNamedItem("value").getNodeValue();
-        VirtualParameter virtualParameter = new VirtualParameter(name, expression);
-        virtualParameter.setDescription(description);
-
-        return virtualParameter;
     }
 
     private List<Element> findNodeSubElements(Element node, String tag) {
@@ -438,7 +341,7 @@ public class XmlInputReader {
                             }
                             if (p1 == null) {
                                 System.err.println("Parameter 1 " + parameterName + " used in the relation was not defined in the parameter list. Setting it as an expresion");
-                                p1 = new ExpresionParameter(parameterName, "");
+                                p1 = new ExpressionParameter(parameterName, "");
                             }
                         }
                         if (ruleParameters.item(1) != null) {
@@ -450,7 +353,7 @@ public class XmlInputReader {
                             }
                             if (p2 == null) {
                                 System.err.println("Parameter 2 " + parameterName + " used in the relation was not defined in the parameter list. Setting it as an expresion");
-                                p2 = new ExpresionParameter(parameterName, "");
+                                p2 = new ExpressionParameter(parameterName, "");
                             }
                         }
                     } else {

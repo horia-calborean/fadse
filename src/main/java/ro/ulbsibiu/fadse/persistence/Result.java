@@ -11,10 +11,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.document.InputDocument;
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
+import ro.ulbsibiu.fadse.simulationIO.Objective;
+import ro.ulbsibiu.fadse.simulationIO.document.InputDocument;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 import jmetal.base.Solution;
 import jmetal.base.Variable;
 import jmetal.util.JMException;

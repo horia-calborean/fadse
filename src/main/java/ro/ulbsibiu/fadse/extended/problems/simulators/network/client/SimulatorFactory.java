@@ -8,7 +8,7 @@ package ro.ulbsibiu.fadse.extended.problems.simulators.network.client;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
 import jmetal.problems.ProblemFactory;
 import jmetal.util.JMException;

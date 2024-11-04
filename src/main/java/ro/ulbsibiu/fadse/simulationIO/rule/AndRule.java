@@ -3,11 +3,11 @@
  * and open the template in the editor.
  */
 
-package ro.ulbsibiu.fadse.environment.rule;
+package ro.ulbsibiu.fadse.simulationIO.rule;
 
 import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 
 /**
  *

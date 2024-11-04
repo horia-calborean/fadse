@@ -2,13 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ro.ulbsibiu.fadse.environment;
+package ro.ulbsibiu.fadse.simulationIO;
 
 import java.util.List;
 
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
-import ro.ulbsibiu.fadse.environment.parameters.VirtualParameter;
-import ro.ulbsibiu.fadse.environment.rule.Rule;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.special.VirtualParameter;
+import ro.ulbsibiu.fadse.simulationIO.rule.Rule;
 
 /**
  *

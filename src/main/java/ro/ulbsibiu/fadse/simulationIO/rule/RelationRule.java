@@ -2,11 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ro.ulbsibiu.fadse.environment.rule;
+package ro.ulbsibiu.fadse.simulationIO.rule;
 
-import ro.ulbsibiu.fadse.environment.parameters.ConstantParameter;
-import ro.ulbsibiu.fadse.environment.parameters.ExpresionParameter;
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric.ConstantParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric.ExpressionParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 
 /**
  *Supports only integer parameters for now
@@ -23,24 +23,24 @@ public class RelationRule implements Rule {
     String p2 = null;
     ConstantParameter c1 = null;
     ConstantParameter c2 = null;
-    ExpresionParameter e1 = null;
-    ExpresionParameter e2 = null;
+    ExpressionParameter e1 = null;
+    ExpressionParameter e2 = null;
 
     public RelationRule(String type, String description, SimulatorParameter p1, SimulatorParameter p2) {
         this.type = type;
         this.description = description;
         if (p1 instanceof ConstantParameter) {//TODO think this better - the problem is that the constant parameter is likely to not have any name and also to not be included in the parameters list of the individual
             this.c1 = (ConstantParameter) p1;
-        } else if (p1 instanceof ExpresionParameter) {//TODO think this better - the problem is that the constant parameter is likely to not have any name and also to not be included in the parameters list of the individual           
-            this.e1 = (ExpresionParameter) p1;
+        } else if (p1 instanceof ExpressionParameter) {//TODO think this better - the problem is that the constant parameter is likely to not have any name and also to not be included in the parameters list of the individual
+            this.e1 = (ExpressionParameter) p1;
         } else {
             this.p1 = p1.getName();
         }
 
         if (p2 instanceof ConstantParameter) {
             this.c2 = (ConstantParameter) p2;
-        } else if (p2 instanceof ExpresionParameter) {
-            this.e2 = (ExpresionParameter) p2;
+        } else if (p2 instanceof ExpressionParameter) {
+            this.e2 = (ExpressionParameter) p2;
         } else {
             this.p2 = p2.getName();
         }
@@ -143,19 +143,19 @@ public class RelationRule implements Rule {
         this.c2 = c2;
     }
 
-    public ExpresionParameter getE1() {
+    public ExpressionParameter getE1() {
         return e1;
     }
 
-    public void setE1(ExpresionParameter e1) {
+    public void setE1(ExpressionParameter e1) {
         this.e1 = e1;
     }
 
-    public ExpresionParameter getE2() {
+    public ExpressionParameter getE2() {
         return e2;
     }
 
-    public void setE2(ExpresionParameter e2) {
+    public void setE2(ExpressionParameter e2) {
         this.e2 = e2;
     }
 

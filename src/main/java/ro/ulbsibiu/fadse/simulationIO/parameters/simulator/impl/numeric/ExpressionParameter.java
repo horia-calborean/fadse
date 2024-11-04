@@ -1,12 +1,13 @@
-package ro.ulbsibiu.fadse.environment.parameters;
+package ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric;
 
 import ro.ulbsibiu.fadse.utils.MathEvaluator;
+import simulation.parameter.NumericParameter;
 
-public class ExpresionParameter extends SimulatorParameter<Integer> {
+public class ExpressionParameter extends NumericParameter {
     protected String expression;
     protected MathEvaluator evaluator;
 
-    public ExpresionParameter(String name, String expression) {
+    public ExpressionParameter(String name, String expression) {
         super(name);
         this.expression = expression;
         evaluator = new MathEvaluator(expression);
@@ -23,8 +24,8 @@ public class ExpresionParameter extends SimulatorParameter<Integer> {
     }
 
     @Override
-    public ExpresionParameter clone() throws CloneNotSupportedException {
-        ExpresionParameter clone = new ExpresionParameter(name, expression);
+    public ExpressionParameter clone() {
+        ExpressionParameter clone = new ExpressionParameter(name, expression);
 
         clone.setDescription(description);
 

@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
-import ro.ulbsibiu.fadse.environment.document.InputDocument;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.document.InputDocument;
 import ro.ulbsibiu.fadse.extended.qualityIndicator.HypervolumeNoTruePareto;
 import ro.ulbsibiu.fadse.extended.qualityIndicator.MetricsUtil;
 

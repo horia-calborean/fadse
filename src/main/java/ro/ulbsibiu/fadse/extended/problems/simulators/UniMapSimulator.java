@@ -33,7 +33,7 @@
  */
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.unimap.FileRemover;
 import ro.ulbsibiu.fadse.extended.problems.simulators.unimap.UniMapOutputParser;
 import ro.ulbsibiu.fadse.extended.problems.simulators.unimap.UniMapRunner;

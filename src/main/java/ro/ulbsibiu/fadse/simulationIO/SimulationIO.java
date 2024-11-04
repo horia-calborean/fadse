@@ -1,12 +1,12 @@
-package ro.ulbsibiu.fadse.environment;
+package ro.ulbsibiu.fadse.simulationIO;
 
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.FileSystems;
 
-import ro.ulbsibiu.fadse.environment.document.InputDocument;
-import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
-import ro.ulbsibiu.fadse.io.XmlInputReader;
+import ro.ulbsibiu.fadse.simulationIO.document.InputDocument;
+import ro.ulbsibiu.fadse.simulationIO.parameters.CheckpointFileParameter;
+import ro.ulbsibiu.fadse.simulationIO.xmlInput.XmlInputReader;
 import ro.ulbsibiu.fadse.persistence.ConnectionPool;
 
 public class SimulationIO implements Serializable {

@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
-import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 
 /**
  * Generic class for starting a simulator

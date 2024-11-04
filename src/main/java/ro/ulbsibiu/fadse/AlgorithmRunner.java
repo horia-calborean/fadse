@@ -13,7 +13,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 import org.uma.jmetal.util.errorchecking.JMetalException;
-import ro.ulbsibiu.fadse.environment.SimulationIO;
+import ro.ulbsibiu.fadse.simulationIO.SimulationIO;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status.SimulationStatus;
 import jmetal.experiments.Settings;
 import jmetal.experiments.SettingsFactory;

@@ -1,18 +1,24 @@
-package ro.ulbsibiu.fadse.environment.parameters;
+package ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.special;
+
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class StringParameter extends SimulatorParameter<Integer> {
+public class StringParameter extends SimulatorParameter {
     protected List<String> values;
+    protected Integer index;
+    protected Integer lowerBound;
+    protected Integer upperBound;
 
     public StringParameter(String name, List<String> values) {
         super(name);
-        this.values = new LinkedList<>(values);
+        this.values = new ArrayList<>(values);
+        lowerBound = 0;
+        upperBound = values.size() - 1;
     }
 
-    @Override
     public void setValue(Integer value) {
         int pos = -1;
         for (int i = 0; i < values.size(); i++) {
@@ -21,19 +27,23 @@ public class StringParameter extends SimulatorParameter<Integer> {
             }
         }
         if (pos != -1) {
-            this.value = pos;
+            index = pos;
         } else {
             throw new IllegalArgumentException(value + " is not in the legal values for this parameter");
         }
     }
 
-    @Override
-    public String toString() {
-        return values.get(value);
+    public String getValue(){
+        return values.get(index);
     }
 
     @Override
-    public StringParameter clone() throws CloneNotSupportedException {
+    public String toString() {
+        return values.get(index);
+    }
+
+    @Override
+    public StringParameter clone() {
         StringParameter clone = new StringParameter(name, values);
 
         clone.setDescription(description);
@@ -46,9 +56,8 @@ public class StringParameter extends SimulatorParameter<Integer> {
     }
 
     public void setValues(LinkedList<String> values) {
-        // TODO
-        //parameter.setLowerBound(0);
-        //parameter.setUpperBound(values.size()-1);
         this.values = values;
+        lowerBound = 0;
+        upperBound = values.size() - 1;
     }
 }

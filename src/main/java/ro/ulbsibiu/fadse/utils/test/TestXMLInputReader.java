@@ -34,10 +34,10 @@
 
 package ro.ulbsibiu.fadse.utils.test;
 
-import ro.ulbsibiu.fadse.environment.document.InputDocument;
-import ro.ulbsibiu.fadse.environment.parameters.IntegerParameter;
-import ro.ulbsibiu.fadse.environment.parameters.SimulatorParameter;
-import ro.ulbsibiu.fadse.io.XmlInputReader;
+import ro.ulbsibiu.fadse.simulationIO.document.InputDocument;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.impl.numeric.IntegerParameter;
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
+import ro.ulbsibiu.fadse.simulationIO.xmlInput.XmlInputReader;
 import jmetal.base.variable.Int;
 
 /**

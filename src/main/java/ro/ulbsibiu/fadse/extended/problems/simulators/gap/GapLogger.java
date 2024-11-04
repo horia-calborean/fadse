@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Individual;
+import ro.ulbsibiu.fadse.simulationIO.Individual;
 
 /**
  *

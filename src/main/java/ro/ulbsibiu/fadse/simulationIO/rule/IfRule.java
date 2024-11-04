@@ -1,23 +1,23 @@
 /*
  * This file is part of the FADSE tool.
- * 
+ *
  *   Authors: Horia Andrei Calborean {horia.calborean at ulbsibiu.ro}
  *   Copyright (c) 2009-2011
  *   All rights reserved.
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without modification,
  *   are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *      this list of conditions and the following disclaimer.
- * 
+ *
  *   * Redistributions in binary form must reproduce the above copyright notice,
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
- * 
+ *
  *   The names of its contributors NOT may be used to endorse or promote products
  *   derived from this software without specific prior written permission.
- * 
+ *
  *   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
  *   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -32,44 +32,56 @@
 
  */
 
-package ro.ulbsibiu.fadse.environment.relation;
+package ro.ulbsibiu.fadse.simulationIO.rule;
 
+import ro.ulbsibiu.fadse.simulationIO.parameters.simulator.SimulatorParameter;
 
 /**
  *
- * @author Horia Calborean
+ * @author Horia
  */
-public class IfRelation implements Relation{
-    private String antecedentParameter;
-    private double invalidation;
-    private String[] consequentParameters;
+public class IfRule implements Rule {
 
-    public IfRelation(String antecedentParameter, double invalidation, String[] consequentParameters) {
-        this.antecedentParameter = antecedentParameter;
-        this.invalidation = invalidation;
-        this.consequentParameters = consequentParameters;
+    String type;
+    String description;
+    Rule ifExpresion;
+    Rule thenExpresion;
+
+    public IfRule(String type, String description, Rule ifExpresion, Rule thenExpresion) {
+        this.type = type;
+        this.description = description;
+        this.ifExpresion = ifExpresion;
+        this.thenExpresion = thenExpresion;
     }
 
-    public String getParentName() {
-        return antecedentParameter;
-    }
-
-    public String[] getChildrenNames() {
-       return consequentParameters;
-    }
-
-    public double getDeactivationValue() {
-        return invalidation;
+    public boolean validate(SimulatorParameter[] parameters) {
+        boolean result = true;
+        if (ifExpresion.validate(parameters)) {
+            result = thenExpresion.validate(parameters);
+        }
+        return result;
     }
 
     @Override
     public String toString() {
-        String cp = "";
-        for(String c: consequentParameters){
-            cp+=c+", ";
-        }
-        return "IfRelation{" + "aP=" + antecedentParameter + "inv=" + invalidation + "cP=" + cp + '}';
+        String result = "\nIfRule: " + type + " " + description + "if(" + ifExpresion.toString() + ") then {" + thenExpresion.toString() + "}";
+        return result;
     }
-  
 
+    public Rule getIfExpresion() {
+        return ifExpresion;
+    }
+
+    public void setIfExpresion(Rule ifExpresion) {
+        this.ifExpresion = ifExpresion;
+    }
+
+    public Rule getThenExpresion() {
+        return thenExpresion;
+    }
+
+    public void setThenExpresion(Rule thenExpresion) {
+        this.thenExpresion = thenExpresion;
+    }
+    
 }

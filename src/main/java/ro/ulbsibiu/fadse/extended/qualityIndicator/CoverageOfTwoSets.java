@@ -4,8 +4,6 @@
  */
 package ro.ulbsibiu.fadse.extended.qualityIndicator;
 
-import ro.ulbsibiu.fadse.environment.Individual;
-import ro.ulbsibiu.fadse.environment.Population;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
 import jmetal.base.operator.comparator.DominanceComparator;
