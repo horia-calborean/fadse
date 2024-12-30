@@ -5,7 +5,6 @@
 package ro.ulbsibiu.fadse.io;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -43,12 +42,13 @@ import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
  *
  * @author Horia
  */
-public class XMLInputReader {
+public class XMLInputReader implements XMLInputReaderInterface {
 	public final static String metaheuristicConfigBasePath = 
 			System.getProperty("file.separator") + "configs" 
     		+ System.getProperty("file.separator") + "metaheuristicConfig"
     		+ System.getProperty("file.separator");
 	
+    @Override
     public InputDocument parse(String xmlFilePath) {
         try {
             InputDocument inputDoc = new InputDocument();
@@ -373,7 +373,7 @@ public class XMLInputReader {
     }
 
     public static void main(String args[]) {
-        XMLInputReader inputReader = new XMLInputReader();
+        XMLInputReaderInterface inputReader = new XMLInputReader();
         InputDocument id = inputReader.parse("configs/falsesimin.xml");
         System.out.println(id.getRelationTree1().findNode(0));
         System.out.println(id.getRelationTree1().findNode(1));

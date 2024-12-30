@@ -39,6 +39,7 @@ import ro.ulbsibiu.fadse.environment.parameters.IntegerParameter;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 import ro.ulbsibiu.fadse.io.XMLInputReader;
 import jmetal.base.variable.Int;
+import ro.ulbsibiu.fadse.io.XMLInputReaderInterface;
 
 /**
  *
@@ -46,7 +47,7 @@ import jmetal.base.variable.Int;
  */
 public class TestXMLInputReader {
     public static void main(String[] args) {
-        XMLInputReader inputReader = new XMLInputReader();
+        XMLInputReaderInterface inputReader = new XMLInputReader();
         InputDocument inputDocument = inputReader.parse("configs/falsesimin.xml");
         System.out.println(inputDocument.getRules().get(0));
         Parameter[] parameters = new Parameter[2];
