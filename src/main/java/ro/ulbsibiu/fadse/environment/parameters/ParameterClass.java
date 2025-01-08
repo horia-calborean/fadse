@@ -8,13 +8,54 @@ import jmetal.util.JMException;
 
 public abstract class ParameterClass implements Cloneable,Serializable {
 
-//******** F R O M   P A R A M E T E R ********
+    private String name;
+    private String type;
+    private String description;
+
+    public ParameterClass(String name, String type, String description){
+        this.name = name;
+        this.type = type;
+        this.description = description;
+    }
+
+    public ParameterClass(String name, String description){
+        this.name = name;
+        this.description = description;
+    }
+
+    public ParameterClass(String description){
+        this.description = description;
+    }
+
+    public String getName(){
+        return this.name;
+    }
+
+    public String getType(){
+        return this.type;
+    }
+
+    public String getDescription(){
+        return this.description;
+    }
+
+    public void setName(String name){
+        this.name = name;
+    }
+
+    public void setDescription(String description){
+        this.description = description;
+    }
+
+//******** F R O M   P A R A M E T E R   I N T E R F A C E ********
     public abstract Object getValue();
 
     public abstract void setValue(Object value);
 
     public abstract Object clone() throws CloneNotSupportedException;
-//******** E N D   F R O M   P A R A M E T E R ********
+
+    public abstract String toString();
+//******** E N D   F R O M   P A R A M E T E R   I N T E R F A C E ********
 
     //******** F R O M   V A R I A B L E ********
 

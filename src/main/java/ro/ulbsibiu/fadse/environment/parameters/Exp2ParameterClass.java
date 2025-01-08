@@ -4,83 +4,60 @@ import jmetal.util.PseudoRandom;
 
 public class Exp2ParameterClass extends ParameterClass {
 
-    private String name;
-    private String type;
-    private String description;
     //private Int variable;
-    private int value_;
-    private int lowerBound_;
-    private int upperBound_;
+    private int value;
+    private int lowerBound;
+    private int upperBound;
 
     public Exp2ParameterClass(String name, String type, String description) {
-        init(name, type, description, 1, 6, PseudoRandom.randInt(1, 6));
+        super(name, type, description);
+        init(1, 6, PseudoRandom.randInt(1, 6));
     }
 
     public Exp2ParameterClass(String name, String type, String description, int lower, int upper) {
-        init(name, type, description, lower, upper, PseudoRandom.randInt(lower, upper));
+        super(name, type, description);
+        init(lower, upper, PseudoRandom.randInt(lower, upper));
     }
 
     public Exp2ParameterClass(String name, String type, String description, int lower, int upper, int value) {
-        init(name, type, description, lower, upper, value);
+        super(name, type, description);
+        init(lower, upper, value);
     }
 
-    private void init(String name, String type, String description, int lower, int upper, int value) {
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        lowerBound_ = lower;
-        upperBound_ = upper;
-        value_ = value;
-        this.setName(name);
+    private void init(int lower, int upper, int value) {
+        this.lowerBound = lower;
+        this.upperBound = upper;
+        this.value = value;
     }
 
     @Override
     public Object getValue() {
-        return ((Double)(Math.pow(2,value_))).intValue();
+        return ((Double)(Math.pow(2, this.value))).intValue();
     }
 
     @Override
-    public void setValue(Object value) { value_ = (Integer) value; }
+    public void setValue(Object value) { this.value = (Integer) value; }
 
     @Override
     public Object clone() throws CloneNotSupportedException {
         //return super.clone();
-        return new Exp2ParameterClass(this.name, this.type, this.description, this.lowerBound_, this.upperBound_, this.value_);
+        return new Exp2ParameterClass(this.getName(), this.getType(), this.getDescription(), this.lowerBound, this.upperBound, this.value);
     }
 
     @Override
-    public double getLowerBound() { return lowerBound_; }
+    public double getLowerBound() { return this.lowerBound; }
 
     @Override
-    public double getUpperBound() { return upperBound_; }
+    public double getUpperBound() { return this.upperBound; }
 
     @Override
-    public void setLowerBound(double lowerBound) {  lowerBound_ = (int)lowerBound; }
+    public void setLowerBound(double lowerBound) {  this.lowerBound = (int)lowerBound; }
 
     @Override
-    public void setUpperBound(double upperBound) { upperBound_ = (int)upperBound; }
+    public void setUpperBound(double upperBound) { this.upperBound = (int)upperBound; }
 
-    public String toString() { return "" + value_ + ""; }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
+    @Override
+    public String toString() { return "" + value + ""; }
 
     /**
      * Calculate base 2 logarithm
@@ -90,10 +67,8 @@ public class Exp2ParameterClass extends ParameterClass {
      * @return base 2 logarithm.
      */
     private double log2( double x )
-        {
-        // Math.log is base e, natural log, ln
-        return Math.log( x ) / Math.log( 2 );
-        }
-
-
+    {
+    // Math.log is base e, natural log, ln
+    return Math.log( x ) / Math.log( 2 );
+    }
 }

@@ -9,18 +9,15 @@ public class VirtualParameterClass extends ParameterClass {
 
     private Object value;
     private String expression;
-    private String name;
-    private String description;
     private MathEvaluator evaluator;
 
     /**
      * p1 and p2 have to be convertible to integer
      *
      */
-    public VirtualParameterClass(String name, String expression, String description) {
-        this.description = description;
+    public VirtualParameterClass(String name, String description, String expression) {
+        super(name, description);
         this.expression = expression;
-        this.name = name;
         evaluator = new MathEvaluator(expression);
     }
 
@@ -37,27 +34,16 @@ public class VirtualParameterClass extends ParameterClass {
     @Override
     public Object clone() throws CloneNotSupportedException {
         //return super.clone();
-        return new VirtualParameterClass(this.name, this.expression, this.description);
+        return new VirtualParameterClass(this.getName(), this.getDescription(), this.expression);
     }
 
+    @Override
     public String toString() {
         return "" + expression + "";
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public void addVariable(String name, Double value) {
         evaluator.addVariable(name, value);
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getExpression() {

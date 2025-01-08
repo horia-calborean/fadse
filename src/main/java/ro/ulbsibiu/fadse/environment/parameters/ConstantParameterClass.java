@@ -2,14 +2,9 @@ package ro.ulbsibiu.fadse.environment.parameters;
 
 public class ConstantParameterClass extends ParameterClass {
 	private Object value;
-    private String name;
-    private String type;
-    private String description;
 
     public ConstantParameterClass(String name, String type, String description){
-        this.name = name;
-        this.type = type;
-        this.description = description;
+        super(name, type, description);
     }
 
     @Override
@@ -25,30 +20,11 @@ public class ConstantParameterClass extends ParameterClass {
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		//return super.clone();
-        return new ConstantParameterClass(this.name, this.type, this.description);
+        return new ConstantParameterClass(this.getName(), this.getType(), this.getDescription());
 	}
 
+    @Override
     public String toString() {
         return "" + value + "";
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
- 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
     }
 }

@@ -9,7 +9,6 @@ public class ExpresionParameterClass extends ParameterClass {
 
     private Object value;
     private String expression;
-    private String description;
     private MathEvaluator evaluator;
 
     /**
@@ -17,7 +16,7 @@ public class ExpresionParameterClass extends ParameterClass {
      *
      */
     public ExpresionParameterClass(String expression, String description) {
-        this.description = description;
+        super(description);
         this.expression = expression;
         evaluator = new MathEvaluator(expression);
     }
@@ -35,24 +34,14 @@ public class ExpresionParameterClass extends ParameterClass {
     @Override
     public Object clone() throws CloneNotSupportedException {
         //return super.clone();
-        return new ExpresionParameterClass(this.expression, this.description);
+        return new ExpresionParameterClass(this.expression, this.getDescription());
     }
-    public String toString() { return "" + expression + ""; }
 
-    public String getDescription() {
-        return description;
-    }
+    @Override
+    public String toString() { return "" + expression + ""; }
 
     public void addVariable (String name,Double value){
         evaluator.addVariable(name,value);
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getName() {
-        return description;
     }
 
     public String getExpression() {
