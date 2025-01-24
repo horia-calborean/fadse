@@ -1,92 +1,64 @@
 package ro.ulbsibiu.fadse.environment.parameters;
 
-import jmetal.base.Variable;
-import jmetal.base.variable.Int;
+import jmetal.util.PseudoRandom;
 
-public class Exp2Parameter implements Parameter {
+public class Exp2Parameter extends Parameter {
 
-    private String name;
-    private String type;
-    private String description;
-    private Int variable;
+    //private Int variable;
+    private int value;
+    private int lowerBound;
+    private int upperBound;
 
     public Exp2Parameter(String name, String type, String description) {
-        init(name, type, description, new Int(1, 6));
+        super(name, type, description);
+        init(1, 6, PseudoRandom.randInt(1, 6));
     }
 
-    public Exp2Parameter(String name, String type, String description, Int variable) {
-        init(name, type, description, variable);
+    public Exp2Parameter(String name, String type, String description, int lower, int upper) {
+        super(name, type, description);
+        init(lower, upper, PseudoRandom.randInt(lower, upper));
     }
 
-    private void init(String name, String type, String description, Int variable) {
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        this.variable = variable;
-        variable.setName(name);
+    public Exp2Parameter(String name, String type, String description, int lower, int upper, int value) {
+        super(name, type, description);
+        init(lower, upper, value);
     }
 
-    public Object getValue() {
-        return ((Double)(Math.pow(2,variable.getValue()))).intValue();
-    }
-
-    public void setValue(Object value) {
-        this.variable.setValue((Integer) value);
+    private void init(int lower, int upper, int value) {
+        this.lowerBound = lower;
+        this.upperBound = upper;
+        this.value = value;
     }
 
     @Override
-    public String toString() {
-        return "" + variable.getValue() + "";
+    public Object getValue() {
+        return ((Double)(Math.pow(2, this.value))).intValue();
     }
+
+    @Override
+    public void setValue(Object value) { this.value = (Integer) value; }
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        //return super.clone();
+        return new Exp2Parameter(this.getName(), this.getType(), this.getDescription(), this.lowerBound, this.upperBound, this.value);
     }
 
-    public String getDescription() {
-        return description;
-    }
+    @Override
+    public double getLowerBound() { return this.lowerBound; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    @Override
+    public double getUpperBound() { return this.upperBound; }
 
-    public int getMaxValue() {
-        return (int) Math.pow(2,variable.getUpperBound());
-    }
+    @Override
+    public void setLowerBound(double lowerBound) {  this.lowerBound = (int)lowerBound; }
 
-    public void setMaxValue(int maxValue) {
-        this.variable.setUpperBound(log2(maxValue));
-    }
+    @Override
+    public void setUpperBound(double upperBound) { this.upperBound = (int)upperBound; }
 
-    public int getMinValue() {
-        return (int) Math.pow(2,variable.getLowerBound());
-    }
+    @Override
+    public String toString() { return "" + value + ""; }
 
-    public void setMinValue(int minValue) {
-        this.variable.setLowerBound(log2(minValue));
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setVariable(Variable v) {
-        variable = (Int) v;
-    }
-
-    public Variable getVariable() {
-        return variable;
-    }
     /**
      * Calculate base 2 logarithm
      *
@@ -95,10 +67,8 @@ public class Exp2Parameter implements Parameter {
      * @return base 2 logarithm.
      */
     private double log2( double x )
-        {
-        // Math.log is base e, natural log, ln
-        return Math.log( x ) / Math.log( 2 );
-        }
-
-
+    {
+    // Math.log is base e, natural log, ln
+    return Math.log( x ) / Math.log( 2 );
+    }
 }

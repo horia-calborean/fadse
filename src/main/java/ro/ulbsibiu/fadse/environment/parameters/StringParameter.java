@@ -1,40 +1,46 @@
 package ro.ulbsibiu.fadse.environment.parameters;
 
+import jmetal.util.PseudoRandom;
 import java.util.LinkedList;
 import java.util.List;
-import jmetal.base.Variable;
-import jmetal.base.variable.Int;
 
-public class StringParameter implements Parameter {
+public class StringParameter extends Parameter {
 
     private List<String> values;
-    private String name;
-    private String type;
-    private String description;
-    private Int parameter;
+    //private Int parameter;
+    private int value;
+    private int lowerBound;
+    private int upperBound;
 
     public StringParameter(String name, String type, String description) {
-        init(new LinkedList<String>(), name, type, description, new Int());
+        super(name, type, description);
+        init(new LinkedList<String>(), Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
     }
 
-    public StringParameter(List<String> values, String name, String type, String description, Int parameter) {
-        init(values, name, type, description, parameter);
+    public StringParameter(List<String> values, String name, String type, String description, int lower, int upper) {
+        super(name, type, description);
+        init(values, lower, upper, PseudoRandom.randInt(lower, upper));
     }
 
-    private void init(List<String> values, String name, String type, String description, Int parameter) {
+    public StringParameter(List<String> values, String name, String type, String description, int lower, int upper, int value) {
+        super(name, type, description);
+        init(values, lower, upper, value);
+    }
+
+    private void init(List<String> values, int lower, int upper, int value) {
         this.values = values;
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        this.parameter = parameter;
-        parameter.setName(name);
+        this.value = value;
+        this.upperBound = upper;
+        this.lowerBound = lower;
     }
 
+    @Override
     public Object getValue() {
 //        System.out.println(" value: "+values.get((int) parameter.getValue()) );
-        return values.get((int) parameter.getValue());
+        return values.get(value);
     }
 
+    @Override
     public void setValue(Object value) {
         int pos = -1;
         for (int i = 0; i < values.size(); i++) {
@@ -43,57 +49,42 @@ public class StringParameter implements Parameter {
             }
         }
         if (pos != -1) {
-            parameter.setValue(pos);
+            this.value = pos;
         } else {
             throw new IllegalArgumentException(value + " is not in the legal values for this parameter");
         }
     }
 
     @Override
-    public String toString() {
-        return "" + values.get((int) parameter.getValue()) + "";
+    public Object clone() throws CloneNotSupportedException {
+        //return super.clone();
+        return new StringParameter(this.values, this.getName(), this.getType(), this.getDescription(), this.lowerBound, this.upperBound, this.value);
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
+    public double getLowerBound() { return this.lowerBound; }
 
-    public String getDescription() {
-        return description;
-    }
+    @Override
+    public double getUpperBound() { return this.upperBound; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    @Override
+    public void setLowerBound(double lowerBound) {  this.lowerBound = (int)lowerBound; }
 
-    public String getName() {
-        return name;
-    }
+    @Override
+    public void setUpperBound(double upperBound) { this.upperBound = (int)upperBound; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    @Override
+    public String toString() { return "" + values.get(this.value) + ""; }
 
-    public String getType() {
-        return type;
-    }
-
+    @Override
     public List<String> getValues() {
         return values;
     }
 
+    @Override
     public void setValues(LinkedList<String> values) {
-        parameter.setLowerBound(0);
-        parameter.setUpperBound(values.size()-1);
+        this.lowerBound = 0;
+        this.upperBound = values.size()-1;
         this.values = values;
-    }
-
-    public void setVariable(Variable v) {
-        parameter = (Int) v;
-    }
-
-    public Variable getVariable() {
-        return parameter;
     }
 }

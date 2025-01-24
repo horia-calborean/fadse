@@ -1,120 +1,84 @@
 package ro.ulbsibiu.fadse.environment.parameters;
 
-import jmetal.base.Variable;
-import jmetal.base.variable.Int;
+import jmetal.util.PseudoRandom;
 
-public class IntegerParameter implements Parameter {
-
+public class IntegerParameter extends Parameter
+{
     private int step = 1;
-    private String name;
-    private String type;
-    private String description;
-    private Int variable;
     private int divideBy = 1;
+    //private Int variable;
+    private int value;       //Stores the value of the variable
+    private int lowerBound;  //Stores the lower limit of the variable
+    private int upperBound;  //Stores the upper limit of the variable
 
     public IntegerParameter(String name, String type, String description) {
-        init(name, type, description, new Int(0,1));
+        super(name, type, description);
+        init(Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
     }
 
-    public IntegerParameter(String name, String type, String description, Int parameter) {
-       init(name, type, description, parameter);
-    }
-    private void init(String name, String type, String description, Int parameter) {
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        this.variable = parameter;
-        parameter.setName(name);
+    public IntegerParameter(String name, String type, String description, int lower, int upper) {
+        super(name, type, description);
+        init(lower, upper, PseudoRandom.randInt(lower, upper));
     }
 
-    public Object getValue() {
-        int value = 0;
-//        if (step == 1) {
-//            value = (int) parameter.getValue();
-//        } else if (parameter.getValue() == parameter.getLowerBound()) {
-//            value = (int) parameter.getLowerBound();
-//        } else if (parameter.getValue() == 0) {
-//            value = 0;
-//        } else {
-//            value = (int) (parameter.getValue() * step - (step - 1));
-//        }
-//        int n = (int) ((parameter.getValue() - parameter.getLowerBound()) / step);
-//        value = (int) (parameter.getLowerBound() + (n)*step);
-//        return value;
-        return ((Double)(variable.getValue()*step)).intValue();
+    public IntegerParameter(String name, String type, String description, int lower, int upper, int value) {
+        super(name, type, description);
+        init(lower, upper, value);
     }
-
-    public void setValue(Object value) {
-        this.variable.setValue((Integer) value);
+    private void init(int lowerBound, int upperBound, int value) {
+        this.value = value;
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
     }
 
     @Override
-    public String toString() {
-        return "" + variable.getValue() + "";
+    public Object getValue() {
+        return ((Double)((double)this.value*step)).intValue();
+    }
+
+    @Override
+    public void setValue(Object value) {
+        this.value = (int)value;
     }
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        //return super.clone();
+        return new IntegerParameter(this.getName(), this.getType(), this.getDescription(), this.lowerBound, this.upperBound, this.value);
     }
 
-    public String getDescription() {
-        return description;
+    @Override
+    public double getLowerBound() { return this.lowerBound; }
+
+    @Override
+    public double getUpperBound() { return this.upperBound; }
+
+    @Override
+    public void setLowerBound(double lowerBound) {  this.lowerBound = ((int)lowerBound)/step; }
+
+    @Override
+    public void setUpperBound(double upperBound) { this.upperBound = ((int)upperBound)/step; }
+
+    @Override
+    public String toString() {
+        return "" + this.value + "";
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getMaxValue() {
-        return (int) variable.getUpperBound();
-    }
-
-    public void setMaxValue(int maxValue) {
-        this.variable.setUpperBound(maxValue/step);
-    }
-
-    public int getMinValue() {
-        return (int) variable.getLowerBound();
-    }
-
-    public void setMinValue(int minValue) {
-        this.variable.setLowerBound(minValue/step);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
+    @Override
     public int getStep() {
         return step;
     }
 
+    @Override
     public void setStep(int step) {
         this.step = step;
     }
 
-    public void setVariable(Variable v) {
-        variable = (Int) v;
-    }
+    @Override
+    public void setDivideBy(int divideBy) { this.divideBy = divideBy; }
 
-    public Variable getVariable() {
-         return variable;
-    }
-
-    public void setDivideBy(int divideBy) {
-        this.divideBy = divideBy;
-    }
-
+    @Override
     public int getDivideBy() {
-         return divideBy;
+        return divideBy;
     }
 }

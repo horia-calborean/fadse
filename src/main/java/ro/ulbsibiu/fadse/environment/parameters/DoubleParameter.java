@@ -4,91 +4,64 @@
  */
 package ro.ulbsibiu.fadse.environment.parameters;
 
-import java.util.Random;
-
-import ro.ulbsibiu.fadse.utils.Utils;
-import jmetal.base.Variable;
-import jmetal.base.variable.Real;
+import jmetal.util.PseudoRandom;
 
 /**
  *
  * @author Horia Andrei Calborean <horia.calborean@ulbsibiu.ro>
  */
-public class DoubleParameter implements Parameter {
+public class DoubleParameter extends Parameter {
 
-    private String name;
-    private String type;
-    private String description;
-    private Real parameter;
+    //private Real parameter;
+    private double value;
+    private double lowerBound;
+    private double upperBound;
 
     public DoubleParameter(String name, String type, String description) {
-       init(name, type, description, new Real(0, 1));
+        super(name, type, description);
+        init(Double.MIN_VALUE, Double.MAX_VALUE, 0);
     }
 
-    public DoubleParameter(String name, String type, String description, Real parameter) {
-        init(name, type, description, parameter);
+    public DoubleParameter(String name, String type, String description, double lower, double upper) {
+        super(name, type, description);
+        init(lower, upper, PseudoRandom.randDouble()*(upper-lower)+lower);
     }
-    private void init(String name, String type, String description, Real parameter){
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        this.parameter = parameter;
-        parameter.setName(name);
+
+    public DoubleParameter(String name, String type, String description, double lower, double upper, double value) {
+        super(name, type, description);
+        init(lower, upper, value);
+    }
+    private void init(double lower, double upper, double value){
+        this.value = value;
+        this.lowerBound = lower;
+        this.upperBound = upper;
     }
     
-
-    public Object getValue() {
-        return parameter.getValue();
-    }
-
-    public void setValue(Object value) {
-        this.parameter.setValue((Double) value);
-    }
+    @Override
+    public Object getValue() {return value; }
 
     @Override
-    public String toString() {
-        return "" + parameter.getValue() + "";
-    }
-
+    public void setValue(Object value) { value = (Double) value; }
+    
     @Override
     public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        //return super.clone();
+        return new DoubleParameter(this.getName(), this.getType(), this.getDescription(), this.lowerBound, this.upperBound, this.value);
     }
 
-    public String getName() {
-        return name;
-    }
+    @Override
+    public double getLowerBound() { return this.lowerBound; }
 
-    public double getMaxValue() {
-        return parameter.getUpperBound();
-    }
+    @Override
+    public void setLowerBound(double lowerBound) { this.lowerBound = lowerBound; }
 
-    public void setMaxValue(double maxValue) {
-        parameter.setUpperBound(maxValue);
-    }
+    @Override
+    public double getUpperBound() { return this.upperBound; }
 
-    public double getMinValue() {
-        return parameter.getLowerBound();
-    }
+    @Override
+    public void setUpperBound(double upperBound) { this.upperBound = upperBound; }
 
-    public void setMinValue(double minValue) {
-        this.parameter.setLowerBound(minValue) ;
-    }
+    @Override
+    public String toString() { return "" + value + ""; }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public String getType() {
-        return type;
-    }
-    
-
-    public void setVariable(Variable v) {
-        parameter = (Real) v;
-    }
-
-    public Variable getVariable() {
-         return parameter;
-    }
 }

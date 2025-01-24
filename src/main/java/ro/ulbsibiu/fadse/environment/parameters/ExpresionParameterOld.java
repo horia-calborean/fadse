@@ -1,47 +1,66 @@
 package ro.ulbsibiu.fadse.environment.parameters;
 
 import ro.ulbsibiu.fadse.utils.MathEvaluator;
+import jmetal.base.Variable;
 
 /*
  * Supports only Integer parameters
  */
-public class ExpresionParameterClass extends ParameterClass {
+public class ExpresionParameterOld implements ParameterOld {
 
     private Object value;
     private String expression;
+    private String description;
     private MathEvaluator evaluator;
 
     /**
      * p1 and p2 have to be convertible to integer
      *
      */
-    public ExpresionParameterClass(String expression, String description) {
-        super(description);
+    public ExpresionParameterOld(String expression, String description) {
+        this.description = description;
         this.expression = expression;
         evaluator = new MathEvaluator(expression);
     }
 
-    @Override
     public Object getValue() {
         return evaluator.getValue().intValue();
     }
 
-    @Override
     public void setValue(Object value) {
         this.value = (Integer) value;
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        //return super.clone();
-        return new ExpresionParameterClass(this.expression, this.getDescription());
+    public String toString() {
+        return "" + expression + "";
     }
 
     @Override
-    public String toString() { return "" + expression + ""; }
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
+    public String getDescription() {
+        return description;
+    }
     public void addVariable (String name,Double value){
         evaluator.addVariable(name,value);
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getName() {
+        return description;
+    }
+
+    public void setVariable(Variable v) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Variable getVariable() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public String getExpression() {

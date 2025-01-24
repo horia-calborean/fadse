@@ -36,11 +36,8 @@
  */
 package ro.ulbsibiu.fadse.extended.problems;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.Individual;
@@ -53,7 +50,6 @@ import ro.ulbsibiu.fadse.environment.parameters.PermutationParameter;
 import ro.ulbsibiu.fadse.utils.Utils;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
-import jmetal.base.Variable;
 import jmetal.base.solutionType.IntRealPermutationSolutionType;
 import jmetal.base.solutionType.IntRealSolutionType;
 import jmetal.base.solutionType.IntSolutionType;
@@ -88,8 +84,8 @@ public abstract class SimulatorWrapper extends Problem {
             lowerLimit_[var] = 0;
             upperLimit_[var] = 1.0;
             try {
-                lowerLimit_[var] = environment.getInputDocument().getParameters()[var].getVariable().getLowerBound();
-                upperLimit_[var] = environment.getInputDocument().getParameters()[var].getVariable().getUpperBound();
+                lowerLimit_[var] = environment.getInputDocument().getParameters()[var].getLowerBound();
+                upperLimit_[var] = environment.getInputDocument().getParameters()[var].getUpperBound();
             } catch (JMException ex) {
                // Logger.getLogger(SimulatorWrapper.class.getName()).log(Level.SEVERE, null, ex);
             }

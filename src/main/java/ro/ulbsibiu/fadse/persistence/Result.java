@@ -88,7 +88,7 @@ public class Result {
         Solution solution = new Solution();
         Variable[] vars = new Variable[ind.getParameters().length];
         for (int i = 0; i < ind.getParameters().length; i++) {
-            vars[i] = ind.getParameters()[i].getVariable();
+            //vars[i] = ind.getParameters()[i].getVariable();
         }
         solution.setDecisionVariables(vars);
 

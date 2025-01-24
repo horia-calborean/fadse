@@ -1,11 +1,9 @@
 package ro.ulbsibiu.fadse.utils;
 
 //
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -15,7 +13,6 @@ import java.util.logging.Logger;
 
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.parameters.ExpresionParameter;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 import ro.ulbsibiu.fadse.environment.parameters.VirtualParameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
@@ -165,7 +162,7 @@ public class Utils {
                 Parameter p = params[i];
                 Parameter parameter = (Parameter) p.clone();
 //                System.out.printf("param %s - variable %s\n", parameter.getName(), vars[i].getValue());
-                parameter.setVariable(vars[i]);
+                //parameter.setVariable(vars[i]);
                 //System.out.printf("%d - %d", vars[i].getValue(), parameter.getValue());
                 params[i] = parameter;
             } catch (CloneNotSupportedException ex) {
@@ -184,7 +181,7 @@ public class Utils {
                 Parameter p = environment.getInputDocument().getParameters()[i];
                 Parameter parameter = (Parameter) p.clone();
 //                System.out.printf("param %s - variable %s\n", parameter.getName(), vars[i].getValue());
-                parameter.setVariable(vars[i]);
+                //parameter.setVariable(vars[i]);
                 //System.out.printf("%d - %d", vars[i].getValue(), parameter.getValue());
                 params[i] = parameter;
             } catch (CloneNotSupportedException ex) {
