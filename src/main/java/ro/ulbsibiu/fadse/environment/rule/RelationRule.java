@@ -4,8 +4,6 @@
  */
 package ro.ulbsibiu.fadse.environment.rule;
 
-import java.util.List;
-
 import ro.ulbsibiu.fadse.environment.parameters.ConstantParameter;
 import ro.ulbsibiu.fadse.environment.parameters.ExpresionParameter;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
@@ -33,7 +31,7 @@ public class RelationRule implements Rule {
         this.description = description;
         if (p1 instanceof ConstantParameter) {//TODO think this better - the problem is that the constant parameter is likely to not have any name and also to not be included in the parameters list of the individual
             this.c1 = (ConstantParameter) p1;
-        } else if (p1 instanceof ExpresionParameter) {//TODO think this better - the problem is that the constant parameter is likely to not have any name and also to not be included in the parameters list of the individual           
+        } else if (p1 instanceof ExpresionParameter) {//TODO think this better - the problem is that the constant parameter is likely to not have any name and also to not be included in the parameters list of the individual
             this.e1 = (ExpresionParameter) p1;
         } else {
             this.p1 = p1.getName();

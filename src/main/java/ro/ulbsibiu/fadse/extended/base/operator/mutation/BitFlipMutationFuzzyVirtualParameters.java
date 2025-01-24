@@ -7,8 +7,6 @@
 package ro.ulbsibiu.fadse.extended.base.operator.mutation;
 
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import jmetal.base.Solution;
 import jmetal.util.Configuration;
@@ -96,7 +94,7 @@ public class BitFlipMutationFuzzyVirtualParameters extends Mutation {
                         STATS_CURRENT_PROB = fuzzyMutationProbability;
                         if (prob < fuzzyMutationProbability) {
                             params[i].setValue(COG);
-                            solution.getDecisionVariables()[i].setValue((double) params[i].getVariable().getValue());
+                            solution.getDecisionVariables()[i].setValue((double) params[i].getValue());
                             STATS_APPLIED_FUZZY++;
                             IND_CHANGED = true;
                         } else {

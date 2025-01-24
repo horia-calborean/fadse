@@ -34,8 +34,6 @@
 
 package ro.ulbsibiu.fadse.environment.rule;
 
-import java.util.List;
-
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 
 /**

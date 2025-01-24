@@ -53,8 +53,6 @@ import java.util.StringTokenizer;
 import jmetal.base.Problem;
 import jmetal.base.Solution;
 import jmetal.base.SolutionSet;
-import jmetal.base.Variable;
-import jmetal.base.variable.Int;
 import jmetal.problems.ProblemFactory;
 import jmetal.util.JMException;
 
