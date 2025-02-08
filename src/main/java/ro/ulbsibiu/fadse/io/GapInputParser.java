@@ -2,7 +2,6 @@ package ro.ulbsibiu.fadse.io;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.environment.parameters.*;
@@ -13,6 +12,9 @@ import ro.ulbsibiu.fadse.environment.rule.IfRule;
 import ro.ulbsibiu.fadse.environment.rule.RelationRule;
 import ro.ulbsibiu.fadse.environment.rule.Rule;
 import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
+import ro.ulbsibiu.fadse.io.parameters.ParameterParser;
+import ro.ulbsibiu.fadse.io.parameters.gap.GapParameterParser;
+import ro.ulbsibiu.fadse.io.parameters.gap.GapVirtualParameterParser;
 import ro.ulbsibiu.fadse.io.parser.DbParser;
 
 import java.util.HashMap;
@@ -25,22 +27,60 @@ public class GapInputParser extends MicroArchDseInputParser implements DbParser 
         super(dseXmlPath);
         collectSimulationInput();
 
-        parseSimulatorParametersTag();
-        parseBenchmarksTag();
-        parseDatabaseTag();
-        parseMetaheuristicTag();
-        parseParametersTag();
+        // TODO - the features of rules and relations are temporarily ignored
+        List<Rule> rules = parseRules(simulationInput.getParameters());
+        simulationInput.setRules(rules);
 
-        parseVirtualParameters(inputDoc.getParameters());
-        parseSystemMetricsTag();
-        parseRules(inputDoc.getParameters());
-        parseRelations(inputDoc.getParameters());
-        parseOutputTag();
+        try {
+            parseRelations(simulationInput.getParameters());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected void collectSimulationInput() {
+        String simulatorName = parseName();
+        simulationInput.setSimulatorName(simulatorName);
 
+        String simulatorType = parseType();
+        simulationInput.setSimulatorType(simulatorType);
+
+        Map<String, String> simulationParameters = parseSimulationParameters();
+        simulationInput.setSimulatorParameters(simulationParameters);
+
+        List<String> benchmarksList = parseBenchmarksList();
+        simulationInput.setBenchmarks((LinkedList<String>) benchmarksList);
+
+        Map<String, String> db = parseDbConnectionData();
+        simulationInput.setDatabaseIp(db.get("ip"));
+        simulationInput.setDatabasePort(db.get("port"));
+        simulationInput.setDatabaseName(db.get("name"));
+        simulationInput.setDatabaseUser(db.get("user"));
+        simulationInput.setDatabasePassword(db.get("password"));
+
+        Map<String, String> metaheuristics = parseMetaheuristic();
+        simulationInput.setMetaheuristicName(metaheuristics.get("name"));
+        simulationInput.setMetaheuristicConfigPath(metaheuristics.get("config_path"));
+
+        ParameterParser parameterParser = new GapParameterParser();
+        Parameter[] parameters = parameterParser.parseParameters(dseXmlDocument);
+        simulationInput.setParameters(parameters);
+
+        Map<String, Objective> objectives = parseObjectives();
+        simulationInput.setObjectives(objectives);
+
+        String outputPath = parseOutputPath();
+        simulationInput.setOutputPath(outputPath);
+
+        // TODO - No virtual parameters in xml files. It needs to be clarified in the future.
+        ParameterParser virtualParameterParser = new GapVirtualParameterParser();
+        Parameter[] virtualParameters = virtualParameterParser.parseParameters(dseXmlDocument);
+        simulationInput.setVirtualParameters(virtualParameters);
+
+        // TODO - No rules in xml file. It needs to be clarified in the future.
+
+        // TODO - No relations in xml file. It needs to be clarified in the future.
     }
 
     @Override
@@ -66,45 +106,11 @@ public class GapInputParser extends MicroArchDseInputParser implements DbParser 
         return data;
     }
 
-    @Override
-    public void parseSystemMetricsTag() {
-        NodeList systemMetrics = ((Element) doc.getElementsByTagName("system_metrics").item(0)).getElementsByTagName("system_metric");
-        Map<String, Objective> objectives = new HashMap<String, Objective>();
-        for (int i = 0; i < systemMetrics.getLength(); i++) {
-            Node metric = systemMetrics.item(i);
-            NamedNodeMap attributes = metric.getAttributes();
-            String name = attributes.getNamedItem("name").getNodeValue();
-            String type = attributes.getNamedItem("type").getNodeValue();
-            String unit = "";
-            if (attributes.getNamedItem("unit") != null) {
-                unit = attributes.getNamedItem("unit").getNodeValue();
-            }
-            String desired = "small";//default small if not specified
-            if (attributes.getNamedItem("desired") != null) {
-                desired = attributes.getNamedItem("desired").getNodeValue();
-            }
-            String description = "";
-            if (attributes.getNamedItem("description") != null) {
-                description = attributes.getNamedItem("description").getNodeValue();
-            }
-            Objective obj = new Objective(name, type, unit, description, !desired.equalsIgnoreCase("small"));
-            objectives.put(name, obj);
-        }
-        inputDoc.setObjectives(objectives);
-    }
-
-    @Override
-    public void parseOutputTag() {
-        NodeList outputNode = doc.getElementsByTagName("output");
-        NamedNodeMap outputAttributes = outputNode.item(0).getAttributes();
-        String outputPath = outputAttributes.getNamedItem("output_path").getNodeValue();
-        inputDoc.setOutputPath(outputPath);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // TODO - the features of rules and relations are temporarily ignored
+    // TODO - to be refactored in the future
     public void parseRelations(Parameter[] params) throws Exception {
         //RELATIONS
-        NodeList relations = ((Element) doc.getElementsByTagName("relations").item(0)).getElementsByTagName("relation");
+        NodeList relations = ((Element) dseXmlDocument.getElementsByTagName("relations").item(0)).getElementsByTagName("relation");
         List<Relation> relationsList = new LinkedList<Relation>();
         for (int i = 0; i < relations.getLength(); i++) {//takes each relation
             Element relationNode = (Element) relations.item(i);//relation node repesents a <relation> element
@@ -136,16 +142,16 @@ public class GapInputParser extends MicroArchDseInputParser implements DbParser 
             addSubNodesToRelationTrees(relationTreeCopy, params, relationsList, i);
         }
         System.out.println("RelationTree: " + relationTree);
-        inputDoc.setRelationTree1(relationTree);
-        inputDoc.setRelationTree2(relationTreeCopy);
+        // inputDoc.setRelationTree1(relationTree);     TODO
+        // inputDoc.setRelationTree2(relationTreeCopy); TODO
 
         // Uncomment this to see graphical representation
         // relationTree.printToScreen();
     }
 
-    public void parseRules(Parameter[] params) {
+    public List<Rule> parseRules(Parameter[] params) {
         //RULES
-        NodeList rules = ((Element) doc.getElementsByTagName("rules").item(0)).getElementsByTagName("rule");
+        NodeList rules = ((Element) dseXmlDocument.getElementsByTagName("rules").item(0)).getElementsByTagName("rule");
         List<Rule> rulesList = new LinkedList<Rule>();
         String[] ruleTypes = {"greater-equal", "greater", "equal", "less-equal", "less", "not-equal"};
         for (int i = 0; i < rules.getLength(); i++) {//takes each rule
@@ -179,7 +185,7 @@ public class GapInputParser extends MicroArchDseInputParser implements DbParser 
             }
         }
 //            System.out.println(rulesList);
-        inputDoc.setRules(rulesList);
+        return rulesList;
     }
 
     private List<Element> findNodeSubElements(Element node, String tag) {
@@ -389,13 +395,4 @@ public class GapInputParser extends MicroArchDseInputParser implements DbParser 
         }
         return ifRelation;
     }
-    //    public static void main(String args[]) {
-//        XMLInputReader inputReader = new XMLInputReader();
-//        InputDocument id = inputReader.parse("configs/falsesimin.xml");
-//        System.out.println(id.getRelationTree1().findNode(0));
-//        System.out.println(id.getRelationTree1().findNode(1));
-//
-//        System.out.println(id.getRelationTree1().findNode(2));
-//    }
-
 }

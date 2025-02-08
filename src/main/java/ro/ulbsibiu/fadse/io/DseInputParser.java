@@ -13,7 +13,6 @@ import java.nio.file.FileSystems;
 
 public abstract class DseInputParser {
     protected final Document dseXmlDocument;
-
     protected InputDocument simulationInput;
 
     public DseInputParser(String dseXmlPath) {
@@ -28,6 +27,8 @@ public abstract class DseInputParser {
         }
 
         dseXmlDocument.getDocumentElement().normalize();
+
+        simulationInput = new InputDocument();
     }
 
     protected String getMetaheuristicAbsolutePath() {

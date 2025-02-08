@@ -2,7 +2,9 @@ package ro.ulbsibiu.fadse.io;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.io.parser.*;
 
 import java.nio.file.Paths;
@@ -11,7 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class MicroArchDseInputParser extends DseInputParser implements SimulatorNameParser, SimulationParametersParser, BenchmarksParser, MetaheuristicParser {
+public abstract class MicroArchDseInputParser extends DseInputParser
+        implements SimulatorNameParser, SimulationParametersParser, BenchmarksParser, MetaheuristicParser, SystemMetricParser, OutputPathParser {
     public MicroArchDseInputParser(String dseXmlPath) {
         super(dseXmlPath);
     }
@@ -89,11 +92,38 @@ public abstract class MicroArchDseInputParser extends DseInputParser implements 
         return data;
     }
 
-    public void parseSystemMetricsTag() {
+    @Override
+    public Map<String, Objective> parseObjectives() {
+        NodeList systemMetrics = ((Element) dseXmlDocument.getElementsByTagName("system_metrics").item(0)).getElementsByTagName("system_metric");
+        Map<String, Objective> objectives = new HashMap<>();
+        for (int i = 0; i < systemMetrics.getLength(); i++) {
+            Node metric = systemMetrics.item(i);
+            NamedNodeMap attributes = metric.getAttributes();
+            String name = attributes.getNamedItem("name").getNodeValue();
+            String type = attributes.getNamedItem("type").getNodeValue();
+            String unit = "";
+            if (attributes.getNamedItem("unit") != null) {
+                unit = attributes.getNamedItem("unit").getNodeValue();
+            }
+            String desired = "small";//default small if not specified
+            if (attributes.getNamedItem("desired") != null) {
+                desired = attributes.getNamedItem("desired").getNodeValue();
+            }
+            String description = "";
+            if (attributes.getNamedItem("description") != null) {
+                description = attributes.getNamedItem("description").getNodeValue();
+            }
+            Objective obj = new Objective(name, type, unit, description, !desired.equalsIgnoreCase("small"));
+            objectives.put(name, obj);
+        }
 
+        return objectives;
     }
 
-    public void parseOutputTag() {
-
+    @Override
+    public String parseOutputPath() {
+        NodeList outputNode = dseXmlDocument.getElementsByTagName("output");
+        NamedNodeMap outputAttributes = outputNode.item(0).getAttributes();
+        return outputAttributes.getNamedItem("output_path").getNodeValue();
     }
 }

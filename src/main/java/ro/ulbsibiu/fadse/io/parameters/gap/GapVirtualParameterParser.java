@@ -25,10 +25,12 @@ public class GapVirtualParameterParser extends ParameterParser {
     @Override
     public Parameter[] parseParameters(Document dseXmlDocument) {
         System.out.println("EXTRACTING THE VIRTUAL PARAMS");
-        NodeList virtualParameters = ((Element) dseXmlDocument.getElementsByTagName("virtual_parameters").item(0)).getElementsByTagName("parameter");
-        Parameter[] virtualParams = new Parameter[virtualParameters.getLength()];
+        Parameter[] virtualParams = new Parameter[0];
 
         try {
+            NodeList virtualParameters = ((Element) dseXmlDocument.getElementsByTagName("virtual_parameters").item(0)).getElementsByTagName("parameter");
+            virtualParams = new Parameter[virtualParameters.getLength()];
+
             for (int i = 0; i < virtualParameters.getLength(); i++) {
                 Node parameter = virtualParameters.item(i);
                 NamedNodeMap attributes = parameter.getAttributes();

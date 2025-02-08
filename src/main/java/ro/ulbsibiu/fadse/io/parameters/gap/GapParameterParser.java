@@ -83,7 +83,7 @@ public class GapParameterParser extends ParameterParser {
                         break;
                     case "string":
                         NodeList items = ((Element) parameter).getElementsByTagName("item");
-                        LinkedList<String> values = new LinkedList<String>();
+                        LinkedList<String> values = new LinkedList<>();
                         for (int j = 0; j < items.getLength(); j++) {
                             values.add(items.item(j).getAttributes().getNamedItem("value").getNodeValue());
                         }
@@ -106,10 +106,10 @@ public class GapParameterParser extends ParameterParser {
 
         } catch (SAXException e) {
             Exception x = e.getException();
-            ((x == null) ? e : x).printStackTrace();
+            ((x == null) ? e : x).fillInStackTrace();
 
         } catch (Throwable t) {
-            t.printStackTrace();
+            t.fillInStackTrace();
         }
 
         return params;
