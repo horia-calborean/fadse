@@ -21,11 +21,13 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import jmetal.base.Solution;
+import org.uma.jmetal.solution.Solution;
 import jmetal.base.SolutionSet;
 
 import org.ini4j.Wini;
 
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.ConstraintHandling;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
@@ -50,7 +52,7 @@ public class ServerSimulator extends SimulatorWrapper {
     private ResultsReceiver receiver;
     private LinkedList<Neighbor> neighbors;
     private SimulationStatus simulationStatus;
-    private Map<Individual, Solution> individualsToSend;//there are multiple individuals for a single solution (10 benchmarks , 1 solution)
+    private Map<Individual, DoubleSolution> individualsToSend;//there are multiple individuals for a single solution (10 benchmarks , 1 solution)
 
     public ServerSimulator(Environment environment) throws ClassNotFoundException, IOException, ParserConfigurationException {
         super(environment);
@@ -61,7 +63,7 @@ public class ServerSimulator extends SimulatorWrapper {
         receiver = ResultsReceiver.getInstance();
         simulationStatus = SimulationStatus.getInstance();
         simulationStatus.setReceiver(receiver);//TODO solve bad design
-        individualsToSend = new HashMap<Individual, Solution>();
+        individualsToSend = new HashMap<>();
     }
 
     @Override
@@ -79,7 +81,7 @@ public class ServerSimulator extends SimulatorWrapper {
         }
         individualsToSend.put(individual, currentSolution);
         Individual ind;
-        Solution s;
+        DoubleSolution s;
         while (individualsToSend.size() > 0) {
             ind = individualsToSend.keySet().iterator().next();
             s = individualsToSend.get(ind);
@@ -93,7 +95,7 @@ public class ServerSimulator extends SimulatorWrapper {
 //        Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, "perform simulation method ended for " + individual.toString());
     }
 
-    private void performSimulationOnClient(Individual ind, Solution solution) {
+    private void performSimulationOnClient(Individual ind, DoubleSolution solution) {
         boolean individualSent = false;
         for (int i = 0; i < neighbors.size(); i++) {
             Neighbor n = neighbors.poll();
@@ -112,7 +114,7 @@ public class ServerSimulator extends SimulatorWrapper {
                 } catch (UnknownHostException ex) {
                     Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "Don't know about host", ex);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    ex.fillInStackTrace();
                     Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "Couldn't get I/O for the connection or ACK not received from" + n.getIp() + ":" + n.getPort(), "");
                 } catch (Exception ex) {
                     Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "Other exception", ex);
@@ -122,7 +124,7 @@ public class ServerSimulator extends SimulatorWrapper {
                 } else {//the try has gone bad - we could not connect to the client. Maybe he had some individuals simulating on him we can not expect a result returning
                     if (simulationStatus.isClientSimulating(n)) {
                         //find out which was the individual(s) we sent to the client and re add them to the individualsToSend list
-                        Map<Individual, Solution> indOnClient = simulationStatus.getIndividualsSimulatingOnClient(n);
+                        Map<Individual, DoubleSolution> indOnClient = simulationStatus.getIndividualsSimulatingOnClient(n);
                         simulationStatus.removeSimulationsOnClient(n);
                         individualsToSend.putAll(indOnClient);
                     }
@@ -205,7 +207,7 @@ public class ServerSimulator extends SimulatorWrapper {
                 //obtain the solution of this individual
                 Solution s = simulationStatus.getSolution(localKeptMessage.getMessageId());
                 Objective o = objs.get(i);
-                double value = s.getObjective(i);
+                double value = s.objectives()[i];
                 if (o.getValue() == 0) {
                     Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "individual has objectives set to 0 - marking him as infeasible[1]");
                     localKeptMessage.getIndividual().markAsInfeasibleAndSetBadValuesForObjectives("individual has objectives set to 0[1]");
@@ -214,15 +216,19 @@ public class ServerSimulator extends SimulatorWrapper {
                 }
 //                        System.out.println("value for solution["+simulationStatus.getSolution(sentM.getMessageId()).getDecisionVariables()+"] for objective["+i+"] = "+o.getValue());
                 value = (o.getValue() + value);//Add all the values. later we will divide it by the number of benchmarks
-                s.setObjective(i, value);
-                s.setCounter(s.getCounter() + 1);
-                s.setSum(i, s.getSum(i) + "+" + o.getValue());
-                s.setTempSum(i, s.getTempSum(i) + o.getValue());
+                s.objectives()[i] = value;
+                // TODO - If the following lines are useless, remove them. If not, investigate how and when to initialize these arrays
+                int counter = (int) s.attributes().get("counter");
+                s.attributes().put("counter", counter + 1);
+                String sum = ((String[])s.attributes().get("sum"))[i];
+                s.attributes().put("sum", sum + "+" + o.getValue());
+                Double tempSum = ((Double[])s.attributes().get("tempSum"))[i];
+                s.attributes().put("tempSum", tempSum + "+" + o.getValue());
                 //s.setObjective(i, o.getValue());
                 if (infeasible || !localKeptMessage.getIndividual().isFeasible()) {
-                    s.setNumberOfViolatedConstraint(Integer.MAX_VALUE);
+                    ConstraintHandling.numberOfViolatedConstraints(s, (Integer.MAX_VALUE));
                     //s.setNumberOfViolatedConstraint(s.getNumberOfViolatedConstraint() + environment.getInputDocument().getRules().size());
-                    s.setOverallConstraintViolation(Integer.MAX_VALUE);//TODO think of a value to put here
+                    ConstraintHandling.overallConstraintViolationDegree(s,(Integer.MAX_VALUE));//TODO think of a value to put here
                 }
             }
 
@@ -231,7 +237,7 @@ public class ServerSimulator extends SimulatorWrapper {
         //compute the average
         //since the same solution exists  nrOfBenchmarks times in the sent messages list we have to divide by nr of benchmarks only once
         //so we first build a set of all the solutions (no duplicates)
-        Set<Solution> solutions = new HashSet<Solution>();
+        Set<Solution> solutions = new HashSet<>();
         for (Message localkeptMessage : cleanMessages) {
             boolean infeasible = false;
             //FAILSAFE test individual for corectness - test if ind has the correct number of objectives
@@ -251,17 +257,17 @@ public class ServerSimulator extends SimulatorWrapper {
                 }
                 Solution localKeptSolution = simulationStatus.getSolution(localkeptMessage.getMessageId());
                 //FAILSAFE - not all the benchmarks responded
-                if (localKeptSolution.getCounter() != environment.getInputDocument().getBenchmarks().size() * environment.getInputDocument().getObjectives().values().size()) {
-                    Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "individual does not have results for all the benchmarks, or has more results (" + (localKeptSolution.getCounter() + "!=" + environment.getInputDocument().getBenchmarks().size() * environment.getInputDocument().getObjectives().values().size()) + ") : ");
+                if ((int)localKeptSolution.attributes().get("counter") != environment.getInputDocument().getBenchmarks().size() * environment.getInputDocument().getObjectives().values().size()) {
+                    Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "individual does not have results for all the benchmarks, or has more results (" + (localKeptSolution.attributes().get("counter") + "!=" + environment.getInputDocument().getBenchmarks().size() * environment.getInputDocument().getObjectives().values().size()) + ") : ");
                     for (int i = 0; i < environment.getInputDocument().getObjectives().values().size(); i++) {
-                        Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, localKeptSolution.getSum(i));
+                        Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, ((String[])localKeptSolution.attributes().get("sum"))[i]);
                     }
                     infeasible = true;
 //TODO - TEST if the objectives are set in this method or calling set bad values is already too late
                 }
                 if (infeasible) {
-                    localKeptSolution.setNumberOfViolatedConstraint(Integer.MAX_VALUE);
-                    localKeptSolution.setOverallConstraintViolation(Integer.MAX_VALUE);//TODO think of a value to put here
+                    ConstraintHandling.numberOfViolatedConstraints(localKeptSolution, (Integer.MAX_VALUE));
+                    ConstraintHandling.overallConstraintViolationDegree(localKeptSolution, (Integer.MAX_VALUE)); //TODO think of a value to put here
                 }
                 solutions.add(localKeptSolution);
             } catch (Exception e) {
@@ -270,15 +276,19 @@ public class ServerSimulator extends SimulatorWrapper {
         }
         for (Solution s : solutions) {
             //System.out.println(s.getNumberOfViolatedConstraint() != 0 ? "Infeasible" : "Feasible");
-            for (int i = 0; i < s.numberOfObjectives(); i++) {
-                double value = s.getObjective(i);
+            for (int i = 0; i < s.objectives().length; i++) {
+                double value = s.objectives()[i];
                 value = value / environment.getInputDocument().getBenchmarks().size();//compute the average
-                s.setObjective(i, s.getTempSum(i) / environment.getInputDocument().getBenchmarks().size());
-                System.out.println(s.getSum(i) + "/" + environment.getInputDocument().getBenchmarks().size() + " = " + s.getTempSum(i) / environment.getInputDocument().getBenchmarks().size() + "=" + value);
+                s.objectives()[i] = ((Double[])s.attributes().get("tempSum"))[i] / environment.getInputDocument().getBenchmarks().size();
+                System.out.println(((String[])s.attributes().get("sum"))[i] + "/" + environment.getInputDocument().getBenchmarks().size() + " = " + ((Double[])s.attributes().get("tempSum"))[i] / environment.getInputDocument().getBenchmarks().size() + "=" + value);
                 //cleaning up the solution - has to be done for algorithms that reuse the same object like PSO algorithms
-                s.setSum(i, null);
-                s.setTempSum(i, 0);
-                s.setCounter(0);
+                String[] sum = ((String[])s.attributes().get("sum"));
+                sum[i] = null;
+                s.attributes().put("sum", sum);
+                Double[] tempSum = ((Double[])s.attributes().get("tempSum"));
+                tempSum[i] = 0.0;
+                s.attributes().put("tempSum", tempSum);
+                s.attributes().put("counter", 0);
             }
         }
         //JOIN ended

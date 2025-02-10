@@ -1,5 +1,5 @@
 /*
- * 
+ *
  *
  * This file is part of the FADSE tool.
  *
@@ -36,103 +36,74 @@
  */
 package ro.ulbsibiu.fadse.extended.problems;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import jmetal.util.JMException;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.ConstraintHandling;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.environment.Validator;
 import ro.ulbsibiu.fadse.environment.document.InputDocument;
-import ro.ulbsibiu.fadse.environment.parameters.DoubleParameter;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
-import ro.ulbsibiu.fadse.environment.parameters.PermutationParameter;
 import ro.ulbsibiu.fadse.utils.Utils;
-import jmetal.base.Problem;
-import jmetal.base.Solution;
-import jmetal.base.solutionType.IntRealPermutationSolutionType;
-import jmetal.base.solutionType.IntRealSolutionType;
-import jmetal.base.solutionType.IntSolutionType;
-import jmetal.base.solutionType.RealSolutionType;
-import jmetal.util.JMException;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- *
  * @author Horia Calborean <horia.calborean at ulbsibiu.ro>
  */
-public abstract class SimulatorWrapper extends Problem {
-
-    /** Class to hold state of application */
-    protected Environment environment;
-    protected Solution currentSolution;
-
-    public SimulatorWrapper(Environment environment) throws ClassNotFoundException {
-        // persistence.DerbyDB.createConnection(environment.getInputDocument());
-
-        this.environment = environment;
-        InputDocument input = environment.getInputDocument();
-        this.problemName_ = input.getSimulatorName();
-        this.numberOfConstraints_ = input.getRules().size();
-        this.numberOfObjectives_ = input.getObjectives().values().size();
-        this.numberOfVariables_ = input.getParameters().length;
-        int numberOfIntParameters = 0;
-        int numberOfFloatParameters = 0;
-        int numberOfPermutationParameters = 0;
-        lowerLimit_ = new double[numberOfVariables_];
-        upperLimit_ = new double[numberOfVariables_];
-        for (int var = 0; var < numberOfVariables_; var++) {
-            lowerLimit_[var] = 0;
-            upperLimit_[var] = 1.0;
-            try {
-                lowerLimit_[var] = environment.getInputDocument().getParameters()[var].getLowerBound();
-                upperLimit_[var] = environment.getInputDocument().getParameters()[var].getUpperBound();
-            } catch (JMException ex) {
-               // Logger.getLogger(SimulatorWrapper.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        } //for
-        for (Parameter p : input.getParameters()) {
-            if (p instanceof DoubleParameter) {
-                numberOfFloatParameters++;
-            } else if (p instanceof PermutationParameter) {
-                numberOfPermutationParameters++;
-            } else{
-                numberOfIntParameters++;
-            }
-        }
-        if(numberOfPermutationParameters!=0){
-            this.solutionType_ = new IntRealPermutationSolutionType(this,numberOfIntParameters,numberOfFloatParameters,numberOfPermutationParameters);
-        } else if (numberOfIntParameters == 0) {
-            this.solutionType_ = new RealSolutionType(this);
-        } else if (numberOfFloatParameters == 0) {
-            this.solutionType_ = new IntSolutionType(this);
-        } else {
-            this.solutionType_ = new IntRealSolutionType(this, numberOfIntParameters, numberOfFloatParameters);
-        }
-        // this.variableType_ - this value is set in the constructor of the IntSolutionType
-
-    }
+public abstract class SimulatorWrapper extends AbstractDoubleProblem {
 
     /**
-     * Method to evaluate an individual
-     * @param solution Object to represent individual (variables only)
-     * @throws JMException
+     * Class to hold state of application
      */
-    @Override
-    public void evaluate(Solution solution) throws JMException {
-        // find names for the variables provided by solution-object
+    protected Environment environment;
+    protected DoubleSolution currentSolution;
+
+    public SimulatorWrapper(Environment environment) {
+        this.environment = environment;
+        InputDocument input = environment.getInputDocument();
+        name = input.getSimulatorName();
+        numberOfConstraints = input.getRules().size();
+        numberOfObjectives = input.getObjectives().values().size();
+
+        int numberOfVariables = input.getParameters().length;
+        List<Double> lowerLimit = new ArrayList<>(numberOfVariables);
+        List<Double> upperLimit = new ArrayList<>(numberOfVariables);
+        for (int var = 0; var < numberOfVariables; var++) {
+            lowerLimit.set(var, 0.0);
+            upperLimit.set(var, 1.0);
+            try {
+                lowerLimit.set(var, environment.getInputDocument().getParameters()[var].getLowerBound());
+                upperLimit.set(var, environment.getInputDocument().getParameters()[var].getUpperBound());
+            } catch (JMException ex) {
+                Logger.getLogger(SimulatorWrapper.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        variableBounds(lowerLimit, upperLimit);
+    }
+
+    public DoubleSolution evaluate(DoubleSolution solution) {
         currentSolution = solution;
         Validator validator = new Validator();
 
-
         LinkedList<String> benchmarks = environment.getInputDocument().getBenchmarks();
-        /** for all variables... associate them with a parameter */
+
         Parameter[] params = Utils.getParameters(solution, environment);
-        Individual ind = null;
-        boolean[] feasible = new boolean[benchmarks.size()];//not used, but it will be in the future
+
+        Individual ind;
+
+        //TODO - not used, but it will be, in the future
+        boolean[] feasible = new boolean[benchmarks.size()];
+
         for (int i = 0; i < benchmarks.size(); i++) {
             String benchmark = benchmarks.get(i);
-//            System.out.println("BENCHMARK: "+benchmark);
+
             // initialize individual with parameters
             ind = new Individual(environment, benchmark);
             ind.setParameters(params);
@@ -143,7 +114,7 @@ public abstract class SimulatorWrapper extends Problem {
             if (result) {
                 // Do the simulation!
                 performSimulation(ind);
-                feasible[i] = ind.isFeasible() ? true : false;
+                feasible[i] = ind.isFeasible();
             } else {
                 //System.err.println("Configuration did not pass validation.");
                 feasible[i] = false;
@@ -154,25 +125,26 @@ public abstract class SimulatorWrapper extends Problem {
                 List<Objective> objs = ind.getObjectives();
                 int j = 0;
                 for (Objective o : objs) {
-                    double value = solution.getObjective(j);
+                    double value = solution.objectives()[j];
 //                    System.out.println("Objective["+j+"] = "+o.getValue());
                     value = (o.getValue() + (i) * value) / (i + 1);//Moving Average
 //                    System.out.println("Current Mean value for Objective["+j+"] = "+value);
-                    solution.setObjective(j, value);
+                    solution.objectives()[j] = value;
                     j++;
                 }
             } else {
                 ind.markAsInfeasibleAndSetBadValuesForObjectives("did not pass validation");
-                for (int k = 0; k < solution.numberOfObjectives(); k++) {
-                    solution.setObjective(k, Double.MAX_VALUE);
+                for (int k = 0; k < numberOfObjectives(); k++) {
+                    solution.objectives()[k] = Double.MAX_VALUE;
                 }
-                solution.setNumberOfViolatedConstraint(environment.getInputDocument().getRules().size());
-                solution.setOverallConstraintViolation(Integer.MAX_VALUE);//TODO think of a value to put here
+                ConstraintHandling.numberOfViolatedConstraints(solution, environment.getInputDocument().getRules().size());
+                ConstraintHandling.overallConstraintViolationDegree(solution, Integer.MAX_VALUE); //TODO think of a value to put here
             }
         }
-//        for (int i = 0; i < ind.getObjectives().size(); i++) {
-//            System.out.println("Solution final obj value: " + solution.getObjective(i));
-//        }
+
+        evaluateConstraints(solution);
+
+        return solution;
     }
 
     public InputDocument getInputDocument() {
@@ -183,19 +155,12 @@ public abstract class SimulatorWrapper extends Problem {
 
     public abstract void closeSimulation(Individual individual);
 
-    @Override
-    public void evaluateConstraints(Solution solution) throws JMException {
-        super.evaluateConstraints(solution);
+    protected void evaluateConstraints(DoubleSolution solution) {
         Validator validator = new Validator();
         Individual ind = new Individual(environment, "");//benchmark is not important in this case
         Parameter[] params = environment.getInputDocument().getParameters();
         ind.setParameters(params);
-        solution.setNumberOfViolatedConstraint(validator.validate(ind, environment.getInputDocument().getRules()));
-        solution.setOverallConstraintViolation(validator.validate(ind, environment.getInputDocument().getRules()));//TODO think of an importance of a rule??
-    }
-
-    @Override
-    public int getNumberOfConstraints() {
-        return environment.getInputDocument().getRules().size();
+        ConstraintHandling.numberOfViolatedConstraints(solution, validator.validate(ind, environment.getInputDocument().getRules()));
+        ConstraintHandling.overallConstraintViolationDegree(solution, validator.validate(ind, environment.getInputDocument().getRules())); //TODO think of an importance of a rule??
     }
 }

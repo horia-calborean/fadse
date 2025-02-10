@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
@@ -153,11 +154,11 @@ public class Utils {
         return result;
     }
 
-    public static Parameter[] getParameters(Solution solution, Environment environment) {
-        Variable[] vars = solution.getDecisionVariables();
+    public static Parameter[] getParameters(DoubleSolution solution, Environment environment) {
+        List<Double> vars = solution.variables();
         Parameter[] params = environment.getInputDocument().getParameters();
         /** for all variables... associate them with a parameter */
-        for (int i = 0; i < vars.length; i++) {
+        for (int i = 0; i < vars.size(); i++) {
             try {
                 Parameter p = params[i];
                 Parameter parameter = (Parameter) p.clone();

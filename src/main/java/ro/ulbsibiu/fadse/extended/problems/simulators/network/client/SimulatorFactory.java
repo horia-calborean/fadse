@@ -10,9 +10,7 @@ import java.util.logging.Logger;
 
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
-import jmetal.problems.ProblemFactory;
-import jmetal.util.JMException;
-
+import ro.ulbsibiu.fadse.extended.problems.ProblemFactory;
 /**
  *
  * @author Horia Calborean
@@ -22,8 +20,8 @@ public class SimulatorFactory {
     public static SimulatorWrapper getSimulator(String name, Environment env){
         try {
             Object[] problemParams = {env};
-            problem = (SimulatorWrapper) (new ProblemFactory()).getProblem(name, problemParams);
-        } catch (JMException ex) {
+            problem = (SimulatorWrapper) ProblemFactory.loadProblem(env);
+        } catch (Exception ex) {
             Logger.getLogger(SimulatorFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
         return problem;

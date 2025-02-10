@@ -33,14 +33,13 @@
  */
 package ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status;
 
-import java.io.Serializable;
+import org.uma.jmetal.solution.Solution;
+import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
+import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.Neighbor;
+
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
-
-import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
-import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.Neighbor;
-import jmetal.base.Solution;
 
 /**
  *
@@ -50,14 +49,14 @@ public class Simulation{
 
     private String id;
     private Message message;
-    private Solution solution;
+    private Solution<?> solution;
     private Neighbor neighbor;
     private int retries;
     private List<Neighbor> pastClients;
     private boolean active;
     private Timestamp simulationStartedTime;
 
-    public Simulation(String id, Message message, Solution solution, Neighbor neighbor, boolean active) {
+    public <T> Simulation(String id, Message message, Solution<T> solution, Neighbor neighbor, boolean active) {
         init(id, message, solution, neighbor, active);
     }
     /**
@@ -67,11 +66,11 @@ public class Simulation{
      * @param solution
      * @param neighbor
      */
-    public Simulation(String id, Message message, Solution solution, Neighbor neighbor) {
+    public <T> Simulation(String id, Message message, Solution<T> solution, Neighbor neighbor) {
         init(id, message, solution, neighbor, true);
     }
 
-    private void init(String id, Message message, Solution solution, Neighbor neighbor, boolean active) {
+    private <T> void init(String id, Message message, Solution<T> solution, Neighbor neighbor, boolean active) {
         this.id = id;
         this.message = message;
         this.solution = solution;
@@ -106,11 +105,11 @@ public class Simulation{
         this.neighbor = neighbor;
     }
 
-    public Solution getSolution() {
-        return solution;
+    public <T, S extends Solution<T>> S getSolution() {
+        return (S) solution;
     }
 
-    public void setSolution(Solution solution) {
+    public void setSolution(Solution<?> solution) {
         this.solution = solution;
     }
 

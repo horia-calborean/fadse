@@ -1,23 +1,23 @@
 package ro.ulbsibiu.fadse;
 
-import java.io.File;
-import java.io.FileInputStream;
-
-import jmetal.base.*;
-import jmetal.problems.*;
+import jmetal.base.Algorithm;
+import jmetal.base.SolutionSet;
+import jmetal.experiments.Settings;
+import jmetal.experiments.SettingsFactory;
 import jmetal.util.Configuration;
 import jmetal.util.JMException;
+import org.uma.jmetal.problem.Problem;
+import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.extended.problems.ProblemFactory;
+import ro.ulbsibiu.fadse.extended.problems.ProblemName;
+import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status.SimulationStatus;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
-
-import ro.ulbsibiu.fadse.environment.Environment;
-import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status.SimulationStatus;
-import jmetal.experiments.Settings;
-import jmetal.experiments.SettingsFactory;
-import jmetal.qualityIndicator.QualityIndicator;
 
 /*
  *
@@ -54,11 +54,11 @@ import jmetal.qualityIndicator.QualityIndicator;
  *
  *
  */
+
 /**
- *
  * @author Horia Calborean <horia.calborean at ulbsibiu.ro>
  */
-public class AlgorithmRunner {
+public class AlgorithmRunner<S> {
 
     public static Logger logger_; // Logger object
     public static FileHandler fileHandler_; // FileHandler object
@@ -69,20 +69,19 @@ public class AlgorithmRunner {
             ClassNotFoundException {
         // Runtime.getRuntime().addShutdownHook(new Thread(new
         // PerformCleanup()));
-        Problem problem; // The problem to solve
+        Problem<S> problem = ProblemFactory.loadProblem(env); // The problem to solve
 
         Properties properties;
         Settings settings = null;
         String algorithmName = env.getInputDocument().getMetaheuristicName();
-        String problemName = env.getInputDocument().getSimulatorName();
 
         properties = new Properties();
         String path = "N/A";
         String currentDir = System.getProperty("user.dir");
-        System.out.println("Current folder is: "+currentDir);
+        System.out.println("Current folder is: " + currentDir);
         try {
-            path = env.getInputDocument().getMetaheuristicConfigPath();            
-            properties.load(new FileInputStream(currentDir+ File.separator + path));
+            path = env.getInputDocument().getMetaheuristicConfigPath();
+            properties.load(new FileInputStream(currentDir + File.separator + path));
         } catch (Exception e) {
             System.out.println("BAD properties file [" + path + "]. going with default values");
         }
@@ -93,26 +92,26 @@ public class AlgorithmRunner {
         logger_.addHandler(fileHandler_);
         SolutionSet population = null;
         System.out.println(env.getInputDocument().getSimulatorType());
-        if (env.getInputDocument().getSimulatorType().equalsIgnoreCase("synthetic")) {
-            // it is a synthetic problem
-            problem = null;
-            Object[] problemParams = {"Real"};// TODO configure the problem
-            // param type, nr of variables,
-            // nr of objectives
-            if (problemName.startsWith("DTLZ")) {
-                problemParams = new Object[3];
-                problemParams[0] = "Real";
-                problemParams[1] = env.getInputDocument().getParameters().length;
-                problemParams[2] = env.getInputDocument().getObjectives().size();
-            }
-            problem = (new ProblemFactory()).getProblem(problemName,
-                    problemParams);
-        } else {
-            // is a simulator
-            Object[] problemParams = {env};
-            problem = (new ProblemFactory()).getProblem(problemName,
-                    problemParams);
-        }
+//        if (env.getInputDocument().getSimulatorType().equalsIgnoreCase("synthetic")) {
+//            // it is a synthetic problem
+//            problem = null;
+//            Object[] problemParams = {"Real"};// TODO configure the problem
+//            // param type, nr of variables,
+//            // nr of objectives
+//            if (problemName.startsWith("DTLZ")) {
+//                problemParams = new Object[3];
+//                problemParams[0] = "Real";
+//                problemParams[1] = env.getInputDocument().getParameters().length;
+//                problemParams[2] = env.getInputDocument().getObjectives().size();
+//            }
+//            problem = (new ProblemFactory()).getProblem(problemName,
+//                    problemParams);
+//        } else {
+//            // is a simulator
+//            Object[] problemParams = {env};
+//            problem = (new ProblemFactory()).getProblem(problemName,
+//                    problemParams);
+//        }
         Object[] settingsParams = {problem};
         settings = (new SettingsFactory()).getSettingsObject(algorithmName,
                 settingsParams);
@@ -140,14 +139,14 @@ public class AlgorithmRunner {
             algorithm.setInputParameter(
                     "forceFeasibleFirstGeneration",
                     env.getInputDocument().getSimulatorParameter(
-                    "forceFeasibleFirstGeneration"));
+                            "forceFeasibleFirstGeneration"));
         }
         if (env.getInputDocument().getSimulatorParameter(
                 "forceMinimumPercentageFeasibleIndividuals") != null) {
             algorithm.setInputParameter(
                     "forceMinimumPercentageFeasibleIndividuals",
                     env.getInputDocument().getSimulatorParameter(
-                    "forceMinimumPercentageFeasibleIndividuals"));
+                            "forceMinimumPercentageFeasibleIndividuals"));
         } else {
             algorithm.setInputParameter(
                     "forceMinimumPercentageFeasibleIndividuals", "0");
