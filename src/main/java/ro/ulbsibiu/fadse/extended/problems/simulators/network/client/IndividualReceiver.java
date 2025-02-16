@@ -110,7 +110,7 @@ public class IndividualReceiver implements Runnable {
                     inputDocument.getSimulatorParameters().put(key, p.replace("#", System.currentTimeMillis() + "_" + m.getMessageId()));
                 }
                 //end
-                sim = SimulatorFactory.getSimulator(m.getSimulatorName(), m.getIndividual().getEnvironment());
+                sim = SimulatorFactory.getSimulator(m.getIndividual().getEnvironment());
                 //send ack only if I have the requested type of simulator, else return err simulator not found
                 if (sim == null) {
                     // Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO,"TYPE_ERR_SIMULATOR_NOT_INSTALLED...");
