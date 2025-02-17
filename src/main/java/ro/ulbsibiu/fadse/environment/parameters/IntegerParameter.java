@@ -1,6 +1,6 @@
 package ro.ulbsibiu.fadse.environment.parameters;
 
-import jmetal.util.PseudoRandom;
+import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
 public class IntegerParameter extends Parameter
 {
@@ -18,7 +18,8 @@ public class IntegerParameter extends Parameter
 
     public IntegerParameter(String name, String type, String description, int lower, int upper) {
         super(name, type, description);
-        init(lower, upper, PseudoRandom.randInt(lower, upper));
+        JMetalRandom random = JMetalRandom.getInstance();
+        init(lower, upper, random.nextInt(lower, upper));
     }
 
     public IntegerParameter(String name, String type, String description, int lower, int upper, int value) {
@@ -61,7 +62,7 @@ public class IntegerParameter extends Parameter
 
     @Override
     public String toString() {
-        return "" + this.value + "";
+        return "" + this.value;
     }
 
     @Override

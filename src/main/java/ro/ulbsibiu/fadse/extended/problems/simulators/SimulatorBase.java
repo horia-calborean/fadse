@@ -1,7 +1,6 @@
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import ro.ulbsibiu.fadse.environment.Environment;
@@ -9,16 +8,7 @@ import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
 import ro.ulbsibiu.fadse.persistence.Result;
-import jmetal.base.Solution;
 
-/**
- * Base Class for simulator configuration.
- * Contains methods for loading the config from an xml
- *
- * @author Andrei
- * @version 0.1
- * @since 15.04.2010
- */
 public abstract class SimulatorBase extends SimulatorWrapper {
 
     protected String simulatorOutputFile;
@@ -27,10 +17,6 @@ public abstract class SimulatorBase extends SimulatorWrapper {
     protected SimulatorRunner simulatorRunner;
     protected SimulatorOutputParser simulatorOutputParser;
 
-    /**
-     * Class constructor, initialize variables and calls {@link #parseXml(String)}
-     * @param xmlFilePath String the complete path to the configuration fill
-     */
     public SimulatorBase(Environment environment) throws ClassNotFoundException {
         super(environment);
         this.InitSimulator();

@@ -1,15 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package ro.ulbsibiu.fadse.environment.parameters;
 
-import jmetal.util.PseudoRandom;
+import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
-/**
- *
- * @author Horia Andrei Calborean <horia.calborean@ulbsibiu.ro>
- */
 public class DoubleParameter extends Parameter {
 
     //private Real parameter;
@@ -24,7 +16,8 @@ public class DoubleParameter extends Parameter {
 
     public DoubleParameter(String name, String type, String description, double lower, double upper) {
         super(name, type, description);
-        init(lower, upper, PseudoRandom.randDouble()*(upper-lower)+lower);
+        JMetalRandom random = JMetalRandom.getInstance();
+        init(lower, upper, random.nextDouble()*(upper-lower)+lower);
     }
 
     public DoubleParameter(String name, String type, String description, double lower, double upper, double value) {
@@ -41,7 +34,7 @@ public class DoubleParameter extends Parameter {
     public Object getValue() {return value; }
 
     @Override
-    public void setValue(Object value) { value = (Double) value; }
+    public void setValue(Object value) { this.value = (Double) value; }
     
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -62,6 +55,6 @@ public class DoubleParameter extends Parameter {
     public void setUpperBound(double upperBound) { this.upperBound = upperBound; }
 
     @Override
-    public String toString() { return "" + value + ""; }
+    public String toString() { return "" + value; }
 
 }

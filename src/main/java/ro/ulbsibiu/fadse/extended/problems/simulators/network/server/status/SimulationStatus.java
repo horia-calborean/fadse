@@ -1,11 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status;
 
-import jmetal.base.Algorithm;
-
+import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.solution.Solution;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.Individual;
@@ -28,13 +23,14 @@ public class SimulationStatus {
     private static SimulationStatus instance;
     private final Map<String, Simulation> simulations;
     private final List<String> toRemove;
+    // TODO - It will be refactored later
     private Algorithm algorithm;//might be or might not be set
     private Environment environment;//might be or might not be set
 
     private SimulationStatus() {
         toRemove = Collections.synchronizedList(new LinkedList<>());
         simulations = Collections.synchronizedMap(new HashMap<>());
-        Thread t = new Thread(new StatusObserver(this));
+        Thread t = new Thread(new StatusObserver<>(this));
         t.setDaemon(true);
         t.start();
     }
@@ -92,7 +88,7 @@ public class SimulationStatus {
     }
 
     public List<String> getActiveSimulations() {
-        List<String> activeSimulations = new LinkedList<String>();
+        List<String> activeSimulations = new LinkedList<>();
         for (Simulation s : simulations.values()) {
             if (s.isActive()) {
                 activeSimulations.add(s.getNeighbor().getIp()+":"+s.getNeighbor().getPort()+"-"+s.getId());
@@ -101,7 +97,7 @@ public class SimulationStatus {
         return activeSimulations;
     }
     public List<String> getActiveSimulationsIds() {
-        List<String> activeSimulations = new LinkedList<String>();
+        List<String> activeSimulations = new LinkedList<>();
         for (Simulation s : simulations.values()) {
             if (s.isActive()) {
                 activeSimulations.add(s.getId());
@@ -111,14 +107,14 @@ public class SimulationStatus {
     }
 
     public List<Message> getSentMessages() {
-        List<Message> messages = new LinkedList<Message>();
+        List<Message> messages = new LinkedList<>();
         for (Simulation s : simulations.values()) {
             messages.add(s.getMessage());
         }
         return messages;
     }
 
-    public <T> Solution<T> getSolution(String id) {
+    public <T extends Solution<?>> T getSolution(String id) {
         return simulations.get(id).getSolution();
     }
 
@@ -195,34 +191,4 @@ public class SimulationStatus {
         this.receiver = receiver;
     }
 
-//    private class PopulationDumper implements Runnable {
-//
-//        private SimulationStatus simulationStatus;
-//        private Utils u;
-//
-//        public PopulationDumper(SimulationStatus simulationStatus) {
-//            this.simulationStatus = simulationStatus;
-//            u = new Utils();
-//        }
-//
-//        public void run() {
-//            long startTime = System.currentTimeMillis();
-//            while (true) {
-//                if (((System.currentTimeMillis() - startTime) / (1000 * 60) > 20)) {//every 20 minutes dump the current population
-//                    u.insertObjectivesValuesIntoSolutions(simulationStatus);
-//
-//                    String headder = u.generateCSVHeadder(simulationStatus.getEnvironment());
-//                    String result = headder;
-//                    result += u.generateCSV(simulationStatus.getAlgorithm().getCurrentSolutionSet());
-//                    try {
-//                        BufferedWriter out = new BufferedWriter(new FileWriter("" + System.currentTimeMillis() + ".csv"));
-//                        out.write(result);
-//                        out.close();
-//                    } catch (IOException e) {
-//                    }
-//                    startTime = System.currentTimeMillis();
-//                }
-//            }
-//        }
-//    }
 }

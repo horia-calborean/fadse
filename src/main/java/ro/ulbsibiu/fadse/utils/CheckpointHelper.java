@@ -39,20 +39,19 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.uma.jmetal.problem.Problem;
+import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import ro.ulbsibiu.fadse.environment.Environment;
-import jmetal.base.Problem;
-import jmetal.base.Solution;
-import jmetal.base.SolutionSet;
-import jmetal.util.JMException;
 
-/**
- *
- * @author Horia Calborean
- */
 public class CheckpointHelper {
 
     StringBuilder content;
@@ -73,25 +72,24 @@ public class CheckpointHelper {
         this.fileName = fileName;
     }
 
-    public void store(SolutionSet solutionSet) {
+    public <S extends Solution<?>> void store(List<S> solutionSet) {
         content.append((new Utils()).generateCSV(solutionSet));
     }
 
-    public void load(SolutionSet solutionSet, int size, Problem problem) throws ClassNotFoundException, JMException {
+    public void load(List<DoubleSolution> solutionSet, int size, AbstractDoubleProblem problem) throws ClassNotFoundException {
         int i = 0;
         try {
             BufferedReader input = new BufferedReader(new FileReader(fileName));
 
             String line = null; //not declared within while loop
             while ((line = input.readLine()) != null && i < size) {
-                Solution solution = new Solution(problem);
+                DoubleSolution solution = problem.createSolution();
 
                 StringTokenizer tokenizer = new StringTokenizer(line, ",");
-                for (int j = 0; j < problem.getNumberOfVariables(); j++) {
-                    solution.getDecisionVariables()[j].setValue(Double.valueOf(tokenizer.nextToken()));
+                for (int j = 0; j < problem.numberOfVariables(); j++) {
+                    solution.variables().set(j, Double.valueOf(tokenizer.nextToken()));
                 }
                 problem.evaluate(solution);
-                problem.evaluateConstraints(solution);
 
                 solutionSet.add(solution);
                 i++;
@@ -99,25 +97,22 @@ public class CheckpointHelper {
         } catch (IOException ex) {
             Logger.getLogger(CheckpointHelper.class.getName()).log(Level.SEVERE, "Checkpoint file does not have enough elements to fill the entire population [" + i + "<" + size + "]. Filling it with random individuals");
             while (i < size) {
-                Solution particle = new Solution(problem);
+                DoubleSolution particle = problem.createSolution();
                 problem.evaluate(particle);
-                problem.evaluateConstraints(particle);
                 solutionSet.add(particle);
                 i++;
             }
         }
     }
 
-    public void store(Solution[] solutions) {
-        SolutionSet solutionSet = new SolutionSet(solutions.length);
-        for (int i = 0; i < solutions.length; i++) {
-            solutionSet.add(solutions[i]);
-        }
+    public <S extends Solution<?>> void store(S[] solutions) {
+        List<S> solutionSet = new ArrayList<>(solutions.length);
+        Collections.addAll(solutionSet, solutions);
         store(solutionSet);
     }
 
-    public void load(Solution[] solutions, int size, Problem problem) throws ClassNotFoundException, JMException {
-        SolutionSet solutionSet = new SolutionSet(size);
+    public <S extends Solution<?>> void load(S[] solutions, int size, AbstractDoubleProblem problem) throws ClassNotFoundException {
+        List<DoubleSolution> solutionSet = new ArrayList<>(size);
         load(solutionSet, size, problem);
     }
 
@@ -128,7 +123,7 @@ public class CheckpointHelper {
                 content.append(",");
             }
         }
-        content.append(System.getProperty("line.separator"));
+        content.append(System.lineSeparator());
     }
 
     public void load(double[] items, int size) throws FileNotFoundException {
@@ -138,7 +133,7 @@ public class CheckpointHelper {
             line = input.readLine();
             StringTokenizer tokenizer = new StringTokenizer(line, ",");
             for (int j = 0; j < size; j++) {
-                items[j] = Double.valueOf(tokenizer.nextToken());
+                items[j] = Double.parseDouble(tokenizer.nextToken());
             }
         } catch (IOException ex) {
             Logger.getLogger(CheckpointHelper.class.getName()).log(Level.SEVERE, "IO Exception ");
@@ -166,7 +161,7 @@ public class CheckpointHelper {
             out.write(content.toString());
             out.close();
             return true;
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         return false;
     }

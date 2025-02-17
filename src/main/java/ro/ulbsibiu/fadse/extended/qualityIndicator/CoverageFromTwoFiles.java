@@ -1,23 +1,23 @@
 /*
  * This file is part of the FADSE tool.
- * 
+ *
  *   Authors: Horia Andrei Calborean {horia.calborean at ulbsibiu.ro}
  *   Copyright (c) 2009-2010
  *   All rights reserved.
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without modification,
  *   are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *      this list of conditions and the following disclaimer.
- * 
+ *
  *   * Redistributions in binary form must reproduce the above copyright notice,
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
- * 
+ *
  *   The names of its contributors NOT may be used to endorse or promote products
  *   derived from this software without specific prior written permission.
- * 
+ *
  *   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
  *   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -33,52 +33,39 @@
  */
 
 package ro.ulbsibiu.fadse.extended.qualityIndicator;
+
+import org.uma.jmetal.solution.Solution;
+
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.util.List;
 
-import ro.ulbsibiu.fadse.extended.qualityIndicator.CoverageOfTwoSets;
-import jmetal.base.Solution;
-import jmetal.base.SolutionSet;
-/**
- *
- * @author Horia Calborean
- */
 public class CoverageFromTwoFiles {
-public static void main(String[] args) throws IOException {
-
-        long StartTime = System.currentTimeMillis();
-
+    public static void main(String[] args) throws IOException {
         String folderPathPop1;
-        int nrOfobejctivesPop1 = 2;
-        int populationSizePop1 = 100;
+        int nrObjectivesPop1;
+        int populationSizePop1;
         System.out.println("Specify path to FILE for first population");
         folderPathPop1 = (new BufferedReader(new InputStreamReader(System.in))).readLine();
         System.out.println("Specify nr of objectives");
-        nrOfobejctivesPop1 = Integer.parseInt((new BufferedReader(new InputStreamReader(System.in))).readLine());
+        nrObjectivesPop1 = Integer.parseInt((new BufferedReader(new InputStreamReader(System.in))).readLine());
         System.out.println("Specify the population size");
         populationSizePop1 = Integer.parseInt((new BufferedReader(new InputStreamReader(System.in))).readLine());
 
         String folderPathPop2;
-        int nrOfobejctivesPop2 = 2;
-        int populationSizePop2 = 100;
+        int nrOfobejctivesPop2;
+        int populationSizePop2;
         System.out.println("Specify path to FILE for second population");
         folderPathPop2 = (new BufferedReader(new InputStreamReader(System.in))).readLine();
         System.out.println("Specify nr of objectives");
         nrOfobejctivesPop2 = Integer.parseInt((new BufferedReader(new InputStreamReader(System.in))).readLine());
         System.out.println("Specify the population size");
         populationSizePop2 = Integer.parseInt((new BufferedReader(new InputStreamReader(System.in))).readLine());
-        SolutionSet pop1 = MetricsUtil.readPopulation(folderPathPop1,populationSizePop1,nrOfobejctivesPop1);
-        SolutionSet pop2 = MetricsUtil.readPopulation(folderPathPop2,populationSizePop2,nrOfobejctivesPop2);
-        CoverageOfTwoSets coverage = new CoverageOfTwoSets();
-        System.out.println("coverage pop1 - pop2: "+coverage.computeCoverage(pop1, pop2));
-        System.out.println("coverage pop2 - pop1: "+coverage.computeCoverage(pop2, pop1));
+        List<? extends Solution<?>> pop1 = MetricsUtil.readPopulation(folderPathPop1, populationSizePop1, nrObjectivesPop1);
+        List<? extends Solution<?>> pop2 = MetricsUtil.readPopulation(folderPathPop2, populationSizePop2, nrOfobejctivesPop2);
+        System.out.println("coverage pop1 - pop2: " + CoverageOfTwoSets.computeCoverage(pop1, pop2));
+        System.out.println("coverage pop2 - pop1: " + CoverageOfTwoSets.computeCoverage(pop2, pop1));
 
     }
-
-   
 }

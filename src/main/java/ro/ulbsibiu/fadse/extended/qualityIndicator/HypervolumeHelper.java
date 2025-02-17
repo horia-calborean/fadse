@@ -48,7 +48,7 @@ public class HypervolumeHelper {
             for (int i = 0; i < n; i++) {
                 parsedFilesN.add(MetricsUtil.parseFiles(nrOfobejctives, populationSizeN[i], listOfPopulationFilesN.get(i)));
                 System.out.println("Files found for folder " + i + ":" + parsedFilesN.get(i).size());
-                maxObjectivesN.add(MetricsUtil.getmaxObjectives(nrOfobejctives, parsedFilesN.get(i)));
+                maxObjectivesN.add(MetricsUtil.getMaxObjectives(nrOfobejctives, parsedFilesN.get(i)));
             }
             double[] maxObjectives = new double[nrOfobejctives];
             for (int i = 0; i < nrOfobejctives; i++) {

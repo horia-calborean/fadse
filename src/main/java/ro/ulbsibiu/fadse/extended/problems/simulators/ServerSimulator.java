@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package ro.ulbsibiu.fadse.extended.problems.simulators;
 
 import java.io.BufferedWriter;
@@ -9,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.nio.file.FileSystems;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +19,6 @@ import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.uma.jmetal.solution.Solution;
-import jmetal.base.SolutionSet;
 
 import org.ini4j.Wini;
 
@@ -41,18 +37,11 @@ import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status.Simu
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status.SimulationStatus;
 import ro.ulbsibiu.fadse.utils.Utils;
 
-/**
- *
- * @author Horia Calborean
- */
 public class ServerSimulator extends SimulatorWrapper {
-
-//    private List<String> currentlySimulating;
-//    private Map<Message, Solution> sentToSimulation;
-    private ResultsReceiver receiver;
+    private final ResultsReceiver receiver;
     private LinkedList<Neighbor> neighbors;
-    private SimulationStatus simulationStatus;
-    private Map<Individual, DoubleSolution> individualsToSend;//there are multiple individuals for a single solution (10 benchmarks , 1 solution)
+    private final SimulationStatus simulationStatus;
+    private final Map<Individual, DoubleSolution> individualsToSend;//there are multiple individuals for a single solution (10 benchmarks , 1 solution)
 
     public ServerSimulator(Environment environment) throws ClassNotFoundException, IOException, ParserConfigurationException {
         super(environment);
@@ -69,20 +58,20 @@ public class ServerSimulator extends SimulatorWrapper {
     @Override
     public void performSimulation(Individual individual) {
         Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, individual.toString());
-        //check neighbor status to see if some of the neighbors are simulating for too long and stop the simualtion there
+        //check neighbor status to see if some of the neighbors are simulating for too long and stop the simulation there
         detectAndRescheduleCrashedClients();
         //see for each neighbor if it still has a slot free.
         //Send the individual to the neighbor
 
 
-        if (neighbors == null || neighbors.size() < 1) {
+        if (neighbors == null || neighbors.isEmpty()) {
             Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "No neighbors configured");
             return;
         }
         individualsToSend.put(individual, currentSolution);
         Individual ind;
         DoubleSolution s;
-        while (individualsToSend.size() > 0) {
+        while (!individualsToSend.isEmpty()) {
             ind = individualsToSend.keySet().iterator().next();
             s = individualsToSend.get(ind);
             performSimulationOnClient(ind, s);
@@ -107,7 +96,7 @@ public class ServerSimulator extends SimulatorWrapper {
 //                        Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, "Found an available client... " + n.toString());
                     Message m = MessageSender.sendIndividual(ind, n);
                     simulationStatus.addSimulation(m, n, solution);//currentSolution is set by the Simulator Wrapper, USE CAREFULLY
-                    n.setNumberOfOcupiedSlots(n.getNumberOfOcupiedSlots() + 1);//this neighbor has just filde one of his slots
+                    n.setNumberOfOcupiedSlots(n.getNumberOfOcupiedSlots() + 1);//this neighbor has just filled one of his slots
                     individualSent = true;
                     individualsToSend.remove(ind);
                     Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, "Individual sent to: " + n);
@@ -121,7 +110,7 @@ public class ServerSimulator extends SimulatorWrapper {
                 }
                 if (individualSent) {
                     break;//get out of the for loop if everything went ok
-                } else {//the try has gone bad - we could not connect to the client. Maybe he had some individuals simulating on him we can not expect a result returning
+                } else {//the try has gone bad - we could not connect to the client. Maybe he had some individuals simulating on him, we can not expect a result returning
                     if (simulationStatus.isClientSimulating(n)) {
                         //find out which was the individual(s) we sent to the client and re add them to the individualsToSend list
                         Map<Individual, DoubleSolution> indOnClient = simulationStatus.getIndividualsSimulatingOnClient(n);
@@ -150,20 +139,20 @@ public class ServerSimulator extends SimulatorWrapper {
         redistributeUnfinishedSimulations();
         Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, "ServerSimulator.join - all the simulations are done");
         List<Message> receivedMessages = receiver.getResults();
-        //Look in the received messages and in the sent messages. We have to find for each local kept mesage a received message with the objectives filled
+        //Look in the received messages and in the messages sent. We have to find for each local kept message a received message with the objectives filled
         //Here we transfer the values of the objectives (from the remote ind) to the local individuals
         //It is time to detect if we have multiple individuals for the same solution-benchmark and choose only one of them
-        //cleaning up the lists before proceding. It can happen that (if a client is assumed crashed) we have multiple results sent back from different clients for teh same individual-benchmark
+        //cleaning up the lists before proceeding. It can happen that (if a client is assumed crashed) we have multiple results sent back from different clients for teh same individual-benchmark
         //this will cause that individual to have 11 results instead of 10 for example. we have to find such duplicates and remove teh worse one of them (if one says it is infeasible)
 
-        List<Individual> duplicateDetector = new LinkedList<Individual>();
-        List<Message> cleanMessages = new LinkedList<Message>();
+        List<Individual> duplicateDetector = new LinkedList<>();
+        List<Message> cleanMessages = new LinkedList<>();
         for (Message receivedMessage : receivedMessages) {
             for (Message localKeptMessage : simulationStatus.getSentMessages()) {
                 if (receivedMessage.getMessageId().equals(localKeptMessage.getMessageId())) {
                     boolean copy = false;
                     if (duplicateDetector.contains(localKeptMessage.getIndividual())) {
-                        //we already have its results but we should look in the received one if it is in fact better than the one before
+                        //we already have its results, but we should look in the received one if it is in fact better than the one before
                         Individual rec = receivedMessage.getIndividual();
                         if (rec.isFeasible() && rec.getObjectives().size() != environment.getInputDocument().getObjectives().size()) {//is feasible and has all of its objective
                             //it does not matter if the old one was also feasible we just copy the results either way
@@ -235,19 +224,19 @@ public class ServerSimulator extends SimulatorWrapper {
         }
 
         //compute the average
-        //since the same solution exists  nrOfBenchmarks times in the sent messages list we have to divide by nr of benchmarks only once
+        //since the same solution exists  nrOfBenchmarks times in the messages sent list we have to divide by nr of benchmarks only once,
         //so we first build a set of all the solutions (no duplicates)
         Set<Solution> solutions = new HashSet<>();
         for (Message localkeptMessage : cleanMessages) {
             boolean infeasible = false;
-            //FAILSAFE test individual for corectness - test if ind has the correct number of objectives
+            //FAILSAFE test individual for correctness - test if ind has the correct number of objectives
             try {
                 if (localkeptMessage.getIndividual().getObjectives().size() != environment.getInputDocument().getObjectives().size()) {
                     localkeptMessage.getIndividual().markAsInfeasibleAndSetBadValuesForObjectives("Wrong number of objectives [1]");
                     Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "individual has not all the objectives filled[1]");
                     infeasible = true;
                 }
-                //FAILSAFE test individual for corectness - test if objectives are not 0
+                //FAILSAFE test individual for correctness - test if objectives are not 0
                 for (Objective o : localkeptMessage.getIndividual().getObjectives()) {
                     if (o.getValue() == 0) {
                         Logger.getLogger(ServerSimulator.class.getName()).log(Level.SEVERE, "individual has objectives set to 0 - marking him as infeasible[2]");
@@ -270,7 +259,7 @@ public class ServerSimulator extends SimulatorWrapper {
                     ConstraintHandling.overallConstraintViolationDegree(localKeptSolution, (Integer.MAX_VALUE)); //TODO think of a value to put here
                 }
                 solutions.add(localKeptSolution);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
 
         }
@@ -281,7 +270,7 @@ public class ServerSimulator extends SimulatorWrapper {
                 value = value / environment.getInputDocument().getBenchmarks().size();//compute the average
                 s.objectives()[i] = ((Double[])s.attributes().get("tempSum"))[i] / environment.getInputDocument().getBenchmarks().size();
                 System.out.println(((String[])s.attributes().get("sum"))[i] + "/" + environment.getInputDocument().getBenchmarks().size() + " = " + ((Double[])s.attributes().get("tempSum"))[i] / environment.getInputDocument().getBenchmarks().size() + "=" + value);
-                //cleaning up the solution - has to be done for algorithms that reuse the same object like PSO algorithms
+                //cleaning up the solution - has to be done for algorithms that reuse the same object as PSO algorithms
                 String[] sum = ((String[])s.attributes().get("sum"));
                 sum[i] = null;
                 s.attributes().put("sum", sum);
@@ -316,7 +305,7 @@ public class ServerSimulator extends SimulatorWrapper {
         long startTime = System.currentTimeMillis();
         while (simulationStatus.getNumberOfActiveSimulations() > 0) {
             int maxTime = Integer.parseInt(environment.getInputDocument().getSimulatorParameter("maximumTimeOfASimulation"));
-            if (System.currentTimeMillis() - startTime > 1000 * 60 * maxTime * 2) {//we have been waiting for too long something might have happened in detectAndRescheduleCrashedClients
+            if (System.currentTimeMillis() - startTime > 1000L * 60 * maxTime * 2) {//we have been waiting for too long something might have happened in detectAndRescheduleCrashedClients
                 //just make them all infeasible and move on with our life
                 for (String messageId : simulationStatus.getActiveSimulationsIds()) {
                     Simulation s = simulationStatus.getSimulation(messageId);
@@ -328,11 +317,11 @@ public class ServerSimulator extends SimulatorWrapper {
             try {
                 Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, "Still waiting for " + simulationStatus.getActiveSimulations() + " results");
                 try {
-                    String currentdir = System.getProperty("user.dir");
-                    File dir = new File(currentdir);
-                    Wini ini = new Wini(new File(dir + System.getProperty("file.separator") + "configs" + System.getProperty("file.separator") + "fadseConfig.ini"));
+                    String currentDir = System.getProperty("user.dir");
+                    File dir = new File(currentDir);
+                    Wini ini = new Wini(new File(dir + FileSystems.getDefault().getSeparator() + "configs" + FileSystems.getDefault().getSeparator() + "fadseConfig.ini"));
                     int time = ini.get("RedistributeCheck", "timeSeconds", int.class);
-                    Thread.sleep(time * 1000);
+                    Thread.sleep(time * 1000L);
                 } catch (IOException ex) {
                     //the time could not be read from the config file switching to the default value
                     Thread.sleep(2000);
@@ -353,7 +342,7 @@ public class ServerSimulator extends SimulatorWrapper {
 //            Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, "handling messageID " + messageId + "...");
             Simulation s = simulationStatus.getSimulation(messageId);
             int maxTime = Integer.parseInt(environment.getInputDocument().getSimulatorParameter("maximumTimeOfASimulation"));
-            if (s != null && System.currentTimeMillis() - s.getSimulationStartedTime().getTime() > 1000 * 60 * maxTime) {
+            if (s != null && System.currentTimeMillis() - s.getSimulationStartedTime().getTime() > 1000L * 60 * maxTime) {
                 //maximum allocated time has passed - check how many retries and mark ind as infeasible if number of retries exceeded
                 //avoid deadlock if all the clients are simulating indefinitely
                 Logger.getLogger(ServerSimulator.class.getName()).log(Level.INFO, "Retries for this message: " + s.getRetries());
@@ -364,9 +353,9 @@ public class ServerSimulator extends SimulatorWrapper {
                 } else {
                     //resend it to another client for simulation
                     s.increaseRetries();
-                    s.getMessage().getIndividual().markAsInfeasibleAndSetBadValuesForObjectives("retring individual. It will be set as feasible again. But we set the objectives to bad values just in case");//set the objectives to bad values just in case
+                    s.getMessage().getIndividual().markAsInfeasibleAndSetBadValuesForObjectives("retrying individual. It will be set as feasible again. But we set the objectives to bad values just in case");//set the objectives to bad values just in case
                     s.getMessage().getIndividual().setFeasible(true);
-                    //remove the messsage that we are curently not waiting for from the waiting list
+                    //remove the message that we are currently not waiting for from the waiting list
                     //simulationStatus.removeSimulationsOnClient(s.getNeighbor());//TODO test
                     s.setSimulationStartedTime(new Timestamp(System.currentTimeMillis()));
                     simulationStatus.removeSimulationsOnClient(s.getNeighbor());
@@ -393,24 +382,24 @@ public class ServerSimulator extends SimulatorWrapper {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void dumpCurrentPopulation(SolutionSet population) {        
+    public void dumpCurrentPopulation(List<DoubleSolution> population) {
         dumpCurrentPopulation("filled" + System.currentTimeMillis(), population);
     }
 
-    public void dumpCurrentPopulation(String filename, SolutionSet population) {
-        String result = (new Utils()).generateCSVHeadder(simulationStatus.getEnvironment());
+    public void dumpCurrentPopulation(String filename, List<DoubleSolution> population) {
+        String result = (new Utils()).generateCSVHeader(simulationStatus.getEnvironment());
         result += (new Utils()).generateCSV(population);
         
         System.out.println("Result of the population (" + filename + "):\n" + result);
         
         try {
             (new File(environment.getResultsFolder())).mkdirs();
-            BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolder() + System.getProperty("file.separator") + filename + ".csv"));
+            BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolder() + FileSystems.getDefault().getSeparator() + filename + ".csv"));
             out.write(result);
             out.close();
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            e.printStackTrace();
+            e. fillInStackTrace();
         }
     }
 

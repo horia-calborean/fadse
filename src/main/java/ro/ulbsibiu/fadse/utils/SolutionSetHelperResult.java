@@ -7,7 +7,6 @@ package ro.ulbsibiu.fadse.utils;
 import java.util.List;
 
 import ro.ulbsibiu.fadse.environment.Environment;
-import jmetal.base.SolutionSet;
 
 /**
  *

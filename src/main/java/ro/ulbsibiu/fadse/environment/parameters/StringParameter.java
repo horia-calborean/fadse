@@ -1,6 +1,7 @@
 package ro.ulbsibiu.fadse.environment.parameters;
 
-import jmetal.util.PseudoRandom;
+import org.uma.jmetal.util.pseudorandom.JMetalRandom;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,12 +15,13 @@ public class StringParameter extends Parameter {
 
     public StringParameter(String name, String type, String description) {
         super(name, type, description);
-        init(new LinkedList<String>(), Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+        init(new LinkedList<>(), Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
     }
 
     public StringParameter(List<String> values, String name, String type, String description, int lower, int upper) {
         super(name, type, description);
-        init(values, lower, upper, PseudoRandom.randInt(lower, upper));
+        JMetalRandom random = JMetalRandom.getInstance();
+        init(values, lower, upper, random.nextInt(lower, upper));
     }
 
     public StringParameter(List<String> values, String name, String type, String description, int lower, int upper, int value) {
@@ -74,7 +76,7 @@ public class StringParameter extends Parameter {
     public void setUpperBound(double upperBound) { this.upperBound = (int)upperBound; }
 
     @Override
-    public String toString() { return "" + values.get(this.value) + ""; }
+    public String toString() { return values.get(this.value); }
 
     @Override
     public List<String> getValues() {

@@ -1,36 +1,3 @@
-/*
- * This file is part of the FADSE tool.
- * 
- *   Authors: Horia Andrei Calborean {horia.calborean at ulbsibiu.ro}
- *   Copyright (c) 2009-2011
- *   All rights reserved.
- * 
- *   Redistribution and use in source and binary forms, with or without modification,
- *   are permitted provided that the following conditions are met:
- * 
- *   * Redistributions of source code must retain the above copyright notice,
- *      this list of conditions and the following disclaimer.
- * 
- *   * Redistributions in binary form must reproduce the above copyright notice,
- *      this list of conditions and the following disclaimer in the documentation
- *      and/or other materials provided with the distribution.
- * 
- *   The names of its contributors NOT may be used to endorse or promote products
- *   derived from this software without specific prior written permission.
- * 
- *   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- *   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- *   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- *   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- *   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- *   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- *   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- *   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- *   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *   OF THE POSSIBILITY OF SUCH DAMAGE.
-
- */
 package ro.ulbsibiu.fadse.extended.base.relation;
 
 import java.io.Serializable;
@@ -39,36 +6,16 @@ import java.util.List;
 
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 import ro.ulbsibiu.fadse.environment.rule.Rule;
-import jmetal.base.Problem;
-import jmetal.base.Solution;
-import jmetal.base.Variable;
-import jmetal.base.variable.Int;
-import jmetal.problems.ProblemFactory;
-import jmetal.util.JMException;
+import org.uma.jmetal.solution.Solution;
 
-/**
- *
- * @author Horia Calborean
- */
 public class RelationTree implements Serializable {
-
-    private List<RelationNode> roots;
+    private final List<RelationNode> roots;
 
     public RelationTree() {
-
-        roots = new LinkedList<RelationNode>();
+        roots = new LinkedList<>();
     }
 
     public void buildTree(List<Rule> relations, Parameter[] parameter) {
-//        for(Rule r: relations){
-//            IfRule rule = (IfRule) r;
-//            Rule ifExpr =rule.getIfExpresion();
-//            if(ifExpr instanceof AndRule || ifExpr instanceof IfRule){
-//                throw new UnsupportedOperationException("Relation: IF can not contain an AND or an IF");
-//            } else {
-//
-//            }
-//        }
     }
 
     public void addRootNode(int position) {
@@ -80,7 +27,7 @@ public class RelationTree implements Serializable {
             addRootNode(childPosition);
         } else {
             for (RelationNode currentRoot : roots) {
-                RelationNode parent = null;
+                RelationNode parent;
                 if (currentRoot.getPosition() == parentPosition) {
                     parent = currentRoot;
                 } else {
@@ -99,7 +46,7 @@ public class RelationTree implements Serializable {
                     if (!foundSameChild) {
                         RelationNode child = new RelationNode(childPosition);
                         child.setParent(parent);
-                        List<Double> deactivationValues = new LinkedList<Double>();
+                        List<Double> deactivationValues = new LinkedList<>();
                         deactivationValues.add(deactivationValue);
                         parent.addChild(deactivationValues, child);
                     }
@@ -127,7 +74,7 @@ public class RelationTree implements Serializable {
     }
 
     public List<RelationNode> findAllSubNodes(RelationNode root) {
-        List<RelationNode> children = new LinkedList<RelationNode>();
+        List<RelationNode> children = new LinkedList<>();
         List<Child> subNodes = root.getChildren();
         if (subNodes != null) {
             for (Child c : subNodes) {
@@ -138,20 +85,19 @@ public class RelationTree implements Serializable {
         return children;
     }
 
-    public List<RelationNode> findAllActiveSubNodes(RelationNode root, Variable[] vars) throws JMException {
-        List<RelationNode> children = new LinkedList<RelationNode>();
+    public List<RelationNode> findAllActiveSubNodes(RelationNode root, List<?> vars) {
+        List<RelationNode> children = new LinkedList<>();
         List<Child> subNodes = root.getChildren();
         if (subNodes != null) {
             for (Child c : subNodes) {
                 boolean valid = true;
-                for (double deact : c.getDeactivationValues()) {
-                    double parent_value = vars[c.getChild().getParent().getPosition()].getValue();
+                for (double deactivate : c.getDeactivationValues()) {
+                    double parent_value = (double) vars.get(c.getChild().getParent().getPosition());
 
-                    // System.out.println("deact:" + deact);
-                    // System.out.println("child value: " + parent_value);
-                    
-                    if (deact == parent_value) {//we have found a value for which this should be deactivated
+
+                    if (deactivate == parent_value) {//we have found a value for which this should be deactivated
                         valid = false;
+                        break;
                     }
                 }
                 if (valid) {
@@ -164,32 +110,33 @@ public class RelationTree implements Serializable {
         return children;
     }
 
-    public int[] getActiveNodes(Solution s) throws JMException {
-        Variable[] vars = s.getDecisionVariables();
-        int[] activeNodes = new int[vars.length];
-        for(int i = 0; i < vars.length; i++) activeNodes[i] = 0;
+    public <S extends Solution<?>> int[] getActiveNodes(S s) {
+        List<?> vars = s.variables();
+
+        int[] activeNodes = new int[vars.size()];
+        for(int i = 0; i < vars.size(); i++) activeNodes[i] = 0;
 
         //todo sort tree??? is it necessary?
-        for (RelationNode r : roots) {//mark all the root nodes as active : they need to be present - if they are invalid they incvalidate only their children not themseves
+        for (RelationNode r : roots) {//mark all the root nodes as active : they need to be present - if they are invalid they invalidate only their children not themselves
             // System.out.println("Marking as active ROOT NODE: " + r.getPosition());
             activeNodes[r.getPosition()] = 1;
             List<RelationNode> activeChildren = findAllActiveSubNodes(r, vars);
             for (RelationNode ac : activeChildren) {
-                // System.out.println("Marking as active ACTIVE CHILDREN: " + ac.getPosition());
+                // System.out.println("Marking as active CHILDREN: " + ac.getPosition());
                 activeNodes[ac.getPosition()] = 1;
             }
         }
         return activeNodes;
     }
 
-    public int getNumberOfActiveNodes(Solution s) throws JMException {
-        Variable[] vars = s.getDecisionVariables();
+    public <S extends Solution<?>> int getNumberOfActiveNodes(S s) {
+        List<?> vars = s.variables();
         int activeNodes = 0;
 
         //todo sort tree??? is it necessary?
-        for (RelationNode r : roots) {//mark all the root nodes as active : they need to be present - if they are invalid they incvalidate only their children not themseves
+        for (RelationNode r : roots) {//mark all the root nodes as active : they need to be present - if they are invalid they invalidate only their children not themselves
             activeNodes += 1;
-            List<RelationNode> activeChildren = findAllActiveSubNodes(r, vars);
+            List<RelationNode> activeChildren = findAllActiveSubNodes(r, null);
             activeNodes += activeChildren.size();
         }
         return activeNodes;
@@ -202,7 +149,7 @@ public class RelationTree implements Serializable {
                 node = child.getChild();
 //                System.out.println("FOUND");
                 break;
-            } else if (child.getChild().getChildren() != null && child.getChild().getChildren().size() > 0) {
+            } else if (child.getChild().getChildren() != null && !child.getChild().getChildren().isEmpty()) {
                 node = findChildNode(child.getChild(), position);
             }
             if (node != null) {
@@ -232,18 +179,18 @@ public class RelationTree implements Serializable {
         roots.set(roots.indexOf(originalParent), replacement);
     }
 
-    public void insertVariableInTree(int position, Variable var) {
+    public void insertVariableInTree(int position, Object var) {
         RelationNode node = findNode(position);
         node.setVariable(var);
     }
 
-    public double[] getAllVariablesSortedByPosition(int numberOfVariables) throws JMException {
+    public double[] getAllVariablesSortedByPosition(int numberOfVariables) {
         double[] vars = new double[numberOfVariables];
         for (RelationNode root : roots) {
-            vars[root.getPosition()] = root.getVariable().getValue();
+            vars[root.getPosition()] = (double) root.getVariable();
             List<RelationNode> allChildren = findAllSubNodes(root);
             for (RelationNode c : allChildren) {
-                vars[c.getPosition()] = c.getVariable().getValue();
+                vars[c.getPosition()] = (double) c.getVariable();
             }
         }
         return vars;
@@ -253,9 +200,9 @@ public class RelationTree implements Serializable {
 
     @Override
     public String toString() {
-        String output = "";
+        StringBuilder output = new StringBuilder();
         for (RelationNode r : this.roots) {
-            output += (r.toString() + " \n");
+            output.append(r.toString()).append(" \n");
         }
         return "RelationTree{" + output + '}';
     }
@@ -264,40 +211,7 @@ public class RelationTree implements Serializable {
         RelationTreePrinter.print(roots);
     }
 
-    public static void main(String[] args) throws JMException, ClassNotFoundException {
-        //some objects the algorithm will give me
-        RelationTree relationTree = new RelationTree();
-        Variable[] variables = new Variable[10];
-        Object[] problemParams = {"Real"};
-        Problem problem = (new ProblemFactory()).getProblem("ZDT1", problemParams);
-        Solution s = new Solution(problem, variables);
-        for (int i = 0; i < 10; i++) {
-            Variable v = new Int(0, 0, 12);
-            variables[i] = v;
-        }
-        //end
-
-        relationTree.addRootNode(0);
-        relationTree.addRootNode(1);
-        relationTree.addRootNode(2);
-        relationTree.addRootNode(7);
-        relationTree.addRootNode(9);
-        relationTree.addNode(3, 1, 1);
-        relationTree.addNode(4, 1, 1);
-        relationTree.addNode(4, 1, 133);
-        relationTree.addNode(5, 4, 0);
-        relationTree.addNode(6, 4, 1);
-        relationTree.addNode(8, 7, 0);
-        for (RelationNode r : relationTree.roots) {
-            System.out.println(r.toString());
-        }
-        int[] active = relationTree.getActiveNodes(s);
-
-        int active2 = relationTree.getNumberOfActiveNodes(s);
-        for (int i = 0; i < active.length; i++) {
-            System.out.println((i + 1) + ":" + active[i] + " " + active2);
-        }
-        relationTree.printToScreen();
-
+    public static void main(String[] args)  {
+        // TODO - I have removed the code from this main method
     }
 }

@@ -38,7 +38,7 @@ import ro.ulbsibiu.fadse.environment.document.InputDocument;
 import ro.ulbsibiu.fadse.environment.parameters.IntegerParameter;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 import ro.ulbsibiu.fadse.io.XMLInputReader;
-import jmetal.base.variable.Int;
+
 
 /**
  *

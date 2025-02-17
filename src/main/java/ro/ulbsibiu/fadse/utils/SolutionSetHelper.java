@@ -16,11 +16,6 @@ import java.util.StringTokenizer;
 
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.extended.qualityIndicator.MetricsUtil;
-import jmetal.base.Problem;
-import jmetal.base.Solution;
-import jmetal.base.SolutionSet;
-import jmetal.problems.ProblemFactory;
-import jmetal.util.JMException;
 
 /**
  *
@@ -85,7 +80,7 @@ public class SolutionSetHelper {
     }
 
     public static void DumpPopulationToFile(String folderName, String fileName, SolutionSet ss, Environment env) {
-        String result = (new Utils()).generateCSVHeadder(env);
+        String result = (new Utils()).generateCSVHeader(env);
         result += (new Utils()).generateCSV(ss);
         try {
             (new File(folderName)).mkdirs();

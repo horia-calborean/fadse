@@ -1,6 +1,6 @@
 package ro.ulbsibiu.fadse.environment.parameters;
 
-import jmetal.util.PseudoRandom;
+import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
 public class Exp2Parameter extends Parameter {
 
@@ -11,12 +11,14 @@ public class Exp2Parameter extends Parameter {
 
     public Exp2Parameter(String name, String type, String description) {
         super(name, type, description);
-        init(1, 6, PseudoRandom.randInt(1, 6));
+        JMetalRandom random = JMetalRandom.getInstance();
+        init(1, 6, random.nextInt(1, 6));
     }
 
     public Exp2Parameter(String name, String type, String description, int lower, int upper) {
         super(name, type, description);
-        init(lower, upper, PseudoRandom.randInt(lower, upper));
+        JMetalRandom random = JMetalRandom.getInstance();
+        init(lower, upper, random.nextInt(lower, upper));
     }
 
     public Exp2Parameter(String name, String type, String description, int lower, int upper, int value) {
@@ -57,7 +59,7 @@ public class Exp2Parameter extends Parameter {
     public void setUpperBound(double upperBound) { this.upperBound = (int)upperBound; }
 
     @Override
-    public String toString() { return "" + value + ""; }
+    public String toString() { return "" + value; }
 
     /**
      * Calculate base 2 logarithm

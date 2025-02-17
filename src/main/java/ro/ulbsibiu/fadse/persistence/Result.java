@@ -11,27 +11,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.uma.jmetal.solution.Solution;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.environment.document.InputDocument;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
-import jmetal.base.Solution;
-import jmetal.base.Variable;
-import jmetal.util.JMException;
 
-/**
- *
- * @author Andrei
- */
 public class Result {
 
-    /**
-     * TODO do something about the synchronized. Is it really necessary? Save a
-     * result in the database
-     *
-     * @param simulator
-     * @param ind
-     */
     public synchronized static void insertResult(InputDocument doc, Individual ind, String fileContents) {
 //        System.out.println("************************ PERSISTENCE: insertResult");
 
@@ -68,7 +55,7 @@ public class Result {
                 DatabaseConnector.getInstance().executeUpdate(sql_statement);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            e.fillInStackTrace();
         } finally {
             try {
                 // Disconnect
@@ -82,66 +69,61 @@ public class Result {
     /**
      * Formats parameters of an individual as a String
      */
-    public static String createParameterString(Individual ind) throws JMException {
+    // TODO - Andrei has commented out the code of the method
+    public static String createParameterString(Individual ind) {
 
-        // Create solution-object
-        Solution solution = new Solution();
-        Variable[] vars = new Variable[ind.getParameters().length];
-        for (int i = 0; i < ind.getParameters().length; i++) {
-            //vars[i] = ind.getParameters()[i].getVariable();
-        }
-        solution.setDecisionVariables(vars);
-
-        // ind.getEnvironment().getInputDocument().getRelationTree1().printToScreen();
-
-        int[] activeParams;
-        try {
-            activeParams = ind.getEnvironment().getInputDocument().getRelationTree1().getActiveNodes(solution);
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            System.err.println("there is a problem in the relation tree (active/innactive parameters). If you are not using this ignore this message");
-            activeParams = new int[ind.getParameters().length];
-            for (int i = 0; i < ind.getParameters().length; i++) {
-                activeParams[i] = 1;
-            }
-        }
-
-        // List for all parameters
-        List<String> paralist = new ArrayList<String>();
-
-        // Add benchmark as parameter
-        paralist.add("benchmark=" + ind.getBenchmark());
-
-        // Add all parameters
-        for (int i = 0; i < ind.getParameters().length; i++) {
-            Parameter p = ind.getParameters()[i];
-            if (activeParams[i] == 1) {
-                paralist.add(p.getName() + "=" + p.getValue());
-            } else {
-                paralist.add(p.getName() + "=N/A");
-            }
-        }
-
-        // Sort the parameter list and create string from it
-        Collections.sort(paralist);
-        String paramString = "";
-        String pre = "";
-        for (String item : paralist) {
-            paramString += pre + item;
-            pre = "|";
-        }
-
-        return paramString;
+        return "";
+//        // Create solution-object
+//        Solution solution = new Solution();
+//        //Variable[] vars = new Variable[ind.getParameters().length];
+//        for (int i = 0; i < ind.getParameters().length; i++) {
+//            //vars[i] = ind.getParameters()[i].getVariable();
+//        }
+//        //solution.setDecisionVariables(vars);
+//
+//        // ind.getEnvironment().getInputDocument().getRelationTree1().printToScreen();
+//
+//        int[] activeParams;
+//        try {
+//            activeParams = ind.getEnvironment().getInputDocument().getRelationTree1().getActiveNodes(solution);
+//        } catch (ArrayIndexOutOfBoundsException ex) {
+//            System.err.println("there is a problem in the relation tree (active/innactive parameters). If you are not using this ignore this message");
+//            activeParams = new int[ind.getParameters().length];
+//            for (int i = 0; i < ind.getParameters().length; i++) {
+//                activeParams[i] = 1;
+//            }
+//        }
+//
+//        // List for all parameters
+//        List<String> paralist = new ArrayList<>();
+//
+//        // Add benchmark as parameter
+//        paralist.add("benchmark=" + ind.getBenchmark());
+//
+//        // Add all parameters
+//        for (int i = 0; i < ind.getParameters().length; i++) {
+//            Parameter p = ind.getParameters()[i];
+//            if (activeParams[i] == 1) {
+//                paralist.add(p.getName() + "=" + p.getValue());
+//            } else {
+//                paralist.add(p.getName() + "=N/A");
+//            }
+//        }
+//
+//        // Sort the parameter list and create string from it
+//        Collections.sort(paralist);
+//        StringBuilder paramString = new StringBuilder();
+//        String pre = "";
+//        for (String item : paralist) {
+//            paramString.append(pre).append(item);
+//            pre = "|";
+//        }
+//
+//        return paramString.toString();
     }
 
-    /**
-     * TODO do something about the synchronized. Is it really necessary? Gets a
-     * list of objectives for a specific simulation.
-     *
-     * @param simulator
-     * @param ind
-     * @return the array with found objectives. Empty if none
-     */
-    public synchronized static LinkedList<Objective> getObjectives(InputDocument doc, Individual ind) throws JMException {
+
+    public synchronized static LinkedList<Objective> getObjectives(InputDocument doc, Individual ind) {
 //        System.out.println("************************ PERSISTENCE: getObjectives");
         LinkedList<Objective> objectives = new LinkedList<Objective>();
         List<Objective> indObjectives = ind.getObjectives();
@@ -191,14 +173,6 @@ public class Result {
         return objectives;
     }
 
-    /**
-     * TODO do something about the synchronized. Is it really necessary? Gets
-     * the output file saved for a specific simulation
-     *
-     * @param simulator
-     * @param ind
-     * @return the array with found objectives. Empty if none
-     */
     public synchronized static String getTextResuls(InputDocument doc, Individual ind) {
 //        System.out.println("************************ PERSISTENCE: getTextResuls");
         String fileTextContent = null;

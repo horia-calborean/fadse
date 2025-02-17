@@ -1,30 +1,20 @@
 package ro.ulbsibiu.fadse.utils;
 
-//
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.errorchecking.JMetalException;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.Objective;
 import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 import ro.ulbsibiu.fadse.environment.parameters.VirtualParameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.Message;
 import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status.SimulationStatus;
-import jmetal.base.Solution;
-import jmetal.base.SolutionSet;
-import jmetal.base.Variable;
-import jmetal.util.JMException;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Utils {
-
     private Random r;
 
     public Random getRandom() {
@@ -34,64 +24,67 @@ public class Utils {
         return r;
     }
 
-    public String generateCSV(SolutionSet s) {
-        String csvOutput = "";
-        for (int i = 0; i < s.size(); i++) {
-            String csvLine = "";
-            Solution solution = s.get(i);
-            for (Variable v : solution.getDecisionVariables()) {
+    public <S extends Solution<?>> String generateCSV(List<S> population) {
+        StringBuilder csvOutput = new StringBuilder();
+
+        for (S individual : population) {
+            StringBuilder csvLine = new StringBuilder();
+            List<?> individualVariables = individual.variables();
+
+            for (Object variable : individualVariables) {
                 try {
-                    csvLine += v.getValue() + ",";
-                } catch (JMException ex) {
+                    csvLine.append(variable).append(",");
+                } catch (JMetalException ex) {
                     Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-                    csvLine += "unknown" + ",";
+                    csvLine.append("unknown" + ",");
                 }
             }
-            for (int j = 0; j < solution.numberOfObjectives(); j++) {
-                double objVal = solution.getObjective(j);
-                csvLine += Double.toString(objVal) + ",";
+
+            int numberOfObjectives = individual.objectives().length;
+
+            for (int objectiveIndex = 0; objectiveIndex < numberOfObjectives; objectiveIndex++) {
+                double objVal = individual.objectives()[objectiveIndex];
+                csvLine.append(objVal).append(",");
             }
-            csvLine = csvLine.substring(0, csvLine.length() - 1);
-            csvLine += System.getProperty("line.separator");
-            csvOutput += csvLine;
+
+            csvLine = new StringBuilder(csvLine.substring(0, csvLine.length() - 1));
+            csvLine.append(System.lineSeparator());
+            csvOutput.append(csvLine);
         }
-        return csvOutput;
+        return csvOutput.toString();
     }
 
-    public String generateCSVHeadder(Environment environment) {
-        String headder = "";
+    public String generateCSVHeader(Environment environment) {
+        StringBuilder header = new StringBuilder();
         for (Parameter p : environment.getInputDocument().getParameters()) {
-            headder += p.getName() + ",";
+            header.append(p.getName()).append(",");
         }
         for (Objective o : environment.getInputDocument().getObjectives().values()) {
-            headder += o.getName() + ",";
+            header.append(o.getName()).append(",");
         }
-        headder = headder.substring(0, headder.length() - 1);
-        headder += System.getProperty("line.separator");
-        return headder;
+        header = new StringBuilder(header.substring(0, header.length() - 1));
+        header.append(System.lineSeparator());
+        return header.toString();
     }
 
-    /**
-     *
-     * @param simulationStatus
-     * @return a new SolutionSet containing solutions with filled objectives
-     */
-    public SolutionSet insertObjectivesValuesIntoSolutions(SimulationStatus simulationStatus) {
-        //extract all the solutions from the simualtion status and build new objects so we will work on local data
+    public <S extends Solution<?>> List<S> insertObjectivesValuesIntoSolutions(SimulationStatus simulationStatus) {
+        // extract all the solutions from the simulation status and build new objects, so we will work on local data
         List<Message> filledMessages = simulationStatus.getReceiver().getResults();
-        SolutionSet solSet = new SolutionSet();
-        Map<String, Solution> solMap = new HashMap<String, Solution>();
+        List<S> population = new ArrayList<>();
+        Map<String, S> solMap = new HashMap<>();
+
         for (Message filledM : filledMessages) {
             for (Message sentM : simulationStatus.getSentMessages()) {
                 if (filledM.getMessageId().equals(sentM.getMessageId())) {
                     //obtain the solution of this individual
-                    Solution temp = simulationStatus.getSolution(sentM.getMessageId());
-                    Solution s = new Solution(temp);
-                    solSet.add(s);
+                    S temp = simulationStatus.getSolution(sentM.getMessageId());
+                    S s = (S) temp.copy();
+                    population.add(s);
                     solMap.put(sentM.getMessageId(), s);
                 }
             }
         }
+
         for (Message filledM : filledMessages) {
             for (Message sentM : simulationStatus.getSentMessages()) {
                 if (filledM.getMessageId().equals(sentM.getMessageId())) {
@@ -99,10 +92,10 @@ public class Utils {
                     int i = 0;
                     for (Objective o : objs) {
                         //obtain the solution of this individual
-                        Solution s = solMap.get(sentM.getMessageId());
-                        double value = s.getObjective(i);
+                        S s = solMap.get(sentM.getMessageId());
+                        double value = s.objectives()[i];
                         value = (o.getValue() + value);//Add all the values. later we will divide it by the number of benchmarks
-                        s.setObjective(i, value);
+                        s.objectives()[i] = value;
                         i++;
                     }
                 }
@@ -110,22 +103,22 @@ public class Utils {
         }
 
         //compute the average
-        //since the same solution exists  nrOfBenchmarks times in the sent messages list we have to divide by nr of benchmarks only once
-        //so we first build a set of all the solutions (no duplciates)
-        Set<Solution> solutions = new HashSet<Solution>();
+        //since the same solution exists  nrOfBenchmarks times in sent messages list we have to divide by nr of benchmarks only once,
+        //so we first build a set of all the solutions (no duplicates)
+        Set<S> solutions = new HashSet<>();
         for (Message sentM : simulationStatus.getSentMessages()) {
-            Solution s = solMap.get(sentM.getMessageId());
+            S s = solMap.get(sentM.getMessageId());
             solutions.add(s);
         }
-        for (Solution s : solutions) {
-            for (int i = 0; i < s.numberOfObjectives(); i++) {
-                double value = s.getObjective(i);
+        for (S s : solutions) {
+            for (int i = 0; i < s.objectives().length; i++) {
+                double value = s.objectives()[i];
                 value = value / simulationStatus.getEnvironment().getInputDocument().getBenchmarks().size();//compute the average
 //                System.out.println("FINAL for solution["+s.getDecisionVariables()+"] for objective["+i+"] = "+value);
-                s.setObjective(i, value);
+                s.objectives()[i] = value;
             }
         }
-        return solSet;
+        return population;
     }
 
     public static <T> T[] concat(T[] first, T[] second) {
@@ -157,14 +150,10 @@ public class Utils {
     public static Parameter[] getParameters(DoubleSolution solution, Environment environment) {
         List<Double> vars = solution.variables();
         Parameter[] params = environment.getInputDocument().getParameters();
-        /** for all variables... associate them with a parameter */
         for (int i = 0; i < vars.size(); i++) {
             try {
                 Parameter p = params[i];
                 Parameter parameter = (Parameter) p.clone();
-//                System.out.printf("param %s - variable %s\n", parameter.getName(), vars[i].getValue());
-                //parameter.setVariable(vars[i]);
-                //System.out.printf("%d - %d", vars[i].getValue(), parameter.getValue());
                 params[i] = parameter;
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, "cloning of the parameter was not supported", ex);
@@ -173,17 +162,13 @@ public class Utils {
         return params;
     }
 
-    public static Parameter[] getParametersAndVitualParameters(Solution solution, Environment environment) {
-        Variable[] vars = solution.getDecisionVariables();
+    public static <S extends Solution<?>> Parameter[] getParametersAndVirtualParameters(S solution, Environment environment) {
+        List<Object> vars = (List<Object>) solution.variables();
         Parameter[] params = new Parameter[environment.getInputDocument().getParameters().length+environment.getInputDocument().getVirtualParameters().length];
-        /** for all variables... associate them with a parameter */
-        for (int i = 0; i < vars.length; i++) {
+        for (int i = 0; i < vars.size(); i++) {
             try {
                 Parameter p = environment.getInputDocument().getParameters()[i];
                 Parameter parameter = (Parameter) p.clone();
-//                System.out.printf("param %s - variable %s\n", parameter.getName(), vars[i].getValue());
-                //parameter.setVariable(vars[i]);
-                //System.out.printf("%d - %d", vars[i].getValue(), parameter.getValue());
                 params[i] = parameter;
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, "cloning of the parameter was not supported", ex);
@@ -195,7 +180,7 @@ public class Utils {
                 for (Parameter param : environment.getInputDocument().getParameters()) {
                     try {
                         e.addVariable(param.getName(), new Double((Integer) param.getValue()));
-                    } catch (Exception ex) {}
+                    } catch (Exception ignored) {}
                 }
             }
             Parameter[] virtualParameters = environment.getInputDocument().getVirtualParameters();

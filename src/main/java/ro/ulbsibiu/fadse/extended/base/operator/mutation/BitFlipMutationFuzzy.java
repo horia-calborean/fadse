@@ -70,7 +70,7 @@ public class BitFlipMutationFuzzy extends Mutation {
      */
     public void doMutation(double probability, Solution solution, Environment env) throws JMException {
         try {
-            Parameter[] params = Utils.getParametersAndVitualParameters(solution, env);
+            Parameter[] params = Utils.getParametersAndVirtualParameters(solution, env);
             // Integer representation
             for (int i = 0; i < params.length; i++) {
                 //i have set the value, now I have to transform it

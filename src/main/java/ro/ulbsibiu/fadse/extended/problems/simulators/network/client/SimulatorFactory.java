@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package ro.ulbsibiu.fadse.extended.problems.simulators.network.client;
 
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
@@ -13,10 +8,6 @@ import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Horia Calborean
- */
 public class SimulatorFactory {
     private static SimulatorWrapper problem = null;
     public static SimulatorWrapper getSimulator(Environment env){
