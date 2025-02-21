@@ -2,6 +2,6 @@ package input.ports;
 
 import input.data.InputData;
 
-public interface InputPort {
+public interface InputDataPort {
     InputData getInputData();
 }
