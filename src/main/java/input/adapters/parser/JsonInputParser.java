@@ -1,4 +1,4 @@
-package input.adapters;
+package input.adapters.parser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import input.ports.InputParser;
@@ -7,10 +7,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.File;
 import java.io.IOException;
 
-public abstract class JsonParser  implements InputParser {
+public class JsonInputParser implements InputParser {
     private final JsonNode jsonDocument;
 
-    protected JsonParser(String jsonPath) {
+    public JsonInputParser(String jsonPath) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
