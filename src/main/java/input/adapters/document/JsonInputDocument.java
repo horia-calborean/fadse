@@ -1,22 +1,22 @@
-package input.adapters.parser;
+package input.adapters.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import input.ports.InputParser;
+import input.ports.document.InputDocument;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.File;
 import java.io.IOException;
 
-public class JsonInputParser implements InputParser {
+public class JsonInputDocument implements InputDocument {
     private final JsonNode jsonDocument;
 
-    public JsonInputParser(String jsonPath) {
+    public JsonInputDocument(String jsonPath) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
             jsonDocument = objectMapper.readTree(new File(jsonPath));
         } catch (IOException e) {
-            throw new RuntimeException("Eroare la citirea JSON-ului", e);
+            throw new RuntimeException("Error while loading json file", e);
         }
     }
 

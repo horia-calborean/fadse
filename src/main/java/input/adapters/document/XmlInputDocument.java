@@ -1,6 +1,6 @@
-package input.adapters.parser;
+package input.adapters.document;
 
-import input.ports.InputParser;
+import input.ports.document.InputDocument;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -10,10 +10,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 
-public class XmlInputParser implements InputParser {
+public class XmlInputDocument implements InputDocument {
     protected final Document xmlDocument;
 
-    public XmlInputParser(String xmlPath) {
+    public XmlInputDocument(String xmlPath) {
         DocumentBuilder documentBuilder;
 
         try {
