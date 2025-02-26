@@ -27,6 +27,7 @@
          <item name="default-mibench-tele-adpcm-file-decode" /> -->
     </benchmarks>
     <database ip="5.122.109.113" port="3306" name="fadse" user="root" password="fadse"/>
+    <clients fileName = "simpleNeighborConfig.xml" />
     <metaheuristic name="CNSGAII" config_path="cnsgaii.properties" />
     <parameters>
         <parameter name="n_lines" description="param1" type="integer" min="4" max="32"/>
@@ -42,9 +43,5 @@
         <system_metric name="Hardware complexity" type="float" unit="" desired="small"/>
         <system_metric name="Clocks per instruction CPI" type="float" unit="" desired="small" />
     </system_metrics>
-    <rules>
-    </rules>
-    <relations>
-    </relations>
     <output output_path= "D:\PhD\Development\FADSE_getting_started\fadse_output\" />
 </design_space>

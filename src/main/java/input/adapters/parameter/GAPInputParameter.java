@@ -4,7 +4,12 @@ import input.ports.parameter.InputParameter;
 
 public enum GAPInputParameter implements InputParameter {
     METAHEURISTIC("metaheuristic"),
-    BENCHMARKS("benchmarks");
+    BENCHMARKS("benchmarks"),
+    DATABASE("database"),
+    TYPE("type"),
+    NAME("name"),
+    SIMULATION_PARAMETERS("simulation_parameters"),
+    OUTPUT_PATH("output_path");
 
     private final String name;
 

@@ -6,9 +6,8 @@ import input.adapters.document.JsonInputDocument;
 import input.adapters.document.XmlInputDocument;
 import input.adapters.parameter.GAPInputParameter;
 import input.model.InputData;
-import input.ports.extractor.BenchmarkExtractor;
+import input.ports.extractor.*;
 import input.ports.document.InputDocument;
-import input.ports.extractor.MetaheuristicExtractor;
 import input.ports.collector.MicroArchInputCollector;
 
 import java.util.List;
@@ -40,6 +39,21 @@ public class GAPInputCollector extends MicroArchInputCollector {
         List<String> benchmarkData = getBenchmarkList();
         inputData.set(GAPInputParameter.BENCHMARKS, benchmarkData);
 
+        Map<String, String> dbConnectionData = getDbConnectionData();
+        inputData.set(GAPInputParameter.DATABASE, dbConnectionData);
+
+        String type = getType();
+        inputData.set(GAPInputParameter.TYPE, type);
+
+        String name = getName();
+        inputData.set(GAPInputParameter.NAME, name);
+
+        Map<String, String> simulationParameters = getSimulationParameters();
+        inputData.set(GAPInputParameter.SIMULATION_PARAMETERS, simulationParameters);
+
+        String outputPath = getOutputPath();
+        inputData.set(GAPInputParameter.OUTPUT_PATH, outputPath);
+
         return inputData;
     }
 
@@ -49,5 +63,29 @@ public class GAPInputCollector extends MicroArchInputCollector {
 
     protected List<String> getBenchmarkList() {
         return ((BenchmarkExtractor) dataExtractor).parseBenchmarksList();
+    }
+
+    protected Map<String, String> getDbConnectionData() {
+        return ((DatabaseExtractor) dataExtractor).parseDbConnectionData();
+    }
+
+    protected String getType() {
+        return ((TypeExtractor) dataExtractor).extractType();
+    }
+
+    protected String getName() {
+        return ((NameExtractor) dataExtractor).extractName();
+    }
+
+    protected Map<String, String> getSimulationParameters() {
+        return ((SimulationParametersExtractor) dataExtractor).extractParameters();
+    }
+
+    protected String getOutputPath() {
+        return ((OutputPathExtractor) dataExtractor).extractOutputPath();
+    }
+
+    protected String getClientsFileName() {
+        return ((ClientsExtractor) dataExtractor).extractClientsFilePath();
     }
 }
