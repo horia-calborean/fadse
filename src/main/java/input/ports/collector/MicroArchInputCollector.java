@@ -9,7 +9,7 @@ public abstract class MicroArchInputCollector {
     protected final Object dataExtractor;
 
     public MicroArchInputCollector(String filePath) {
-        inputDocument = InputDocumentFactory.createParser(filePath);
+        inputDocument = InputDocumentFactory.createDocument(filePath);
         dataExtractor = createExtractor(inputDocument);
     }
 

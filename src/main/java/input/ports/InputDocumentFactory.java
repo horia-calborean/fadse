@@ -5,7 +5,7 @@ import input.adapters.document.XmlInputDocument;
 import input.ports.document.InputDocument;
 
 public class InputDocumentFactory {
-    public static InputDocument createParser(String filePath) {
+    public static InputDocument createDocument(String filePath) {
         if (filePath.endsWith(".xml")) {
             return new XmlInputDocument(filePath);
         } else if (filePath.endsWith(".json")) {
