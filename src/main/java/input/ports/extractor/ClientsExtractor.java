@@ -1,7 +1,9 @@
 package input.ports.extractor;
 
-import java.util.Map;
+import core.ports.simulationClient.SimulationClient;
+
+import java.util.List;
 
 public interface ClientsExtractor {
-    String extractClientsFilePath();
+    List<SimulationClient> extractClientsFilePath();
 }
