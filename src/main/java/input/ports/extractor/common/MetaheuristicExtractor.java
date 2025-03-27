@@ -1,4 +1,4 @@
-package input.ports.extractor;
+package input.ports.extractor.common;
 
 import java.util.Map;
 

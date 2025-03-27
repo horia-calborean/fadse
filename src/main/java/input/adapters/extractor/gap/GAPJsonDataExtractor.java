@@ -2,8 +2,8 @@ package input.adapters.extractor.gap;
 
 import input.adapters.document.JsonInputDocument;
 import input.adapters.extractor.JsonDataExtractor;
-import input.ports.extractor.BenchmarkExtractor;
-import input.ports.extractor.MetaheuristicExtractor;
+import input.ports.extractor.common.BenchmarkExtractor;
+import input.ports.extractor.common.MetaheuristicExtractor;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +14,7 @@ public class GAPJsonDataExtractor extends JsonDataExtractor implements Metaheuri
     }
 
     @Override
-    public List<String> parseBenchmarksList() {
+    public List<String> extractBenchmarksList() {
         return null;
     }
 

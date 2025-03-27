@@ -1,7 +1,7 @@
 package input.ports.collector;
 
 import input.model.InputData;
-import input.ports.InputDocumentFactory;
+import input.adapters.document.InputDocumentFactory;
 import input.ports.document.InputDocument;
 
 public abstract class MicroArchInputCollector {

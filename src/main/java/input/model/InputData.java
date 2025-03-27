@@ -1,22 +1,22 @@
 package input.model;
 
-import input.ports.parameter.InputParameter;
+import input.ports.parameter.setup.SetupParameter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class InputData {
-    protected Map<InputParameter, Object> data;
+    protected Map<SetupParameter, Object> data;
 
     public InputData() {
         data = new HashMap<>();
     }
 
-    public void set(InputParameter name, Object value) {
+    public void set(SetupParameter name, Object value) {
         data.put(name, value);
     }
 
-    public Object get(InputParameter name) {
+    public Object get(SetupParameter name) {
         return data.get(name);
     }
 }

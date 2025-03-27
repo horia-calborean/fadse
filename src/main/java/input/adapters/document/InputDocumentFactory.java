@@ -1,7 +1,5 @@
-package input.ports;
+package input.adapters.document;
 
-import input.adapters.document.JsonInputDocument;
-import input.adapters.document.XmlInputDocument;
 import input.ports.document.InputDocument;
 
 public class InputDocumentFactory {

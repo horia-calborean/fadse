@@ -3,9 +3,18 @@ package input.adapters.extractor.gap;
 import core.model.paths.PathUtils;
 import input.adapters.document.XmlInputDocument;
 import input.adapters.extractor.XmlDataExtractor;
-import input.ports.extractor.*;
+import input.adapters.parameter.problem.gap.GapParameterFactory;
+import input.adapters.parameter.setup.GapSetupParameters;
+import input.model.NumberParser;
+import input.ports.extractor.common.BenchmarkExtractor;
+import input.ports.extractor.common.MetaheuristicExtractor;
+import input.ports.extractor.fadse.ClientsExtractor;
+import input.ports.extractor.fadse.DatabaseExtractor;
+import input.ports.extractor.gap.*;
+import input.ports.parameter.problem.ProblemParameter;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.nio.file.Paths;
@@ -14,14 +23,95 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class GAPXmlDataExtractor extends XmlDataExtractor implements MetaheuristicExtractor, BenchmarkExtractor, DatabaseExtractor, TypeExtractor, NameExtractor, SimulationParametersExtractor, OutputPathExtractor, ClientsExtractor {
+public class GAPXmlDataExtractor extends XmlDataExtractor implements MetaheuristicExtractor, BenchmarkExtractor, DatabaseExtractor, TypeExtractor, NameExtractor, GapConfigExtractor, OutputPathExtractor, ClientsExtractor, GapParametersExtractor {
     public GAPXmlDataExtractor(XmlInputDocument xmlDoc) {
         super(xmlDoc);
     }
 
     @Override
-    public List<String> parseBenchmarksList() {
-        NodeList benchmarksTag = xmlDocument.getElementsByTagName("benchmarks");
+    public Map<String, String> extractGapConfigParameters() {
+        String tagName = GapSetupParameters.GAP_CONFIG.getName();
+        NodeList simulatorTag = xmlDocument.getElementsByTagName(tagName);
+        NodeList simulatorParams = ((Element) simulatorTag.item(0)).getElementsByTagName("parameter");
+
+        Map<String, String> parameters = new HashMap<>();
+
+        for (int i = 0; i < simulatorParams.getLength(); i++) {
+            NamedNodeMap parameter = simulatorParams.item(i).getAttributes();
+            String name = parameter.getNamedItem("name").getNodeValue();
+            String value = parameter.getNamedItem("value").getNodeValue();
+
+            parameters.put(name, value);
+        }
+
+        return parameters;
+    }
+
+    @Override
+    public ProblemParameter<?>[] extractParameters() throws Exception {
+        String tagName = GapSetupParameters.GAP_PARAMETERS.getName();
+
+        NodeList parametersXmlNode = ((Element) xmlDocument.getElementsByTagName(tagName).item(0)).getElementsByTagName("parameter");
+
+        int noOfParameters = parametersXmlNode.getLength();
+
+        ProblemParameter<?>[] problemParameters = new ProblemParameter<?>[noOfParameters];
+
+
+            for (int parameterIndex = 0; parameterIndex < noOfParameters; parameterIndex++) {
+                Node xmlParameterNode = parametersXmlNode.item(parameterIndex);
+                NamedNodeMap attributes = xmlParameterNode.getAttributes();
+
+                if (attributes.getNamedItem("type") == null) {
+                    throw new Exception("type was not specified for the parameter at index " + parameterIndex);
+                }
+
+                String typeName = attributes.getNamedItem("type").getNodeValue();
+
+                String numberStr;
+
+                if (attributes.getNamedItem("min") == null) {
+                    throw new Exception("min was not specified for the parameter at index " + parameterIndex);
+                }
+
+                numberStr = attributes.getNamedItem("min").getNodeValue();
+                Number min = NumberParser.parse(numberStr);
+
+                if (attributes.getNamedItem("max") == null) {
+                    throw new Exception("max was not specified for the parameter at index " + parameterIndex);
+                }
+
+                numberStr = attributes.getNamedItem("max").getNodeValue();
+                Number max = NumberParser.parse(numberStr);
+
+                ProblemParameter<?> parameter = GapParameterFactory.createParameter(typeName, min, max);
+
+                String name = "";
+                String description = "";
+
+                if (attributes.getNamedItem("name") != null) {
+                    name = attributes.getNamedItem("name").getNodeValue();
+                }
+
+                if (attributes.getNamedItem("description") != null) {
+                    description = attributes.getNamedItem("description").getNodeValue();
+                }
+
+                parameter.setName(name);
+                parameter.setDescription(description);
+
+                // TODO - Is it necessary to set step for Integer and exp for Exponential ?
+
+                problemParameters[parameterIndex] = parameter;
+            }
+
+        return problemParameters;
+    }
+
+    @Override
+    public List<String> extractBenchmarksList() {
+        String tagName = GapSetupParameters.BENCHMARKS.getName();
+        NodeList benchmarksTag = xmlDocument.getElementsByTagName(tagName);
 
         List<String> benchmarksNames = new LinkedList<>();
 
@@ -39,7 +129,8 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public Map<String, String> parseMetaheuristic() {
-        NodeList metaheuristicNode = xmlDocument.getElementsByTagName("metaheuristic");
+        String tagName = GapSetupParameters.METAHEURISTIC.getName();
+        NodeList metaheuristicNode = xmlDocument.getElementsByTagName(tagName);
         NamedNodeMap attributes = metaheuristicNode.item(0).getAttributes();
 
         Map<String, String> data = new HashMap<>();
@@ -52,7 +143,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
         if (Paths.get(path).isAbsolute()) {
             data.put("config_path", path);
         } else {
-            data.put("config_path", PathUtils.getAlgorithmFileFullPath(path));
+            data.put("config_path", PathUtils.getAlgorithmFullFilePath(path));
         }
 
         return data;
@@ -60,7 +151,8 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public Map<String, String> parseDbConnectionData() {
-        NodeList databaseNode = xmlDocument.getElementsByTagName("database");
+        String tagName = GapSetupParameters.DATABASE.getName();
+        NodeList databaseNode = xmlDocument.getElementsByTagName(tagName);
 
         NamedNodeMap attributes = databaseNode.item(0).getAttributes();
 
@@ -83,7 +175,8 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public String extractType() {
-        NodeList simulatorTag = xmlDocument.getElementsByTagName("simulator");
+        String tagName = GapSetupParameters.GAP_CONFIG.getName();
+        NodeList simulatorTag = xmlDocument.getElementsByTagName(tagName);
         NamedNodeMap simulatorAttributes = simulatorTag.item(0).getAttributes();
 
         return simulatorAttributes.getNamedItem("type").getNodeValue();
@@ -91,42 +184,28 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public String extractName() {
-        NodeList simulatorTag = xmlDocument.getElementsByTagName("simulator");
+        String tagName = GapSetupParameters.GAP_CONFIG.getName();
+        NodeList simulatorTag = xmlDocument.getElementsByTagName(tagName);
         NamedNodeMap simulatorAttributes = simulatorTag.item(0).getAttributes();
 
         return simulatorAttributes.getNamedItem("name").getNodeValue();
-    }
-
-    @Override
-    public Map<String, String> extractParameters() {
-        NodeList simulatorTag = xmlDocument.getElementsByTagName("simulator");
-        NodeList simulatorParams = ((Element) simulatorTag.item(0)).getElementsByTagName("parameter");
-
-        Map<String, String> parameters = new HashMap<>();
-
-        for (int i = 0; i < simulatorParams.getLength(); i++) {
-            NamedNodeMap parameter = simulatorParams.item(i).getAttributes();
-            String name = parameter.getNamedItem("name").getNodeValue();
-            String value = parameter.getNamedItem("value").getNodeValue();
-
-            parameters.put(name, value);
-        }
-
-        return parameters;
     }
 
     @Override
     public String extractOutputPath() {
-        NodeList outputNode = xmlDocument.getElementsByTagName("output");
+        String tagName = GapSetupParameters.OUTPUT_PATH.getName();
+        NodeList outputNode = xmlDocument.getElementsByTagName(tagName);
         NamedNodeMap outputAttributes = outputNode.item(0).getAttributes();
-        return outputAttributes.getNamedItem("output_path").getNodeValue();
+        return outputAttributes.getNamedItem("path").getNodeValue();
     }
 
     @Override
     public String extractClientsFilePath() {
-        NodeList simulatorTag = xmlDocument.getElementsByTagName("simulator");
+        String tagName = GapSetupParameters.FADSE_CLIENTS_FILE_PATH.getName();
+        NodeList simulatorTag = xmlDocument.getElementsByTagName(tagName);
         NamedNodeMap simulatorAttributes = simulatorTag.item(0).getAttributes();
 
-        return simulatorAttributes.getNamedItem("name").getNodeValue();
+        String fileName = simulatorAttributes.getNamedItem("fileName").getNodeValue();
+        return PathUtils.getFadseClientsFullFilePath(fileName);
     }
 }
