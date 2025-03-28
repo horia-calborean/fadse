@@ -1,4 +1,4 @@
-package input.ports.parameter.setup;
+package input.model.setup;
 
 public interface SetupParameter {
     String getName();

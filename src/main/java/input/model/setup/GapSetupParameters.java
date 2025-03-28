@@ -1,6 +1,4 @@
-package input.adapters.parameter.setup;
-
-import input.ports.parameter.setup.SetupParameter;
+package input.model.setup;
 
 public enum GapSetupParameters implements SetupParameter {
     GAP_CONFIG("gap_config"),

@@ -4,7 +4,7 @@ import input.adapters.extractor.gap.GAPJsonDataExtractor;
 import input.adapters.extractor.gap.GAPXmlDataExtractor;
 import input.adapters.document.JsonInputDocument;
 import input.adapters.document.XmlInputDocument;
-import input.adapters.parameter.setup.GapSetupParameters;
+import input.model.setup.GapSetupParameters;
 import input.model.InputData;
 import input.ports.document.InputDocument;
 import input.ports.collector.MicroArchInputCollector;

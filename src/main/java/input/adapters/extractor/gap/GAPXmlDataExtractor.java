@@ -4,7 +4,7 @@ import core.model.paths.PathUtils;
 import input.adapters.document.XmlInputDocument;
 import input.adapters.extractor.XmlDataExtractor;
 import input.adapters.parameter.problem.gap.GapParameterFactory;
-import input.adapters.parameter.setup.GapSetupParameters;
+import input.model.setup.GapSetupParameters;
 import input.model.NumberParser;
 import input.ports.extractor.common.BenchmarkExtractor;
 import input.ports.extractor.common.MetaheuristicExtractor;

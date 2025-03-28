@@ -1,9 +1,10 @@
 package input.model;
 
-import input.ports.parameter.setup.SetupParameter;
+import input.model.setup.SetupParameter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class InputData {
     protected Map<SetupParameter, Object> data;
@@ -18,5 +19,9 @@ public class InputData {
 
     public Object get(SetupParameter name) {
         return data.get(name);
+    }
+
+    public Set<SetupParameter> getKeySet(){
+        return data.keySet();
     }
 }
