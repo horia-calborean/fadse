@@ -2,6 +2,8 @@ package core.model.start;
 
 import core.model.paths.PathUtils;
 import input.adapters.collector.gap.GAPInputCollector;
+import input.application.enhancer.InputDataEnhancer;
+import input.application.enhancer.gap.GapInputDataEnhancer;
 import input.model.InputData;
 import input.ports.collector.MicroArchInputCollector;
 
@@ -12,5 +14,8 @@ public class SimulationBoot {
         String dseFilePath = PathUtils.getDseFullFilePath("gapdistsimin_andrei.xml");
         MicroArchInputCollector inputCollector = new GAPInputCollector(dseFilePath);
         InputData inputData = inputCollector.collectInputData();
+
+        InputDataEnhancer enhancer = new GapInputDataEnhancer();
+        enhancer.expandDataFromFiles(inputData);
     }
 }

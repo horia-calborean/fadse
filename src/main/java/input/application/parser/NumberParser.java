@@ -1,4 +1,4 @@
-package input.model;
+package input.application.parser;
 
 public class NumberParser {
     public static Number parse(String value) {

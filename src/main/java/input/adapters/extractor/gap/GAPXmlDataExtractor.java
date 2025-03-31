@@ -1,14 +1,16 @@
 package input.adapters.extractor.gap;
 
+import core.model.objectives.Objective;
 import core.model.paths.PathUtils;
 import input.adapters.document.XmlInputDocument;
 import input.adapters.extractor.XmlDataExtractor;
 import input.adapters.parameter.problem.gap.GapParameterFactory;
 import input.model.setup.GapSetupParameters;
-import input.model.NumberParser;
+import input.application.parser.NumberParser;
 import input.ports.extractor.common.BenchmarkExtractor;
 import input.ports.extractor.common.MetaheuristicExtractor;
-import input.ports.extractor.fadse.ClientsExtractor;
+import input.ports.extractor.common.ObjectivesExtractor;
+import input.ports.extractor.fadse.ClientsFileExtractor;
 import input.ports.extractor.fadse.DatabaseExtractor;
 import input.ports.extractor.gap.*;
 import input.ports.parameter.problem.ProblemParameter;
@@ -18,12 +20,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class GAPXmlDataExtractor extends XmlDataExtractor implements MetaheuristicExtractor, BenchmarkExtractor, DatabaseExtractor, TypeExtractor, NameExtractor, GapConfigExtractor, OutputPathExtractor, ClientsExtractor, GapParametersExtractor {
+public class GAPXmlDataExtractor extends XmlDataExtractor implements MetaheuristicExtractor, BenchmarkExtractor, DatabaseExtractor, TypeExtractor, NameExtractor, GapConfigExtractor, OutputPathExtractor, ClientsFileExtractor, GapParametersExtractor, ObjectivesExtractor {
     public GAPXmlDataExtractor(XmlInputDocument xmlDoc) {
         super(xmlDoc);
     }
@@ -207,5 +206,37 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
         String fileName = simulatorAttributes.getNamedItem("fileName").getNodeValue();
         return PathUtils.getFadseClientsFullFilePath(fileName);
+    }
+
+    @Override
+    public Map<String, Objective> extractObjectives() {
+        String tagName = GapSetupParameters.OBJECTIVES.getName();
+        NodeList systemMetrics = ((Element) xmlDocument.getElementsByTagName(tagName).item(0)).getElementsByTagName("objective");
+        Map<String, Objective> objectives = new HashMap<>();
+        for (int i = 0; i < systemMetrics.getLength(); i++) {
+            Node metric = systemMetrics.item(i);
+            NamedNodeMap attributes = metric.getAttributes();
+            String name = attributes.getNamedItem("name").getNodeValue();
+            String type = attributes.getNamedItem("type").getNodeValue();
+
+            String unit = "";
+            if (attributes.getNamedItem("unit") != null) {
+                unit = attributes.getNamedItem("unit").getNodeValue();
+            }
+            boolean isMinimized = true;
+            if (attributes.getNamedItem("desired") != null) {
+                String desired = attributes.getNamedItem("desired").getNodeValue();
+                isMinimized = Objects.equals(desired, "small");
+            }
+            String description = "";
+            if (attributes.getNamedItem("description") != null) {
+                description = attributes.getNamedItem("description").getNodeValue();
+            }
+            Objective obj = new Objective(name, type, isMinimized);
+            obj.setDescription(description);
+            objectives.put(name, obj);
+        }
+
+        return objectives;
     }
 }

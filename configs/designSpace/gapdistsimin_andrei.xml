@@ -24,10 +24,10 @@
         <parameter name = "c_lines"   description = "c_lines" type = "exp2"    min = "1"  max = "128"/>  <!-- default 1 (1/128) -->
     </gap_parameters>
     <benchmarks>
-        <item name="default-mibench-netw-dijkstra" />
-        <item name="default-mibench-cons-jpeg-encode" />
-        <item name="default-mibench-offi-stringsearch" />
-        <item name="default-mibench-auto-qsort" />
+        <item name="default-mibench-netw-dijkstra"/>
+        <item name="default-mibench-cons-jpeg-encode"/>
+        <item name="default-mibench-offi-stringsearch"/>
+        <item name="default-mibench-auto-qsort"/>
         <!-- <item name="default-mibench-tele-gsm-encode" />
          <item name="default-mibench-secu-rijndael-encode-nounroll" />
          <item name="default-mibench-secu-rijndael-decode-nounroll" />
@@ -35,13 +35,13 @@
          <item name="default-mibench-tele-gsm-decode" />
          <item name="default-mibench-tele-adpcm-file-decode" /> -->
     </benchmarks>
-    <database ip="5.122.109.113" port="3306" name="fadse" user="root" password="fadse"/>
-    <clients fileName = "simpleNeighborConfig.xml" />
-    <metaheuristic name="CNSGAII" config_path="cnsgaii.properties" />
-    <system_metrics>
+    <metaheuristic name = "CNSGAII" config_path = "cnsgaii.properties"/>
+    <gap_objectives>
         <!-- system_metric name="instruction per clock cycle IPC" type="float" unit="" desired="large" / -->
-        <system_metric name="Hardware complexity" type="float" unit="" desired="small"/>
-        <system_metric name="Clocks per instruction CPI" type="float" unit="" desired="small" />
-    </system_metrics>
-    <output path= "D:\PhD\Development\FADSE_getting_started\fadse_output\" />
+        <objective name = "Hardware complexity"        type = "float" unit = "" desired = "small"/>
+        <objective name = "Clocks per instruction CPI" type = "float" unit = "" desired = "small"/>
+    </gap_objectives>
+    <database ip="5.122.109.113" port="3306" name="fadse" user="root" password="fadse"/>
+    <clients fileName = "simpleNeighborConfig.xml"/>
+    <output path= "D:\PhD\Development\FADSE_getting_started\fadse_output\"/>
 </design_space>

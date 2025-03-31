@@ -9,7 +9,8 @@ public enum GapSetupParameters implements SetupParameter {
     TYPE("type"),
     NAME("name"),
     OUTPUT_PATH("output"),
-    FADSE_CLIENTS_FILE_PATH("clients");
+    FADSE_CLIENTS_FILE_PATH("clients"),
+    OBJECTIVES("gap_objectives"),;
 
     private final String name;
 

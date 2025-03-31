@@ -1,5 +1,6 @@
 package input.adapters.collector.gap;
 
+import core.model.objectives.Objective;
 import input.adapters.extractor.gap.GAPJsonDataExtractor;
 import input.adapters.extractor.gap.GAPXmlDataExtractor;
 import input.adapters.document.JsonInputDocument;
@@ -10,7 +11,8 @@ import input.ports.document.InputDocument;
 import input.ports.collector.MicroArchInputCollector;
 import input.ports.extractor.common.BenchmarkExtractor;
 import input.ports.extractor.common.MetaheuristicExtractor;
-import input.ports.extractor.fadse.ClientsExtractor;
+import input.ports.extractor.common.ObjectivesExtractor;
+import input.ports.extractor.fadse.ClientsFileExtractor;
 import input.ports.extractor.fadse.DatabaseExtractor;
 import input.ports.extractor.gap.*;
 import input.ports.parameter.problem.ProblemParameter;
@@ -44,26 +46,30 @@ public class GAPInputCollector extends MicroArchInputCollector {
         ProblemParameter<?>[] problemParameters = getProblemParameters();
         inputData.set(GapSetupParameters.GAP_PARAMETERS, problemParameters);
 
-        List<String> benchmarkData = getBenchmarkList();
-        inputData.set(GapSetupParameters.BENCHMARKS, benchmarkData);
+        List<String> benchmarksList = getBenchmarkList();
+        inputData.set(GapSetupParameters.BENCHMARKS, benchmarksList);
 
         Map<String, String> metaheuristicData = getMetaheuristicData();
         inputData.set(GapSetupParameters.METAHEURISTIC, metaheuristicData);
 
+        Map<String, Objective> objectives = getObjectives();
+        inputData.set(GapSetupParameters.OBJECTIVES, objectives);
+        // TODO - system_metric
+
         Map<String, String> dbConnectionData = getDbConnectionData();
         inputData.set(GapSetupParameters.DATABASE, dbConnectionData);
+
+        String fadseClientsFilePath = getClientsFileName();
+        inputData.set(GapSetupParameters.FADSE_CLIENTS_FILE_PATH, fadseClientsFilePath);
+
+        String outputPath = getOutputPath();
+        inputData.set(GapSetupParameters.OUTPUT_PATH, outputPath);
 
         String type = getType();
         inputData.set(GapSetupParameters.TYPE, type);
 
         String name = getName();
         inputData.set(GapSetupParameters.NAME, name);
-
-        String outputPath = getOutputPath();
-        inputData.set(GapSetupParameters.OUTPUT_PATH, outputPath);
-
-        String fadseClientsFilePath = getClientsFileName();
-        inputData.set(GapSetupParameters.FADSE_CLIENTS_FILE_PATH, fadseClientsFilePath);
 
         return inputData;
     }
@@ -94,6 +100,10 @@ public class GAPInputCollector extends MicroArchInputCollector {
         return ((DatabaseExtractor) dataExtractor).parseDbConnectionData();
     }
 
+    protected Map<String, Objective> getObjectives() {
+        return ((ObjectivesExtractor) dataExtractor).extractObjectives();
+    }
+
     protected String getType() {
         return ((TypeExtractor) dataExtractor).extractType();
     }
@@ -107,6 +117,6 @@ public class GAPInputCollector extends MicroArchInputCollector {
     }
 
     protected String getClientsFileName() {
-        return ((ClientsExtractor) dataExtractor).extractClientsFilePath();
+        return ((ClientsFileExtractor) dataExtractor).extractClientsFilePath();
     }
 }
