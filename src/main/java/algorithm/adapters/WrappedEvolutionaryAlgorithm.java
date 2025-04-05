@@ -8,7 +8,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
-// TODO - SEE THE WrappedEvolutionaryAlgorithm<S, R> FROM test-jmetal-6.0-radu BRANCH
+// TODO - SEE THE WrappedEvolutionaryAlgorithm<S, R> CLASS FROM test-jmetal-6.0-radu BRANCH
 
 @SuppressWarnings("unchecked cast")
 public abstract class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgorithm<S, R> {
