@@ -5,6 +5,7 @@ public enum GapSetupParameters implements SetupParameter {
     GAP_PARAMETERS("gap_parameters"),
     BENCHMARKS("benchmarks"),
     METAHEURISTIC("metaheuristic"),
+    METAHEURISTIC_DATA(""),
     DATABASE("database"),
     TYPE("type"),
     NAME("name"),

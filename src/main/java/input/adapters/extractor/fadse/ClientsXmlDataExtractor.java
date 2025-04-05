@@ -1,4 +1,4 @@
-package input.adapters.extractor.clients;
+package input.adapters.extractor.fadse;
 
 import core.model.clients.FadseClient;
 import core.model.clients.ListOfFadseClients;
