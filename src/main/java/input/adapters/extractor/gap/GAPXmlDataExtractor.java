@@ -142,7 +142,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
         if (Paths.get(path).isAbsolute()) {
             data.put("config_path", path);
         } else {
-            data.put("config_path", PathUtils.getAlgorithmFullFilePath(path));
+            data.put("config_path", PathUtils.getAlgorithmRelativePath(path));
         }
 
         return data;
@@ -205,7 +205,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
         NamedNodeMap simulatorAttributes = simulatorTag.item(0).getAttributes();
 
         String fileName = simulatorAttributes.getNamedItem("fileName").getNodeValue();
-        return PathUtils.getFadseClientsFullFilePath(fileName);
+        return PathUtils.getFadseClientsRelativePath(fileName);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package input.ports.extractor.fadse;
 
+import core.model.clients.ListOfFadseClients;
+
 public interface ClientsExtractor {
-    getClientsData(String filePath);
+     ListOfFadseClients extractClientsData();
 }

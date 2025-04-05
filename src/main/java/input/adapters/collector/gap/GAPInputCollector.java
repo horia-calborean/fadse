@@ -54,7 +54,6 @@ public class GAPInputCollector extends MicroArchInputCollector {
 
         Map<String, Objective> objectives = getObjectives();
         inputData.set(GapSetupParameters.OBJECTIVES, objectives);
-        // TODO - system_metric
 
         Map<String, String> dbConnectionData = getDbConnectionData();
         inputData.set(GapSetupParameters.DATABASE, dbConnectionData);
