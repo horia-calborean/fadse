@@ -1,4 +1,4 @@
-package algorithm.adapters;
+package core.algorithm.adapters;
 
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
 

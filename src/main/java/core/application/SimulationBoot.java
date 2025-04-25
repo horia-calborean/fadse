@@ -1,4 +1,4 @@
-package core.model.start;
+package core.application;
 
 import core.model.paths.PathUtils;
 import input.adapters.collector.gap.GAPInputCollector;

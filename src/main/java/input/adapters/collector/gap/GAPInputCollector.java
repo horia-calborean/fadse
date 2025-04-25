@@ -5,6 +5,7 @@ import input.adapters.extractor.gap.GAPJsonDataExtractor;
 import input.adapters.extractor.gap.GAPXmlDataExtractor;
 import input.adapters.document.JsonInputDocument;
 import input.adapters.document.XmlInputDocument;
+import input.model.setup.CommonSetupParameters;
 import input.model.setup.GapSetupParameters;
 import input.model.InputData;
 import input.ports.document.InputDocument;
@@ -44,10 +45,10 @@ public class GAPInputCollector extends MicroArchInputCollector {
         inputData.set(GapSetupParameters.GAP_CONFIG, configParameters);
 
         ProblemParameter<?>[] problemParameters = getProblemParameters();
-        inputData.set(GapSetupParameters.GAP_PARAMETERS, problemParameters);
+        inputData.set(CommonSetupParameters.PARAMETERS, problemParameters);
 
         List<String> benchmarksList = getBenchmarkList();
-        inputData.set(GapSetupParameters.BENCHMARKS, benchmarksList);
+        inputData.set(CommonSetupParameters.BENCHMARKS, benchmarksList);
 
         Map<String, String> metaheuristicData = getMetaheuristicData();
         inputData.set(GapSetupParameters.METAHEURISTIC, metaheuristicData);

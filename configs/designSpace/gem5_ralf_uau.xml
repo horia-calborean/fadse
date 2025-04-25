@@ -86,8 +86,8 @@
         <parameter name="fipa-reference" description="param1" type="integer" min="0" max="1"/>
         <parameter name="fipa-struct-reorg" description="param1" type="integer" min="0" max="1"/>
         <parameter name="fipa-type-escape" description="param1" type="integer" min="0" max="1"/>
-        <parameter name="fira-algorithm=CB" description="param1" type="integer" min="0" max="1"/>
-        <parameter name="fira-algorithm=priority" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fira-core.algorithm=CB" description="param1" type="integer" min="0" max="1"/>
+        <parameter name="fira-core.algorithm=priority" description="param1" type="integer" min="0" max="1"/>
         <parameter name="fira-coalesce" description="param1" type="integer" min="0" max="1"/>
         <parameter name="fira-region=all" description="param1" type="integer" min="0" max="1"/>
         <parameter name="fira-region=mixed" description="param1" type="integer" min="0" max="1"/>

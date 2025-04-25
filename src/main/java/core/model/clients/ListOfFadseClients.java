@@ -4,40 +4,40 @@ import java.net.InetAddress;
 import java.util.LinkedList;
 
 public class ListOfFadseClients {
-    protected LinkedList<FadseClient> clients;
+    protected LinkedList<FadseClientData> data;
 
     public ListOfFadseClients() {
-        clients = new LinkedList<>();
+        data = new LinkedList<>();
     }
 
-    public void add(FadseClient client) {
-        clients.add(client);
+    public void add(FadseClientData data) {
+        this.data.add(data);
     }
 
     public int getSize() {
-        return clients.size();
+        return data.size();
     }
 
-    public LinkedList<FadseClient> getAll() {
-        return clients;
+    public LinkedList<FadseClientData> getAll() {
+        return data;
     }
 
-    FadseClient getByIpAndPort(InetAddress inetAddress, int port) {
-        FadseClient fadseClient = null;
+    FadseClientData getByIpAndPort(InetAddress ip, int port) {
+        FadseClientData fadseClient = null;
 
-        for (FadseClient client : clients) {
+        for (FadseClientData client : data) {
             try {
-                if (client.getIP().equals(inetAddress) && client.getPort() == port) {
+                if (client.getIP().equals(ip) && client.getPort() == port) {
                     fadseClient = client;
                     break;
                 }
             } catch (NullPointerException e) {
-                if (inetAddress != null) {
-                    System.out.println("Searching for: " + inetAddress.getCanonicalHostName() + ":" + port);
+                if (ip != null) {
+                    System.out.println("Searching for: " + ip.getCanonicalHostName() + ":" + port);
                 } else {
                     System.out.println("Inet address is null - happens if there was an error while communicating with the client");
                 }
-                System.out.println("Neighbors size = " + clients.size());
+                System.out.println("Neighbors size = " + data.size());
                 e.fillInStackTrace();
             }
         }

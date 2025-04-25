@@ -5,6 +5,7 @@ import core.model.paths.PathUtils;
 import input.adapters.document.XmlInputDocument;
 import input.adapters.extractor.XmlDataExtractor;
 import input.adapters.parameter.problem.gap.GapParameterFactory;
+import input.model.setup.CommonSetupParameters;
 import input.model.setup.GapSetupParameters;
 import input.application.parser.NumberParser;
 import input.ports.extractor.common.BenchmarkExtractor;
@@ -109,7 +110,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public List<String> extractBenchmarksList() {
-        String tagName = GapSetupParameters.BENCHMARKS.getName();
+        String tagName = CommonSetupParameters.BENCHMARKS.getName();
         NodeList benchmarksTag = xmlDocument.getElementsByTagName(tagName);
 
         List<String> benchmarksNames = new LinkedList<>();

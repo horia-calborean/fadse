@@ -1,6 +1,6 @@
 package input.adapters.extractor.fadse;
 
-import core.model.clients.FadseClient;
+import core.model.clients.FadseClientData;
 import core.model.clients.ListOfFadseClients;
 import input.adapters.document.XmlInputDocument;
 import input.adapters.extractor.XmlDataExtractor;
@@ -26,7 +26,7 @@ public class ClientsXmlDataExtractor extends XmlDataExtractor implements Clients
             xmlDocument.getDocumentElement().normalize();
             NodeList neighborsList = xmlDocument.getElementsByTagName("fadseClient");
             for (int i = 0; i < neighborsList.getLength(); i++) {
-                FadseClient client = new FadseClient();
+                FadseClientData client = new FadseClientData();
                 NamedNodeMap attributes = neighborsList.item(i).getAttributes();
                 client.setIP(InetAddress.getByName(attributes.getNamedItem("ip").getNodeValue()));
                 client.setNumberOfOccupiedSlots(0);
