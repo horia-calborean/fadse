@@ -6,6 +6,8 @@ public abstract class ProblemParameter<T> {
     protected T lowerBound;
     protected T upperBound;
 
+    protected T value;
+
     public ProblemParameter(T lowerBound, T upperBound) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
@@ -34,4 +36,16 @@ public abstract class ProblemParameter<T> {
     public String getDescription() {
         return description;
     }
+
+    public void setValue(T value) {
+        this.value = value;
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public abstract void setValueFromDouble(double value);
+
+    public abstract ProblemParameter<T> clone();
 }

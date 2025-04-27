@@ -17,6 +17,10 @@ public class Objective {
         value = 0;
     }
 
+    public double getValue() {
+        return value;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }

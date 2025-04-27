@@ -49,7 +49,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public ProblemParameter<?>[] extractParameters() throws Exception {
-        String tagName = GapSetupParameters.GAP_PARAMETERS.getName();
+        String tagName = CommonSetupParameters.PARAMETERS.getName();
 
         NodeList parametersXmlNode = ((Element) xmlDocument.getElementsByTagName(tagName).item(0)).getElementsByTagName("parameter");
 
@@ -57,53 +57,52 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
         ProblemParameter<?>[] problemParameters = new ProblemParameter<?>[noOfParameters];
 
+        for (int parameterIndex = 0; parameterIndex < noOfParameters; parameterIndex++) {
+            Node xmlParameterNode = parametersXmlNode.item(parameterIndex);
+            NamedNodeMap attributes = xmlParameterNode.getAttributes();
 
-            for (int parameterIndex = 0; parameterIndex < noOfParameters; parameterIndex++) {
-                Node xmlParameterNode = parametersXmlNode.item(parameterIndex);
-                NamedNodeMap attributes = xmlParameterNode.getAttributes();
-
-                if (attributes.getNamedItem("type") == null) {
-                    throw new Exception("type was not specified for the parameter at index " + parameterIndex);
-                }
-
-                String typeName = attributes.getNamedItem("type").getNodeValue();
-
-                String numberStr;
-
-                if (attributes.getNamedItem("min") == null) {
-                    throw new Exception("min was not specified for the parameter at index " + parameterIndex);
-                }
-
-                numberStr = attributes.getNamedItem("min").getNodeValue();
-                Number min = NumberParser.parse(numberStr);
-
-                if (attributes.getNamedItem("max") == null) {
-                    throw new Exception("max was not specified for the parameter at index " + parameterIndex);
-                }
-
-                numberStr = attributes.getNamedItem("max").getNodeValue();
-                Number max = NumberParser.parse(numberStr);
-
-                ProblemParameter<?> parameter = GapParameterFactory.createParameter(typeName, min, max);
-
-                String name = "";
-                String description = "";
-
-                if (attributes.getNamedItem("name") != null) {
-                    name = attributes.getNamedItem("name").getNodeValue();
-                }
-
-                if (attributes.getNamedItem("description") != null) {
-                    description = attributes.getNamedItem("description").getNodeValue();
-                }
-
-                parameter.setName(name);
-                parameter.setDescription(description);
-
-                // TODO - Is it necessary to set step for Integer and exp for Exponential ?
-
-                problemParameters[parameterIndex] = parameter;
+            if (attributes.getNamedItem("type") == null) {
+                throw new Exception("type was not specified for the parameter at index " + parameterIndex);
             }
+
+            String typeName = attributes.getNamedItem("type").getNodeValue();
+
+            String numberStr;
+
+            if (attributes.getNamedItem("min") == null) {
+                throw new Exception("min was not specified for the parameter at index " + parameterIndex);
+            }
+
+            numberStr = attributes.getNamedItem("min").getNodeValue();
+            Number min = NumberParser.parse(numberStr);
+
+            if (attributes.getNamedItem("max") == null) {
+                throw new Exception("max was not specified for the parameter at index " + parameterIndex);
+            }
+
+            numberStr = attributes.getNamedItem("max").getNodeValue();
+            Number max = NumberParser.parse(numberStr);
+
+            ProblemParameter<?> parameter = GapParameterFactory.createParameter(typeName, min, max);
+
+            String name = "";
+            String description = "";
+
+            if (attributes.getNamedItem("name") != null) {
+                name = attributes.getNamedItem("name").getNodeValue();
+            }
+
+            if (attributes.getNamedItem("description") != null) {
+                description = attributes.getNamedItem("description").getNodeValue();
+            }
+
+            parameter.setName(name);
+            parameter.setDescription(description);
+
+            // TODO - Is it necessary to set step for Integer and exp for Exponential ?
+
+            problemParameters[parameterIndex] = parameter;
+        }
 
         return problemParameters;
     }
