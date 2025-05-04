@@ -1,4 +1,6 @@
-package core.receiver.application;
+package core.network.receiver;
+
+import core.network.Message;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -20,11 +22,11 @@ public class IndividualReceiver implements Runnable {
     public long connectionWaitStartTime;
     public boolean simulating = false;
 
-    public IndividualReceiver(int port) throws IOException {
+    public IndividualReceiver(int port) {
         initSocket(port);
     }
 
-    protected void initSocket(int port) throws IOException {
+    protected void initSocket(int port) {
         try {
             Thread.sleep(random.nextInt(10000));
             serverSocket = new ServerSocket(port);
@@ -78,53 +80,51 @@ public class IndividualReceiver implements Runnable {
         ObjectInputStream inputStream = null;
         ObjectOutputStream outputStream = null;
         Socket socket = null;
-        Message m = null;
-        SimulatorWrapper sim = null;
-        int receivedIndividuals = 1;
-        boolean simulationStart = false;
+        Message receivedMessage = null;
+        SimulatableProblem<?> simulatableProblem = null;
+        int receivedIndividuals = 0;
+        boolean isSimulationStarted = false;
         while (true) {
             try {
-                simulationStart = false;
+                isSimulationStarted = false;
                 connectionWaitStartTime = System.currentTimeMillis();
                 socket = serverSocket.accept();
-                System.out.println("IndividualReceiver: Received ind- " + (receivedIndividuals++));
+                System.out.println("IndividualReceiver -> new individual -> count = " + (++receivedIndividuals));
                 outputStream = new ObjectOutputStream(socket.getOutputStream());
                 outputStream.flush();
                 inputStream = new ObjectInputStream(socket.getInputStream());
 
-                m = (Message) inputStream.readObject();
+                receivedMessage = (Message) inputStream.readObject();
+                receivedMessage.setServerIP(socket.getInetAddress());
+                receivedMessage.getIndividual().getInputData().getInputDocument().setSimulatorName(receivedMessage.getSimulatorName());
 
-                m.setServerIP(socket.getInetAddress());
-
-                m.getIndividual().getEnvironment().getInputDocument().setSimulatorName(m.getSimulatorName());
-
-                InputDocument inputDocument = m.getIndividual().getEnvironment().getInputDocument();
+                InputDocument inputDocument = receivedMessage.getIndividual().getInputData().getInputDocument();
                 for (String key : inputDocument.getSimulatorParameters().keySet()) {
                     String p = inputDocument.getSimulatorParameters().get(key);
-                    inputDocument.getSimulatorParameters().put(key, p.replace("#", System.currentTimeMillis() + "_" + m.getMessageId()));
+                    inputDocument.getSimulatorParameters().put(key, p.replace("#", System.currentTimeMillis() + "_" + receivedMessage.getMessageId()));
                 }
 
-                sim = SimulatorFactory.getSimulator(m.getIndividual().getEnvironment());
+                simulatableProblem = ProblemFactory.createFrom(receivedMessage);
 
-                if (sim == null) {
+                if (simulatableProblem == null) {
 
-                    m.setType(Message.TYPE_ERR_SIMULATOR_NOT_INSTALLED);
+                    receivedMessage.setType(Message.TYPE_ERR_SIMULATOR_NOT_INSTALLED);
                     System.out.println("IndividualReceiver: Simulator NOT found");
-                } else if (m.getType() == Message.TYPE_CLOSE_SIMULATION_REQUEST) {
+                } else if (receivedMessage.getType() == Message.TYPE_CLOSE_SIMULATION_REQUEST) {
 
-                    sim.closeSimulation(m.getIndividual());
-                    m.setType(Message.TYPE_ACK);
+                    simulatableProblem.closeSimulation(receivedMessage.getIndividual());
+                    receivedMessage.setType(Message.TYPE_ACK);
 
-                    outputStream.writeObject(m);
+                    outputStream.writeObject(receivedMessage);
                     outputStream.flush();
                 } else {
-                    ConnectionPool.setInputDocument(m.getIndividual().getEnvironment().getInputDocument());
-                    m.setType(Message.TYPE_ACK);
+                    ConnectionPool.setInputDocument(receivedMessage.getIndividual().getInputData().getInputDocument());
+                    receivedMessage.setType(Message.TYPE_ACK);
 
-                    outputStream.writeObject(m);
+                    outputStream.writeObject(receivedMessage);
                     outputStream.flush();
 
-                    simulationStart = true;
+                    isSimulationStarted = true;
                 }
             } catch (IOException ex) {
                 Logger.getLogger(IndividualReceiver.class.getName()).log(Level.SEVERE, "IOException", ex);
@@ -134,9 +134,10 @@ public class IndividualReceiver implements Runnable {
                 assert outputStream != null;
                 closeAllConnections(inputStream, outputStream, socket);
             }
-            if (simulationStart) {
+            if (isSimulationStarted) {
                 Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, "Now I can start the simulation...");
-                startSimulation(m, sim);
+                startSimulation(receivedMessage, simulatableProblem); // TODO - PROBABLY REPLACED BY THE FOLLOWING LINE
+                simulatableProblem.simulate(); //TODO
                 Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, "I've finished the simulation (?)");
             }
         }

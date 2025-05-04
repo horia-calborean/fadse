@@ -210,7 +210,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public Map<String, Objective> extractObjectives() {
-        String tagName = GapSetupParameters.OBJECTIVES.getName();
+        String tagName = CommonSetupParameters.OBJECTIVES.getName();
         NodeList systemMetrics = ((Element) xmlDocument.getElementsByTagName(tagName).item(0)).getElementsByTagName("objective");
         Map<String, Objective> objectives = new HashMap<>();
         for (int i = 0; i < systemMetrics.getLength(); i++) {

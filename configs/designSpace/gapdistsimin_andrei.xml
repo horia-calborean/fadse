@@ -2,7 +2,7 @@
 
 <design_space>
     <!-- type can be synthetic or simulator -->
-    <gap_config name = "ServerSimulator" type = "simulator">
+    <gap_config name = "GAP" type = "simulator">
         <parameter name = "maximumTimeOfASimulation"   value = "140"/> <!-- in minutes -->
         <parameter name = "realSimulator"              value = "GAPSimulator"/>
         <!-- this is not really needed because it is extracted from benchmark paths -->
@@ -36,11 +36,11 @@
          <item name="default-mibench-tele-adpcm-file-decode" /> -->
     </benchmarks>
     <metaheuristic name = "CNSGAII" config_path = "nsgaii.properties"/>
-    <gap_objectives>
+    <objectives>
         <!-- system_metric name="instruction per clock cycle IPC" type="float" unit="" desired="large" / -->
         <objective name = "Hardware complexity"        type = "float" unit = "" desired = "small"/>
         <objective name = "Clocks per instruction CPI" type = "float" unit = "" desired = "small"/>
-    </gap_objectives>
+    </objectives>
     <database ip="5.122.109.113" port="3306" name="fadse" user="root" password="fadse"/>
     <clients fileName = "clientsConfig.xml"/>
     <output path= "D:\PhD\Development\FADSE_getting_started\fadse_output\"/>

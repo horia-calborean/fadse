@@ -54,7 +54,7 @@ public class GAPInputCollector extends MicroArchInputCollector {
         inputData.set(GapSetupParameters.METAHEURISTIC, metaheuristicData);
 
         Map<String, Objective> objectives = getObjectives();
-        inputData.set(GapSetupParameters.OBJECTIVES, objectives);
+        inputData.set(CommonSetupParameters.OBJECTIVES, objectives);
 
         Map<String, String> dbConnectionData = getDbConnectionData();
         inputData.set(GapSetupParameters.DATABASE, dbConnectionData);
@@ -66,7 +66,7 @@ public class GAPInputCollector extends MicroArchInputCollector {
         inputData.set(GapSetupParameters.OUTPUT_PATH, outputPath);
 
         String type = getType();
-        inputData.set(GapSetupParameters.TYPE, type);
+        inputData.set(CommonSetupParameters.TYPE, type);
 
         String name = getName();
         inputData.set(GapSetupParameters.NAME, name);

@@ -36,10 +36,10 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
         for (int benchmarkIndex = 0; benchmarkIndex <= benchmarks.size() - 1; benchmarkIndex++) {
             String benchmark = benchmarks.get(benchmarkIndex);
 
-            individual = new FadseIndividual(environment, benchmark);
+            individual = new FadseIndividual(inputData, benchmark);
             individual.setParameters(newDesignVariables);
 
-            simulate(individual);
+            sendForSimulation(individual);
 
             List<Objective> evaluatedObjectives = individual.getObjectives();
 
@@ -68,7 +68,7 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
             upperLimits.add(upper);
         });
 
-        this.variableBounds(lowerLimits, upperLimits);
+        variableBounds(lowerLimits, upperLimits);
     }
 
     protected ProblemParameter<?>[] getNewVariablesFrom(ProblemParameter<?>[] designVariables, List<Double> optimizedValues) {
@@ -82,7 +82,8 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
         return newDesignVariables;
     }
 
-    protected void simulate(FadseIndividual individual) {
-
+    protected void sendForSimulation(FadseIndividual individual) {
+        // TODO 1. IMPORT ServerSimulator as kinda Sender
+        // TODO 2. INSTANTIATE HERE ServerSimulator OBJECT AND SEND THE individual
     }
 }

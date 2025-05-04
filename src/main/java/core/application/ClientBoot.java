@@ -1,6 +1,6 @@
 package core.application;
 
-import core.receiver.application.IndividualReceiver;
+import core.network.receiver.IndividualReceiver;
 import org.ini4j.Wini;
 
 import java.io.File;
@@ -23,31 +23,30 @@ public class ClientBoot {
         receiverThread.setDaemon(true);
         receiverThread.start();
 
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-
-        Runnable watchdogTask = () -> {
-            if (!individualReceiver.simulating) {
-                long elapsedTimeSinceNoMessage = System.currentTimeMillis() - individualReceiver.connectionWaitStartTime;
-                String currentDirectory = System.getProperty("user.dir");
-                File dir = new File(currentDirectory);
-                String fileSeparator = FileSystems.getDefault().getSeparator();
-                Wini ini;
-                try {
-                    ini = new Wini(new File(dir + fileSeparator + "configs" + fileSeparator + "fadseConfig.ini"));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+        try (ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor()) {
+            Runnable watchdogTask = () -> {
+                if (!individualReceiver.simulating) {
+                    long elapsedTimeSinceNoMessage = System.currentTimeMillis() - individualReceiver.connectionWaitStartTime;
+                    String currentDirectory = System.getProperty("user.dir");
+                    File dir = new File(currentDirectory);
+                    String fileSeparator = FileSystems.getDefault().getSeparator();
+                    Wini ini;
+                    try {
+                        ini = new Wini(new File(dir + fileSeparator + "configs" + fileSeparator + "fadseConfig.ini"));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    int time = ini.get("Watchdog", "time", int.class);
+                    if (elapsedTimeSinceNoMessage > (60000L * time)) {
+                        receiverThread.interrupt();
+                        Logger.getLogger(ClientBoot.class.getName()).log(Level.SEVERE, "Watchdog had to stop this client and restart it");
+                        System.exit(1);
+                    }
                 }
-                int time = ini.get("Watchdog", "time", int.class);
-                if (elapsedTimeSinceNoMessage > (60000L * time)) {
-                    receiverThread.interrupt();
-                    Logger.getLogger(ClientBoot.class.getName()).log(Level.SEVERE, "Watchdog had to stop this client and restart it");
-                    System.exit(1);
-                }
-            }
-        };
+            };
 
-        int minutes = 5;
-        scheduler.scheduleAtFixedRate(watchdogTask, 0, minutes, TimeUnit.MINUTES);
+            int minutes = 5;
+            scheduler.scheduleAtFixedRate(watchdogTask, 0, minutes, TimeUnit.MINUTES);
+        }
     }
 }

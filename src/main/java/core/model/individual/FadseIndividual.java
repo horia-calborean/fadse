@@ -1,41 +1,41 @@
 package core.model.individual;
 
 import core.model.objectives.Objective;
+import input.model.InputData;
+import input.model.setup.CommonSetupParameters;
+import input.ports.parameter.problem.ProblemParameter;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
 
+@SuppressWarnings("unchecked cast")
 public class FadseIndividual implements Cloneable, Serializable {
+    protected ProblemParameter<?>[] parameters;
+    protected String selectedBenchmark;
+    protected LinkedList<Objective> objectives;
+    protected int offspringCount;
+    protected InputData inputData;
+    protected boolean feasible;
 
-    private Parameter[] parameters;
-    private String benchmark;
-    private LinkedList<Objective> objectives;
-    private int offspringCount;
-    private Environment environment;
-    private boolean feasible = true;
+    public FadseIndividual(InputData inputData, String selectedBenchmark) {
+        this.selectedBenchmark = selectedBenchmark;
 
-    public FadseIndividual(Environment env, String benchmark) {
-        this.benchmark = benchmark;
-        parameters = new Parameter[env.getInputDocument().getParameters().length];
-        objectives = new LinkedList<Objective>();
-        for (Objective o : env.getInputDocument().getObjectives().values()) {
-            objectives.add(new Objective(o.getName(), o.getType(), o.getUnit(), o.getDescription(), o.isMaximize()));
+        ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.PARAMETERS);
+        parameters = new ProblemParameter<?>[designVariables.length];
+
+        for (int i = 0; i < designVariables.length; i++) {
+            parameters[i] = designVariables[i].clone();
         }
-        InputDocument init = env.getInputDocument();
-        int i = 0;
-        for (Parameter p : init.getParameters()) {
-            try {
-                parameters[i] = ((Parameter) p.clone());
-            } catch (CloneNotSupportedException ex) {
-                Logger.getLogger(FadseIndividual.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            i++;
+
+        Map<String, Objective> mapOfObjectives = (Map<String, Objective>) inputData.get(CommonSetupParameters.OBJECTIVES);
+        objectives = new LinkedList<>();
+
+        for (Map.Entry<String, Objective> entry : mapOfObjectives.entrySet()) {
+            objectives.add(entry.getValue().clone());
         }
-        this.environment = env;
+
+        inputData.get(CommonSetupParameters.OBJECTIVES);
+        this.inputData = inputData;
         feasible = true;
     }
 
@@ -51,7 +51,7 @@ public class FadseIndividual implements Cloneable, Serializable {
         this.offspringCount = offspringCount;
     }
 
-    public Parameter[] getParameters() {
+    public ProblemParameter<?>[] getParameters() {
         return parameters;
     }
 
@@ -63,31 +63,31 @@ public class FadseIndividual implements Cloneable, Serializable {
         this.objectives = objectives;
     }
 
-    public void setParameters(Parameter[] parameters) {
+    public void setParameters(ProblemParameter<?>[] parameters) {
         this.parameters = parameters;
     }
 
     @Override
     public FadseIndividual clone() throws CloneNotSupportedException {
-        FadseIndividual newInd = new FadseIndividual(environment, benchmark);
-        Parameter[] newParameters = new Parameter[environment.getInputDocument().getParameters().length];
-        LinkedList<Objective> newObjectives = new LinkedList<Objective>();
+        FadseIndividual newInd = new FadseIndividual(inputData, selectedBenchmark);
+        ProblemParameter<?>[] newParameters = new ProblemParameter<?>[parameters.length];
+        LinkedList<Objective> newObjectives = new LinkedList<>();
         Objective newObjective;
-        for (Objective o : objectives) {
-            newObjective = new Objective(o.getName(), o.getType(), o.getUnit(), o.getDescription(), o.isMaximize());
-            newObjective.setValue(o.getValue());
+        for (Objective obj : objectives) {
+            newObjective = obj.clone();
+            newObjective.setValue(obj.getValue());
             newObjectives.add(newObjective);
         }
-        Parameter temp;
+        ProblemParameter<?> temp;
         int i = 0;
-        for (Parameter p : parameters) {
-            temp = (Parameter) p.clone();
+        for (ProblemParameter<?> p : parameters) {
+            temp = p.clone();
             newParameters[i] = (temp);
             i++;
         }
         newInd.setObjectives(newObjectives);
         newInd.setParameters(newParameters);
-        newInd.setBenchmark(benchmark);
+        newInd.setSelectedBenchmark(selectedBenchmark);
         newInd.setFeasible(feasible);
         return newInd;
     }
@@ -103,55 +103,38 @@ public class FadseIndividual implements Cloneable, Serializable {
                 equalCount = equalCount + 1;
             }
         }
-        /*System.out.println("domination count:" + dominationCount);
-        System.out.println("is domianted: "+ (dominationCount==objectives.size()));*/
+
         return dominationCount >= 1 && (dominationCount + equalCount == objectives.size());
     }
 
     @Override
     public String toString() {
-        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
 
         for (int i = 0; i < parameters.length; i++) {
             map.put("P" + i, parameters[i].toString());
         }
-        map.put("B", benchmark);
+        map.put("B", selectedBenchmark);
         for (int i = 0; i < objectives.size(); i++) {
             map.put("O" + i, objectives.get(i).toString());
         }
 
         return map.toString();
-
-        /* return "[o" + objectives.toString() + " # " + parameters.toString() + "]"; */
     }
 
-    public Environment getEnvironment() {
-        return environment;
+    public InputData getInputData() {
+        return inputData;
     }
 
-    private void markAsInfeasible() {
-        if (feasible) {
-//            System.out.println("## INDIVIDUAL " + this.toString() + " IS INFEASIBLE: unknown reason");
+    public void setBadValuesForObjectives() {
+        for (Objective o : objectives) {
+            if (!o.isMinimized()) {
+                o.setValue(Double.MIN_VALUE);
+            } else {
+                o.setValue(Double.MAX_VALUE);
+            }
         }
-        feasible = false;
-    }
 
-    public void markAsInfeasibleAndSetBadValuesForObjectives(String reason) {
-        this.markAsInfeasible(reason);
-        this.setObjectives(new LinkedList<Objective>());
-        for (Objective o : environment.getInputDocument().getObjectives().values()) {
-            this.getObjectives().add(new Objective(o.getName(), o.getType(), o.getUnit(), o.getDescription(), o.isMaximize()));
-        }
-        this.setBadValuesForObjectives();
-
-    }
-
-    private void markAsInfeasible(String reason) {
-        if (feasible) {
-//            System.out.println("## INDIVIDUAL " + this + " IS INFEASIBLE: " + reason);
-            GapLogger.logInfeasible(this, reason);
-        }
-        feasible = false;
     }
 
     public boolean isFeasible() {
@@ -162,21 +145,11 @@ public class FadseIndividual implements Cloneable, Serializable {
         this.feasible = feasible;
     }
 
-    private void setBadValuesForObjectives() {
-        for (Objective o : objectives) {
-            if (o.isMaximize()) {
-                o.setValue(Double.MIN_VALUE);
-            } else {
-                o.setValue(Double.MAX_VALUE);
-            }
-        }
+    public String getSelectedBenchmark() {
+        return selectedBenchmark;
     }
 
-    public String getBenchmark() {
-        return benchmark;
-    }
-
-    public void setBenchmark(String benchmark) {
-        this.benchmark = benchmark;
+    public void setSelectedBenchmark(String selectedBenchmark) {
+        this.selectedBenchmark = selectedBenchmark;
     }
 }

@@ -1,6 +1,6 @@
 package core.model.objectives;
 
-public class Objective {
+public class Objective implements Cloneable {
     protected String name;
     protected String type;
     protected boolean isMinimized;
@@ -21,11 +21,40 @@ public class Objective {
         return value;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
 
     public String getDescription() {
         return description;
+    }
+
+    public boolean isBetter(Objective objective) {
+        if (!isMinimized) {
+            return this.value > objective.getValue();
+        } else {
+            return this.value < objective.getValue();
+        }
+    }
+
+    public boolean isMinimized(){
+        return isMinimized;
+    }
+
+    @Override
+    public Objective clone() {
+        Objective cloned = new Objective(this.name, this.type, this.isMinimized);
+        cloned.unit = this.unit;
+        cloned.description = this.description;
+        cloned.value = this.value;
+        return cloned;
     }
 }

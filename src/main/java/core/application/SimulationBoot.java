@@ -17,5 +17,8 @@ public class SimulationBoot {
 
         InputDataEnhancer enhancer = new GapInputDataEnhancer();
         enhancer.expandDataFromFiles(inputData);
+
+        AlgorithmRunner algorithmRunner = new AlgorithmRunner(inputData);
+        algorithmRunner.run();
     }
 }

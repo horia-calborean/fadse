@@ -5,12 +5,9 @@ public enum GapSetupParameters implements SetupParameter {
     METAHEURISTIC("metaheuristic"),
     METAHEURISTIC_DATA(""),
     DATABASE("database"),
-    TYPE("type"),
     NAME("name"),
     OUTPUT_PATH("output"),
-    FADSE_CLIENTS_FILE_PATH("clients"),
-    FADSE_CLIENTS("fadse_clients"),
-    OBJECTIVES("gap_objectives");
+    FADSE_CLIENTS_FILE_PATH("clients");
 
     private final String name;
 
