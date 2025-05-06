@@ -30,7 +30,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public Map<String, String> extractGapConfigParameters() {
-        String tagName = GapSetupParameters.GAP_CONFIG.getName();
+        String tagName = CommonSetupParameters.PROBLEM_CONFIG.getName();
         NodeList simulatorTag = xmlDocument.getElementsByTagName(tagName);
         NodeList simulatorParams = ((Element) simulatorTag.item(0)).getElementsByTagName("parameter");
 
@@ -49,7 +49,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public ProblemParameter<?>[] extractParameters() throws Exception {
-        String tagName = CommonSetupParameters.PARAMETERS.getName();
+        String tagName = CommonSetupParameters.DESIGN_VARIABLES.getName();
 
         NodeList parametersXmlNode = ((Element) xmlDocument.getElementsByTagName(tagName).item(0)).getElementsByTagName("parameter");
 
@@ -150,7 +150,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public Map<String, String> parseDbConnectionData() {
-        String tagName = GapSetupParameters.DATABASE.getName();
+        String tagName = CommonSetupParameters.DATABASE.getName();
         NodeList databaseNode = xmlDocument.getElementsByTagName(tagName);
 
         NamedNodeMap attributes = databaseNode.item(0).getAttributes();
@@ -174,7 +174,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public String extractType() {
-        String tagName = GapSetupParameters.GAP_CONFIG.getName();
+        String tagName = CommonSetupParameters.PROBLEM_CONFIG.getName();
         NodeList simulatorTag = xmlDocument.getElementsByTagName(tagName);
         NamedNodeMap simulatorAttributes = simulatorTag.item(0).getAttributes();
 
@@ -183,7 +183,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public String extractName() {
-        String tagName = GapSetupParameters.GAP_CONFIG.getName();
+        String tagName = CommonSetupParameters.PROBLEM_CONFIG.getName();
         NodeList simulatorTag = xmlDocument.getElementsByTagName(tagName);
         NamedNodeMap simulatorAttributes = simulatorTag.item(0).getAttributes();
 

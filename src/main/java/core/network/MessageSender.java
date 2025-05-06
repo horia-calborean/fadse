@@ -7,11 +7,13 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.file.FileSystems;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import core.model.clients.FadseClientData;
 import core.model.individual.FadseIndividual;
+import input.model.setup.CommonSetupParameters;
 import org.ini4j.Wini;
 
 public class MessageSender {
@@ -29,14 +31,15 @@ public class MessageSender {
 
     public Message sendIndividual(FadseIndividual individual, FadseClientData n, String messageId, int type) throws Exception {
         Socket socket = new Socket(n.getIP(), n.getPort());
-        ObjectOutputStream out = null;
+        ObjectOutputStream out;
         ObjectInputStream in = null;
         Message m = new Message();
         m.setIndividual(individual);
         m.setType(type);
         m.setMessageId(messageId);
-        m.setSimulatorName(individual.getEnvironment().getInputDocument().getSimulatorParameter("realSimulator"));
-        m.setClientListenport(n.getPort());
+        Map<String, String> problemConfigParameters = (Map<String, String>) individual.getInputData().get(CommonSetupParameters.PROBLEM_CONFIG);
+        m.setSimulatorName(problemConfigParameters.get("realSimulator"));
+        m.setClientListenPort(n.getPort());
         String currentDir = System.getProperty("user.dir");
         File dir = new File(currentDir);
         Wini ini = new Wini(new File(dir + FileSystems.getDefault().getSeparator() + "configs" + FileSystems.getDefault().getSeparator() + "fadseConfig.ini"));

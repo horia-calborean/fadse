@@ -22,7 +22,7 @@ public class ListOfFadseClients {
         return data;
     }
 
-    FadseClientData getByIpAndPort(InetAddress ip, int port) {
+    public FadseClientData getByIpAndPort(InetAddress ip, int port) {
         FadseClientData fadseClient = null;
 
         for (FadseClientData client : data) {
@@ -42,5 +42,13 @@ public class ListOfFadseClients {
             }
         }
         return fadseClient;
+    }
+
+    public void addLast(FadseClientData n) {
+        data.addLast(n);
+    }
+
+    public FadseClientData poll() {
+        return data.poll();
     }
 }

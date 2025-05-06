@@ -42,10 +42,10 @@ public class GAPInputCollector extends MicroArchInputCollector {
         InputData inputData = new InputData();
 
         Map<String, String> configParameters = getConfigParameters();
-        inputData.set(GapSetupParameters.GAP_CONFIG, configParameters);
+        inputData.set(CommonSetupParameters.PROBLEM_CONFIG, configParameters);
 
         ProblemParameter<?>[] problemParameters = getProblemParameters();
-        inputData.set(CommonSetupParameters.PARAMETERS, problemParameters);
+        inputData.set(CommonSetupParameters.DESIGN_VARIABLES, problemParameters);
 
         List<String> benchmarksList = getBenchmarkList();
         inputData.set(CommonSetupParameters.BENCHMARKS, benchmarksList);
@@ -57,7 +57,7 @@ public class GAPInputCollector extends MicroArchInputCollector {
         inputData.set(CommonSetupParameters.OBJECTIVES, objectives);
 
         Map<String, String> dbConnectionData = getDbConnectionData();
-        inputData.set(GapSetupParameters.DATABASE, dbConnectionData);
+        inputData.set(CommonSetupParameters.DATABASE, dbConnectionData);
 
         String fadseClientsFilePath = getClientsFileName();
         inputData.set(GapSetupParameters.FADSE_CLIENTS_FILE_PATH, fadseClientsFilePath);

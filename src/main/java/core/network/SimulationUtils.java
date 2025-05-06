@@ -1,5 +1,6 @@
 package core.network;
 
+import input.model.setup.CommonSetupParameters;
 import org.uma.jmetal.solution.Solution;
 import core.model.objectives.Objective;
 
@@ -52,7 +53,8 @@ public class SimulationUtils {
         for (S s : solutions) {
             for (int i = 0; i < s.objectives().length; i++) {
                 double value = s.objectives()[i];
-                value = value / simulationStatus.getEnvironment().getInputDocument().getBenchmarks().size();//compute the average
+                int benchmarkSize = ((List<String>) simulationStatus.getInputData().get(CommonSetupParameters.BENCHMARKS)).size();
+                value = value / benchmarkSize;//compute the average
 //                System.out.println("FINAL for solution["+s.getDecisionVariables()+"] for objective["+i+"] = "+value);
                 s.objectives()[i] = value;
             }

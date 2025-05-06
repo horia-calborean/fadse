@@ -1,6 +1,6 @@
 package core.application;
 
-import core.network.receiver.IndividualReceiver;
+import core.network.client.IndividualReceiver;
 import org.ini4j.Wini;
 
 import java.io.File;

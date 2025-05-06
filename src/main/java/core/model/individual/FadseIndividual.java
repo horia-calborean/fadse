@@ -20,7 +20,7 @@ public class FadseIndividual implements Cloneable, Serializable {
     public FadseIndividual(InputData inputData, String selectedBenchmark) {
         this.selectedBenchmark = selectedBenchmark;
 
-        ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.PARAMETERS);
+        ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.DESIGN_VARIABLES);
         parameters = new ProblemParameter<?>[designVariables.length];
 
         for (int i = 0; i < designVariables.length; i++) {

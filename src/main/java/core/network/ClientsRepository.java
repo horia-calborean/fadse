@@ -1,22 +1,17 @@
 package core.network;
 
-import core.model.clients.FadseClient;
+import core.model.clients.FadseClientData;
 import core.model.clients.ListOfFadseClients;
 import core.model.individual.FadseIndividual;
 import core.model.objectives.Objective;
 import input.model.InputData;
 import input.model.setup.CommonSetupParameters;
-import input.ports.parameter.problem.ProblemParameter;
 import org.ini4j.Wini;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import org.uma.jmetal.util.ConstraintHandling;
-import output.application.CsvUtils;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.FileSystems;
@@ -33,7 +28,7 @@ public class ClientsRepository {
     protected final Map<FadseIndividual, Solution<?>> individualsToSend;//there are multiple individuals for a single solution (10 benchmarks , 1 solution)
     protected InputData inputData;
 
-    private ClientsRepository(InputData inputData) throws ClassNotFoundException, IOException, ParserConfigurationException {
+    private ClientsRepository(InputData inputData) throws IOException {
         this.inputData = inputData;
         fadseClients = (ListOfFadseClients) inputData.get(CommonSetupParameters.FADSE_CLIENTS);
         receiver = ResultsReceiver.getInstance();
@@ -49,17 +44,18 @@ public class ClientsRepository {
         return instance;
     }
     
-    public void performSimulation(FadseIndividual individual) {
+    public void performSimulation(FadseIndividual individual, Solution<?> currentSolution) {
         detectAndRescheduleCrashedClients();
 
-        if (fadseClients == null || fadseClients.isEmpty()) {
+        if (fadseClients == null || (fadseClients.getSize() == 0)) {
             Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "No neighbors configured");
             return;
         }
 
+        // TODO -> Is this currentSolution really needed ? -> Andrei
         individualsToSend.put(individual, currentSolution);
         FadseIndividual ind;
-        DoubleSolution s;
+        Solution<?> s;
         while (!individualsToSend.isEmpty()) {
             ind = individualsToSend.keySet().iterator().next();
             s = individualsToSend.get(ind);
@@ -70,19 +66,16 @@ public class ClientsRepository {
         }
     }
 
-    private void performSimulationOnClient(FadseIndividual ind, DoubleSolution solution) {
+    private void performSimulationOnClient(FadseIndividual ind, Solution<?> solution) {
         boolean individualSent = false;
-        for (int i = 0; i < fadseClients.size(); i++) {
-            FadseClient n = fadseClients.poll();
+        for (int i = 0; i < fadseClients.getSize(); i++) {
+            FadseClientData n = fadseClients.poll();
             fadseClients.addLast(n);
-//                Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "Checking client " + i + ": " + n);
-            // for (Neighbor n : neighbors) {
-            if (n.getNumberOfSlots() - n.getNumberOfOcupiedSlots() > 0) {
+            if (n.getNumberOfSlots() - n.getNumberOfOccupiedSlots() > 0) {
                 try {
-//                        Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "Found an available client... " + n.toString());
                     Message m = MessageSender.sendIndividual(ind, n);
                     simulationStatus.addSimulation(m, n, solution);//currentSolution is set by the Simulator Wrapper, USE CAREFULLY
-                    n.setNumberOfOcupiedSlots(n.getNumberOfOcupiedSlots() + 1);//this neighbor has just filled one of his slots
+                    n.setNumberOfOccupiedSlots(n.getNumberOfOccupiedSlots() + 1);//this neighbor has just filled one of his slots
                     individualSent = true;
                     individualsToSend.remove(ind);
                     Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "FadseIndividual sent to: " + n);
@@ -90,7 +83,7 @@ public class ClientsRepository {
                     Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "Don't know about host", ex);
                 } catch (IOException ex) {
                     ex.fillInStackTrace();
-                    Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "Couldn't get I/O for the connection or ACK not received from" + n.getIp() + ":" + n.getPort(), "");
+                    Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "Couldn't get I/O for the connection or ACK not received from" + n.getIP() + ":" + n.getPort(), "");
                 } catch (Exception ex) {
                     Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "Other exception", ex);
                 }
@@ -140,7 +133,8 @@ public class ClientsRepository {
                     if (duplicateDetector.contains(localKeptMessage.getIndividual())) {
                         //we already have its results, but we should look in the received one if it is in fact better than the one before
                         FadseIndividual rec = receivedMessage.getIndividual();
-                        if (rec.isFeasible() && rec.getObjectives().size() != environment.getInputDocument().getObjectives().size()) {//is feasible and has all of its objective
+                        int objectivesSize = ((Map<String, Objective>)(inputData.get(CommonSetupParameters.OBJECTIVES))).size();
+                        if (rec.isFeasible() && rec.getObjectives().size() != objectivesSize) {//is feasible and has all of its objective
                             //it does not matter if the old one was also feasible we just copy the results either way
                             copy = true;
                             for (int i = 0; i < rec.getObjectives().size(); i++) {
@@ -167,10 +161,11 @@ public class ClientsRepository {
         for (Message localKeptMessage : cleanMessages) {
 
             boolean infeasible = false;
-            List<Objective> objs = localKeptMessage.getIndividual().getObjectives();
+            List<Objective> objectives = localKeptMessage.getIndividual().getObjectives();
             //FAILSAFE mechanism check if the number of objectives is correct
             try {
-                if (objs.size() != environment.getInputDocument().getObjectives().size()) {
+                int objectivesSize = ((Map<String, Objective>)(inputData.get(CommonSetupParameters.OBJECTIVES))).size();
+                if (objectives.size() != objectivesSize) {
                     localKeptMessage.getIndividual().setBadValuesForObjectives();
                     Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "individual has not all the objectives filled");
                     infeasible = true;
@@ -178,10 +173,10 @@ public class ClientsRepository {
             } catch (Exception e) {
                 Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "Something wrong with the objectives: " + e.getMessage());
             }
-            for (int i = 0; i < objs.size(); i++) {
+            for (int i = 0; i < objectives.size(); i++) {
                 //obtain the solution of this individual
-                Solution s = simulationStatus.getSolution(localKeptMessage.getMessageId());
-                Objective o = objs.get(i);
+                Solution<?> s = simulationStatus.getSolution(localKeptMessage.getMessageId());
+                Objective o = objectives.get(i);
                 double value = s.objectives()[i];
                 if (o.getValue() == 0) {
                     Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "individual has objectives set to 0 - marking him as infeasible[1]");
@@ -212,12 +207,13 @@ public class ClientsRepository {
         //compute the average
         //since the same solution exists  nrOfBenchmarks times in the messages sent list we have to divide by nr of benchmarks only once,
         //so we first build a set of all the solutions (no duplicates)
-        Set<Solution> solutions = new HashSet<>();
+        Set<Solution<?>> solutions = new HashSet<>();
         for (Message localkeptMessage : cleanMessages) {
             boolean infeasible = false;
             //FAILSAFE test individual for correctness - test if ind has the correct number of objectives
             try {
-                if (localkeptMessage.getIndividual().getObjectives().size() != environment.getInputDocument().getObjectives().size()) {
+                int objectivesSize = ((Map<String, Objective>)(inputData.get(CommonSetupParameters.OBJECTIVES))).size();
+                if (localkeptMessage.getIndividual().getObjectives().size() != objectivesSize) {
                     localkeptMessage.getIndividual().setBadValuesForObjectives();
                     Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "individual has not all the objectives filled[1]");
                     infeasible = true;
@@ -230,11 +226,12 @@ public class ClientsRepository {
                         infeasible = true;
                     }
                 }
-                Solution localKeptSolution = simulationStatus.getSolution(localkeptMessage.getMessageId());
+                Solution<?> localKeptSolution = simulationStatus.getSolution(localkeptMessage.getMessageId());
                 //FAILSAFE - not all the benchmarks responded
-                if ((int)localKeptSolution.attributes().get("counter") != environment.getInputDocument().getBenchmarks().size() * environment.getInputDocument().getObjectives().values().size()) {
-                    Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "individual does not have results for all the benchmarks, or has more results (" + (localKeptSolution.attributes().get("counter") + "!=" + environment.getInputDocument().getBenchmarks().size() * environment.getInputDocument().getObjectives().values().size()) + ") : ");
-                    for (int i = 0; i < environment.getInputDocument().getObjectives().values().size(); i++) {
+                int benchmarkSize = ((List<String>)(inputData.get(CommonSetupParameters.BENCHMARKS))).size();
+                if ((int)localKeptSolution.attributes().get("counter") != benchmarkSize * objectivesSize) {
+                    Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "individual does not have results for all the benchmarks, or has more results (" + (localKeptSolution.attributes().get("counter") + "!=" + benchmarkSize * objectivesSize) + ") : ");
+                    for (int i = 0; i < objectivesSize; i++) {
                         Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, ((String[])localKeptSolution.attributes().get("sum"))[i]);
                     }
                     infeasible = true;
@@ -249,13 +246,14 @@ public class ClientsRepository {
             }
 
         }
-        for (Solution s : solutions) {
+        for (Solution<?> s : solutions) {
             //System.out.println(s.getNumberOfViolatedConstraint() != 0 ? "Infeasible" : "Feasible");
             for (int i = 0; i < s.objectives().length; i++) {
                 double value = s.objectives()[i];
-                value = value / environment.getInputDocument().getBenchmarks().size();//compute the average
-                s.objectives()[i] = ((Double[])s.attributes().get("tempSum"))[i] / environment.getInputDocument().getBenchmarks().size();
-                System.out.println(((String[])s.attributes().get("sum"))[i] + "/" + environment.getInputDocument().getBenchmarks().size() + " = " + ((Double[])s.attributes().get("tempSum"))[i] / environment.getInputDocument().getBenchmarks().size() + "=" + value);
+                int benchmarkSize = ((List<String>)(inputData.get(CommonSetupParameters.BENCHMARKS))).size();
+                value = value / benchmarkSize;//compute the average
+                s.objectives()[i] = ((Double[])s.attributes().get("tempSum"))[i] / benchmarkSize;
+                System.out.println(((String[])s.attributes().get("sum"))[i] + "/" + benchmarkSize + " = " + ((Double[])s.attributes().get("tempSum"))[i] / benchmarkSize + "=" + value);
                 //cleaning up the solution - has to be done for algorithms that reuse the same object as PSO algorithms
                 String[] sum = ((String[])s.attributes().get("sum"));
                 sum[i] = null;
@@ -273,12 +271,8 @@ public class ClientsRepository {
         receiver.clearResults();
         Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "Join method finished.");
         //refreshing the neighbors
-        try {
-            fadseClients = ListOfFadseClients.getRefreshedNeighbors();
-            Logger.getLogger(ClientsRepository.class.getName()).log(Level.CONFIG, "Loaded " + fadseClients.size() + " neighbors...");
-        } catch (ParserConfigurationException ex) {
-            Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        fadseClients = (ListOfFadseClients) inputData.get(CommonSetupParameters.FADSE_CLIENTS);
+        Logger.getLogger(ClientsRepository.class.getName()).log(Level.CONFIG, "Loaded " + fadseClients.getSize() + " neighbors...");
 
     }
 
@@ -290,12 +284,13 @@ public class ClientsRepository {
         Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "redistributeUnfinishedSimulations called...");
         long startTime = System.currentTimeMillis();
         while (simulationStatus.getNumberOfActiveSimulations() > 0) {
-            int maxTime = Integer.parseInt(environment.getInputDocument().getSimulatorParameter("maximumTimeOfASimulation"));
+            Map<String, String> problemConfigParameters = (Map<String, String>) inputData.get(CommonSetupParameters.PROBLEM_CONFIG);
+            int maxTime = Integer.parseInt(problemConfigParameters.get("maximumTimeOfASimulation"));
             if (System.currentTimeMillis() - startTime > 1000L * 60 * maxTime * 2) {//we have been waiting for too long something might have happened in detectAndRescheduleCrashedClients
                 //just make them all infeasible and move on with our life
                 for (String messageId : simulationStatus.getActiveSimulationsIds()) {
                     Simulation s = simulationStatus.getSimulation(messageId);
-                    s.getMessage().getIndividual().markAsInfeasibleAndSetBadValuesForObjectives("We waited too long for this one to finnish");
+                    s.getMessage().getIndividual().setBadValuesForObjectives();
                     s.setActive(false);
                 }
                 break;//leave the while
@@ -327,19 +322,21 @@ public class ClientsRepository {
         for (String messageId : simulationStatus.getActiveSimulationsIds()) {
 //            Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "handling messageID " + messageId + "...");
             Simulation s = simulationStatus.getSimulation(messageId);
-            int maxTime = Integer.parseInt(environment.getInputDocument().getSimulatorParameter("maximumTimeOfASimulation"));
+            // TODO -> Refactor & get rid of Gap -> Andrei
+            Map<String, String> problemConfigParameters = (Map<String, String>) inputData.get(CommonSetupParameters.PROBLEM_CONFIG);
+            int maxTime = Integer.parseInt(problemConfigParameters.get("maximumTimeOfASimulation"));
             if (s != null && System.currentTimeMillis() - s.getSimulationStartedTime().getTime() > 1000L * 60 * maxTime) {
                 //maximum allocated time has passed - check how many retries and mark ind as infeasible if number of retries exceeded
                 //avoid deadlock if all the clients are simulating indefinitely
                 Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "Retries for this message: " + s.getRetries());
                 if (s.getRetries() > 1) {
-                    s.getMessage().getIndividual().markAsInfeasibleAndSetBadValuesForObjectives("Too many retries");
+                    s.getMessage().getIndividual().setBadValuesForObjectives();
                     s.setActive(false);
                     Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "FadseIndividual has been marked as infeasible.");
                 } else {
                     //resend it to another client for simulation
                     s.increaseRetries();
-                    s.getMessage().getIndividual().markAsInfeasibleAndSetBadValuesForObjectives("retrying individual. It will be set as feasible again. But we set the objectives to bad values just in case");//set the objectives to bad values just in case
+                    s.getMessage().getIndividual().setBadValuesForObjectives();//set the objectives to bad values just in case
                     s.getMessage().getIndividual().setFeasible(true);
                     //remove the message that we are currently not waiting for from the waiting list
                     //simulationStatus.removeSimulationsOnClient(s.getNeighbor());//TODO test
@@ -372,22 +369,23 @@ public class ClientsRepository {
     }
 
     public void dumpCurrentPopulation(String filename, List<DoubleSolution> population) {
-        InputData inputData = simulationStatus.getInputData();
-        ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.PARAMETERS);
-        Map<String, Objective> objectives = (Map<String, Objective>) inputData.get(CommonSetupParameters.OBJECTIVES);
-        String result = CsvUtils.generateCSVHeader(designVariables, objectives);
-        result += CsvUtils.generateCSV(population);
-
-        System.out.println("Result of the population (" + filename + "):\n" + result);
-
-        try {
-            (new File(environment.getResultsFolder())).mkdirs();
-            BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolder() + FileSystems.getDefault().getSeparator() + filename + ".csv"));
-            out.write(result);
-            out.close();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            e. fillInStackTrace();
-        }
+        // TODO - Commented out by Andrei -> To be used, when needed
+//        InputData inputData = simulationStatus.getInputData();
+//        ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.DESIGN_VARIABLES);
+//        Map<String, Objective> objectives = (Map<String, Objective>) inputData.get(CommonSetupParameters.OBJECTIVES);
+//        String result = CsvUtils.generateCSVHeader(designVariables, objectives);
+//        result += CsvUtils.generateCSV(population);
+//
+//        System.out.println("Result of the population (" + filename + "):\n" + result);
+//
+//        try {
+//            boolean created = (new File(environment.getResultsFolder())).mkdirs();
+//            BufferedWriter out = new BufferedWriter(new FileWriter(environment.getResultsFolder() + FileSystems.getDefault().getSeparator() + filename + ".csv"));
+//            out.write(result);
+//            out.close();
+//        } catch (IOException e) {
+//            System.err.println(e.getMessage());
+//            e. fillInStackTrace();
+//        }
     }
 }

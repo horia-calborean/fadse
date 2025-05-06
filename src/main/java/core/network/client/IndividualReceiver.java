@@ -1,6 +1,9 @@
-package core.network.receiver;
+package core.network.client;
 
+import core.network.ConnectionPool;
 import core.network.Message;
+import input.model.InputData;
+import input.model.setup.CommonSetupParameters;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -10,6 +13,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,10 +47,12 @@ public class IndividualReceiver implements Runnable {
                 retries++;
                 initSocket(port + retries);
             } else {
-                throw ex;
+                System.out.println("Exception from Individual Receiver");
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(IndividualReceiver.class.getName()).log(Level.SEVERE, "thread was interrupted", ex);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -98,13 +104,14 @@ public class IndividualReceiver implements Runnable {
                 receivedMessage.setServerIP(socket.getInetAddress());
                 receivedMessage.getIndividual().getInputData().getInputDocument().setSimulatorName(receivedMessage.getSimulatorName());
 
-                InputDocument inputDocument = receivedMessage.getIndividual().getInputData().getInputDocument();
-                for (String key : inputDocument.getSimulatorParameters().keySet()) {
-                    String p = inputDocument.getSimulatorParameters().get(key);
-                    inputDocument.getSimulatorParameters().put(key, p.replace("#", System.currentTimeMillis() + "_" + receivedMessage.getMessageId()));
+                InputData inputData = receivedMessage.getIndividual().getInputData();
+                Map<String, String> problemParameters = (Map<String, String>) inputData.get(CommonSetupParameters.PROBLEM_CONFIG);
+                for (String key : problemParameters.keySet()) {
+                    String p = problemParameters.get(key);
+                    problemParameters.put(key, p.replace("#", System.currentTimeMillis() + "_" + receivedMessage.getMessageId()));
                 }
 
-                simulatableProblem = ProblemFactory.createFrom(receivedMessage);
+                simulatableProblem = SimulatorFactory.getSimulator(receivedMessage.getSimulatorName(), receivedMessage.getIndividual());
 
                 if (simulatableProblem == null) {
 
@@ -118,7 +125,8 @@ public class IndividualReceiver implements Runnable {
                     outputStream.writeObject(receivedMessage);
                     outputStream.flush();
                 } else {
-                    ConnectionPool.setInputDocument(receivedMessage.getIndividual().getInputData().getInputDocument());
+                    Map<String, String> dbConnectionData = (Map<String, String>) inputData.get(CommonSetupParameters.DATABASE);
+                    ConnectionPool.setInputDocument(dbConnectionData);
                     receivedMessage.setType(Message.TYPE_ACK);
 
                     outputStream.writeObject(receivedMessage);
@@ -136,8 +144,7 @@ public class IndividualReceiver implements Runnable {
             }
             if (isSimulationStarted) {
                 Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, "Now I can start the simulation...");
-                startSimulation(receivedMessage, simulatableProblem); // TODO - PROBABLY REPLACED BY THE FOLLOWING LINE
-                simulatableProblem.simulate(); //TODO
+                startSimulation(receivedMessage, simulatableProblem);
                 Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, "I've finished the simulation (?)");
             }
         }

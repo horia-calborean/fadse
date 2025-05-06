@@ -88,7 +88,7 @@ public class StatusObserver<S extends Solution<?>> implements Runnable {
                                 List<S> solutionSet = SimulationUtils.insertObjectivesValuesIntoSolutions(simulationStatus);
 
                                 InputData inputData = simulationStatus.getInputData();
-                                ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.PARAMETERS);
+                                ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.DESIGN_VARIABLES);
                                 Map<String, Objective> objectives = (Map<String, Objective>) inputData.get(CommonSetupParameters.OBJECTIVES);
                                 String header = CsvUtils.generateCSVHeader(designVariables, objectives);
                                 result = new StringBuilder(header);
@@ -97,7 +97,7 @@ public class StatusObserver<S extends Solution<?>> implements Runnable {
                                 List<S> solutionSet = SimulationUtils.insertObjectivesValuesIntoSolutions(simulationStatus);
 
                                 InputData inputData = simulationStatus.getInputData();
-                                ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.PARAMETERS);
+                                ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.DESIGN_VARIABLES);
                                 Map<String, Objective> objectives = (Map<String, Objective>) inputData.get(CommonSetupParameters.OBJECTIVES);
                                 String header = CsvUtils.generateCSVHeader(designVariables, objectives);
                                 result = new StringBuilder(header);

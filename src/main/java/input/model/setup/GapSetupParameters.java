@@ -1,10 +1,8 @@
 package input.model.setup;
 
 public enum GapSetupParameters implements SetupParameter {
-    GAP_CONFIG("gap_config"),
     METAHEURISTIC("metaheuristic"),
     METAHEURISTIC_DATA(""),
-    DATABASE("database"),
     NAME("name"),
     OUTPUT_PATH("output"),
     FADSE_CLIENTS_FILE_PATH("clients");

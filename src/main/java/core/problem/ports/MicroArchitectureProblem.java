@@ -2,10 +2,12 @@ package core.problem.ports;
 
 import core.model.individual.FadseIndividual;
 import core.model.objectives.Objective;
+import core.network.ClientsRepository;
 import input.model.InputData;
 import input.model.setup.CommonSetupParameters;
 import input.ports.parameter.problem.ProblemParameter;
 import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
     public MicroArchitectureProblem(InputData inputData) {
         this.inputData = inputData;
 
-        ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.PARAMETERS);
+        ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.DESIGN_VARIABLES);
         setRangeLimitsFrom(designVariables);
     }
 
@@ -27,7 +29,7 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
     public DoubleSolution evaluate(DoubleSolution doubleSolution) {
         List<String> benchmarks = (List<String>) inputData.get(CommonSetupParameters.BENCHMARKS);
 
-        ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.PARAMETERS);
+        ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.DESIGN_VARIABLES);
         List<Double> optimizedValues = doubleSolution.variables();
         ProblemParameter<?>[] newDesignVariables = getNewVariablesFrom(designVariables, optimizedValues);
 
@@ -39,7 +41,7 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
             individual = new FadseIndividual(inputData, benchmark);
             individual.setParameters(newDesignVariables);
 
-            sendForSimulation(individual);
+            sendForSimulation(individual, doubleSolution);
 
             List<Objective> evaluatedObjectives = individual.getObjectives();
 
@@ -82,8 +84,15 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
         return newDesignVariables;
     }
 
-    protected void sendForSimulation(FadseIndividual individual) {
-        // TODO 1. IMPORT ServerSimulator as kinda Sender
-        // TODO 2. INSTANTIATE HERE ServerSimulator OBJECT AND SEND THE individual
+    protected void sendForSimulation(FadseIndividual individual, Solution<?> currentSolution) {
+        ClientsRepository clientsRepository;
+
+        try {
+            clientsRepository = ClientsRepository.getInstance(inputData);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        clientsRepository.performSimulation(individual, currentSolution);
     }
 }

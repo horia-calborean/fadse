@@ -5,7 +5,9 @@ public enum CommonSetupParameters implements SetupParameter {
     OBJECTIVES("objectives"),
     TYPE("type"),
     FADSE_CLIENTS("fadse_clients"),
-    PARAMETERS("parameters");
+    PROBLEM_CONFIG("problem_config"),
+    DATABASE("database"),
+    DESIGN_VARIABLES("parameters");
 
     private final String name;
 

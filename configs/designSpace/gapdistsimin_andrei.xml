@@ -2,7 +2,7 @@
 
 <design_space>
     <!-- type can be synthetic or simulator -->
-    <gap_config name = "GAP" type = "simulator">
+    <problem_config name = "GAP" type = "simulator">
         <parameter name = "maximumTimeOfASimulation"   value = "140"/> <!-- in minutes -->
         <parameter name = "realSimulator"              value = "GAPSimulator"/>
         <!-- this is not really needed because it is extracted from benchmark paths -->
@@ -14,7 +14,7 @@
         <parameter name = "benchmark_target_directory" value = "D:\PhD\Development\FADSE_getting_started\fadse_dumps\"/>
         <parameter name = "gaptimize_executable_file"  value = "D:\PhD\Development\FADSE_getting_started\Stepstep_YAML.exe"/>
         <parameter name = "benchmark_repository_path"  value = "D:\PhD\Development\FADSE_getting_started\mibench_tiny"/>
-    </gap_config>
+    </problem_config>
     <parameters>
         <parameter name = "n_lines"   description = "param1"  type = "integer" min = "4"  max = "32"/>
         <parameter name = "n_columns" description = "param2"  type = "integer" min = "4"  max = "32"/>
