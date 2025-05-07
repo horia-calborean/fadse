@@ -12,6 +12,7 @@ import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("unchecked cast")
@@ -23,6 +24,9 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
 
         ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.DESIGN_VARIABLES);
         setRangeLimitsFrom(designVariables);
+
+        Map<String, Objective> objectives = (Map<String, Objective>) inputData.get(CommonSetupParameters.OBJECTIVES);
+        numberOfObjectives(objectives.size());
     }
 
     @Override
@@ -64,8 +68,8 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
         List<Double> upperLimits = new ArrayList<>(designVariables.length);
 
         IntStream.range(0, designVariables.length).forEach((i) -> {
-            Double lower = (Double) designVariables[i].getLowerBound();
-            Double upper = (Double) designVariables[i].getUpperBound();
+            Double lower = ((Number) designVariables[i].getLowerBound()).doubleValue();
+            Double upper = ((Number) designVariables[i].getUpperBound()).doubleValue();
             lowerLimits.add(lower);
             upperLimits.add(upper);
         });

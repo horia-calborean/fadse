@@ -33,7 +33,7 @@ public class AlgorithmRunner {
             throw new RuntimeException(e);
         }
 
-        String problemName = (String) inputData.get(CommonSetupParameters.TYPE);
+        String problemName = (String) inputData.get(CommonSetupParameters.NAME);
         Problem<DoubleSolution> problem = ProblemFactory.createProblem(problemName, inputData);
 
         // TODO -> Read the following data from InputData & create a factory -> George
