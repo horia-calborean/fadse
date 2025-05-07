@@ -5,7 +5,7 @@ import core.model.individual.FadseIndividual;
 import java.io.Serializable;
 import java.net.InetAddress;
 
-public class Message implements Serializable{
+public class Message implements Serializable {
     public static int TYPE_REQUEST = 0;
     public static int TYPE_RESPONSE = 1;
     public static int TYPE_ACK = 2;

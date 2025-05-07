@@ -2,7 +2,9 @@ package input.adapters.parameter.numerics.type;
 
 import input.ports.parameter.problem.ProblemParameter;
 
-public class DoubleParameter extends ProblemParameter<Double> {
+import java.io.Serializable;
+
+public class DoubleParameter extends ProblemParameter<Double> implements Serializable {
     public DoubleParameter(double lowerBound, double upperBound) {
         super(lowerBound, upperBound);
         value = 0.0;

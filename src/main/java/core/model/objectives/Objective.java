@@ -1,6 +1,8 @@
 package core.model.objectives;
 
-public class Objective implements Cloneable {
+import java.io.Serializable;
+
+public class Objective implements Cloneable, Serializable {
     protected String name;
     protected String type;
     protected boolean isMinimized;

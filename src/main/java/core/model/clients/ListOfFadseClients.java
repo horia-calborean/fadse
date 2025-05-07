@@ -1,9 +1,10 @@
 package core.model.clients;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.LinkedList;
 
-public class ListOfFadseClients {
+public class ListOfFadseClients implements Serializable {
     protected LinkedList<FadseClientData> data;
 
     public ListOfFadseClients() {

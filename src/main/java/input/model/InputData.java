@@ -2,11 +2,12 @@ package input.model;
 
 import input.model.setup.SetupParameter;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class InputData {
+public class InputData implements Serializable {
     protected Map<SetupParameter, Object> data;
 
     public InputData() {

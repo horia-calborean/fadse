@@ -2,7 +2,9 @@ package input.adapters.parameter.numerics.type;
 
 import input.ports.parameter.problem.ProblemParameter;
 
-public class ExponentialParameter extends ProblemParameter<Integer> {
+import java.io.Serializable;
+
+public class ExponentialParameter extends ProblemParameter<Integer> implements Serializable {
     protected int exp;
 
     public ExponentialParameter(int lowerBound, int upperBound) {
