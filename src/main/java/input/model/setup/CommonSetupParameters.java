@@ -7,6 +7,7 @@ public enum CommonSetupParameters implements SetupParameter {
     FADSE_CLIENTS("fadse_clients"),
     PROBLEM_CONFIG("problem_config"),
     DATABASE("database"),
+    NAME("name"),
     DESIGN_VARIABLES("parameters");
 
     private final String name;

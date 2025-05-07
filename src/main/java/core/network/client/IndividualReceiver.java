@@ -56,7 +56,7 @@ public class IndividualReceiver implements Runnable {
         }
     }
 
-    protected void startSimulation(Message m, SimulatorWrapper sim) {
+    protected void startSimulation(Message m, Simulator sim) {
         simulating = true;
         clientSimulatorRunner = new ClientSimulatorRunner(m.getIndividual(), sim, m);
         clientSimulatorRunner.run();
@@ -87,7 +87,7 @@ public class IndividualReceiver implements Runnable {
         ObjectOutputStream outputStream = null;
         Socket socket = null;
         Message receivedMessage = null;
-        SimulatableProblem<?> simulatableProblem = null;
+        Simulator simulator = null;
         int receivedIndividuals = 0;
         boolean isSimulationStarted = false;
         while (true) {
@@ -102,7 +102,8 @@ public class IndividualReceiver implements Runnable {
 
                 receivedMessage = (Message) inputStream.readObject();
                 receivedMessage.setServerIP(socket.getInetAddress());
-                receivedMessage.getIndividual().getInputData().getInputDocument().setSimulatorName(receivedMessage.getSimulatorName());
+                // TODO - Commented out by Andrei
+                //receivedMessage.getIndividual().getInputData().getInputDocument().setSimulatorName(receivedMessage.getSimulatorName());
 
                 InputData inputData = receivedMessage.getIndividual().getInputData();
                 Map<String, String> problemParameters = (Map<String, String>) inputData.get(CommonSetupParameters.PROBLEM_CONFIG);
@@ -111,15 +112,15 @@ public class IndividualReceiver implements Runnable {
                     problemParameters.put(key, p.replace("#", System.currentTimeMillis() + "_" + receivedMessage.getMessageId()));
                 }
 
-                simulatableProblem = SimulatorFactory.getSimulator(receivedMessage.getSimulatorName(), receivedMessage.getIndividual());
+                simulator = SimulatorFactory.createSimulator(inputData);
 
-                if (simulatableProblem == null) {
+                if (simulator == null) {
 
                     receivedMessage.setType(Message.TYPE_ERR_SIMULATOR_NOT_INSTALLED);
                     System.out.println("IndividualReceiver: Simulator NOT found");
                 } else if (receivedMessage.getType() == Message.TYPE_CLOSE_SIMULATION_REQUEST) {
 
-                    simulatableProblem.closeSimulation(receivedMessage.getIndividual());
+                    simulator.closeSimulation(receivedMessage.getIndividual());
                     receivedMessage.setType(Message.TYPE_ACK);
 
                     outputStream.writeObject(receivedMessage);
@@ -144,7 +145,7 @@ public class IndividualReceiver implements Runnable {
             }
             if (isSimulationStarted) {
                 Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, "Now I can start the simulation...");
-                startSimulation(receivedMessage, simulatableProblem);
+                startSimulation(receivedMessage, simulator);
                 Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, "I've finished the simulation (?)");
             }
         }

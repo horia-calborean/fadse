@@ -69,7 +69,7 @@ public class GAPInputCollector extends MicroArchInputCollector {
         inputData.set(CommonSetupParameters.TYPE, type);
 
         String name = getName();
-        inputData.set(GapSetupParameters.NAME, name);
+        inputData.set(CommonSetupParameters.NAME, name);
 
         return inputData;
     }
