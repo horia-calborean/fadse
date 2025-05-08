@@ -9,6 +9,7 @@ import input.adapters.extractor.common.AlgorithmPropertiesDataExtractor;
 import input.adapters.extractor.fadse.ClientsXmlDataExtractor;
 import input.application.enhancer.InputDataEnhancer;
 import input.model.InputData;
+import input.model.setup.CommonSetupParameters;
 import input.model.setup.GapSetupParameters;
 import input.ports.document.InputDocument;
 import input.ports.extractor.fadse.ClientsExtractor;
@@ -30,7 +31,7 @@ public class GapInputDataEnhancer implements InputDataEnhancer {
             inputDocument = InputDocumentFactory.createDocument(filePath);
             extractor = createExtractor(inputDocument);
             ListOfFadseClients listOfClients = ((ClientsExtractor) extractor).extractClientsData();
-            inputData.set(GapSetupParameters.FADSE_CLIENTS, listOfClients);
+            inputData.set(CommonSetupParameters.FADSE_CLIENTS, listOfClients);
         }
 
         Map<String, String> metaheuristicInfo = (Map<String, String>) inputData.get(GapSetupParameters.METAHEURISTIC);

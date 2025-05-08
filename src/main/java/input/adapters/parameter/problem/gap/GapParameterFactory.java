@@ -3,7 +3,6 @@ package input.adapters.parameter.problem.gap;
 import input.adapters.parameter.numerics.type.DoubleParameter;
 import input.adapters.parameter.numerics.type.ExponentialParameter;
 import input.adapters.parameter.numerics.type.IntegerParameter;
-import input.adapters.parameter.strings.StringParameter;
 import input.ports.parameter.problem.ProblemParameter;
 
 public class GapParameterFactory {
@@ -17,8 +16,6 @@ public class GapParameterFactory {
                 return (ProblemParameter<T>) new ExponentialParameter((Integer) lowerBound, (Integer) upperBound);
             case "double":
                 return (ProblemParameter<T>) new DoubleParameter((Double) lowerBound, (Double) upperBound);
-            case "string":
-                return (ProblemParameter<T>) new StringParameter((String) lowerBound, (String) upperBound);
             default:
                 throw new IllegalArgumentException("Unknown parameter type: " + typeName);
         }

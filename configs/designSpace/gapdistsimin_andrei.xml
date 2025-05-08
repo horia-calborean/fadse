@@ -2,7 +2,7 @@
 
 <design_space>
     <!-- type can be synthetic or simulator -->
-    <gap_config name = "ServerSimulator" type = "simulator">
+    <problem_config name = "GAP" type = "simulator">
         <parameter name = "maximumTimeOfASimulation"   value = "140"/> <!-- in minutes -->
         <parameter name = "realSimulator"              value = "GAPSimulator"/>
         <!-- this is not really needed because it is extracted from benchmark paths -->
@@ -14,15 +14,15 @@
         <parameter name = "benchmark_target_directory" value = "D:\PhD\Development\FADSE_getting_started\fadse_dumps\"/>
         <parameter name = "gaptimize_executable_file"  value = "D:\PhD\Development\FADSE_getting_started\Stepstep_YAML.exe"/>
         <parameter name = "benchmark_repository_path"  value = "D:\PhD\Development\FADSE_getting_started\mibench_tiny"/>
-    </gap_config>
-    <gap_parameters>
+    </problem_config>
+    <parameters>
         <parameter name = "n_lines"   description = "param1"  type = "integer" min = "4"  max = "32"/>
         <parameter name = "n_columns" description = "param2"  type = "integer" min = "4"  max = "32"/>
         <parameter name = "n_layers"  description = "param3"  type = "exp2"    min = "1"  max = "64"/>
         <parameter name = "c_chunk"   description = "c_chunk" type = "exp2"    min = "4"  max = "16"/>   <!-- default: 8 (1/32) -->
         <parameter name = "c_sets"    description = "c_sets"  type = "exp2"    min = "32" max = "8192"/> <!-- default: 128 (32/8192) -->
         <parameter name = "c_lines"   description = "c_lines" type = "exp2"    min = "1"  max = "128"/>  <!-- default 1 (1/128) -->
-    </gap_parameters>
+    </parameters>
     <benchmarks>
         <item name="default-mibench-netw-dijkstra"/>
         <item name="default-mibench-cons-jpeg-encode"/>
@@ -36,11 +36,11 @@
          <item name="default-mibench-tele-adpcm-file-decode" /> -->
     </benchmarks>
     <metaheuristic name = "CNSGAII" config_path = "nsgaii.properties"/>
-    <gap_objectives>
+    <objectives>
         <!-- system_metric name="instruction per clock cycle IPC" type="float" unit="" desired="large" / -->
         <objective name = "Hardware complexity"        type = "float" unit = "" desired = "small"/>
         <objective name = "Clocks per instruction CPI" type = "float" unit = "" desired = "small"/>
-    </gap_objectives>
+    </objectives>
     <database ip="5.122.109.113" port="3306" name="fadse" user="root" password="fadse"/>
     <clients fileName = "clientsConfig.xml"/>
     <output path= "D:\PhD\Development\FADSE_getting_started\fadse_output\"/>

@@ -5,6 +5,7 @@ import input.adapters.extractor.gap.GAPJsonDataExtractor;
 import input.adapters.extractor.gap.GAPXmlDataExtractor;
 import input.adapters.document.JsonInputDocument;
 import input.adapters.document.XmlInputDocument;
+import input.model.setup.CommonSetupParameters;
 import input.model.setup.GapSetupParameters;
 import input.model.InputData;
 import input.ports.document.InputDocument;
@@ -41,22 +42,22 @@ public class GAPInputCollector extends MicroArchInputCollector {
         InputData inputData = new InputData();
 
         Map<String, String> configParameters = getConfigParameters();
-        inputData.set(GapSetupParameters.GAP_CONFIG, configParameters);
+        inputData.set(CommonSetupParameters.PROBLEM_CONFIG, configParameters);
 
         ProblemParameter<?>[] problemParameters = getProblemParameters();
-        inputData.set(GapSetupParameters.GAP_PARAMETERS, problemParameters);
+        inputData.set(CommonSetupParameters.DESIGN_VARIABLES, problemParameters);
 
         List<String> benchmarksList = getBenchmarkList();
-        inputData.set(GapSetupParameters.BENCHMARKS, benchmarksList);
+        inputData.set(CommonSetupParameters.BENCHMARKS, benchmarksList);
 
         Map<String, String> metaheuristicData = getMetaheuristicData();
         inputData.set(GapSetupParameters.METAHEURISTIC, metaheuristicData);
 
         Map<String, Objective> objectives = getObjectives();
-        inputData.set(GapSetupParameters.OBJECTIVES, objectives);
+        inputData.set(CommonSetupParameters.OBJECTIVES, objectives);
 
         Map<String, String> dbConnectionData = getDbConnectionData();
-        inputData.set(GapSetupParameters.DATABASE, dbConnectionData);
+        inputData.set(CommonSetupParameters.DATABASE, dbConnectionData);
 
         String fadseClientsFilePath = getClientsFileName();
         inputData.set(GapSetupParameters.FADSE_CLIENTS_FILE_PATH, fadseClientsFilePath);
@@ -65,10 +66,10 @@ public class GAPInputCollector extends MicroArchInputCollector {
         inputData.set(GapSetupParameters.OUTPUT_PATH, outputPath);
 
         String type = getType();
-        inputData.set(GapSetupParameters.TYPE, type);
+        inputData.set(CommonSetupParameters.TYPE, type);
 
         String name = getName();
-        inputData.set(GapSetupParameters.NAME, name);
+        inputData.set(CommonSetupParameters.NAME, name);
 
         return inputData;
     }

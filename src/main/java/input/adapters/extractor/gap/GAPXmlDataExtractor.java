@@ -5,6 +5,7 @@ import core.model.paths.PathUtils;
 import input.adapters.document.XmlInputDocument;
 import input.adapters.extractor.XmlDataExtractor;
 import input.adapters.parameter.problem.gap.GapParameterFactory;
+import input.model.setup.CommonSetupParameters;
 import input.model.setup.GapSetupParameters;
 import input.application.parser.NumberParser;
 import input.ports.extractor.common.BenchmarkExtractor;
@@ -29,7 +30,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public Map<String, String> extractGapConfigParameters() {
-        String tagName = GapSetupParameters.GAP_CONFIG.getName();
+        String tagName = CommonSetupParameters.PROBLEM_CONFIG.getName();
         NodeList simulatorTag = xmlDocument.getElementsByTagName(tagName);
         NodeList simulatorParams = ((Element) simulatorTag.item(0)).getElementsByTagName("parameter");
 
@@ -48,7 +49,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public ProblemParameter<?>[] extractParameters() throws Exception {
-        String tagName = GapSetupParameters.GAP_PARAMETERS.getName();
+        String tagName = CommonSetupParameters.DESIGN_VARIABLES.getName();
 
         NodeList parametersXmlNode = ((Element) xmlDocument.getElementsByTagName(tagName).item(0)).getElementsByTagName("parameter");
 
@@ -56,60 +57,59 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
         ProblemParameter<?>[] problemParameters = new ProblemParameter<?>[noOfParameters];
 
+        for (int parameterIndex = 0; parameterIndex < noOfParameters; parameterIndex++) {
+            Node xmlParameterNode = parametersXmlNode.item(parameterIndex);
+            NamedNodeMap attributes = xmlParameterNode.getAttributes();
 
-            for (int parameterIndex = 0; parameterIndex < noOfParameters; parameterIndex++) {
-                Node xmlParameterNode = parametersXmlNode.item(parameterIndex);
-                NamedNodeMap attributes = xmlParameterNode.getAttributes();
-
-                if (attributes.getNamedItem("type") == null) {
-                    throw new Exception("type was not specified for the parameter at index " + parameterIndex);
-                }
-
-                String typeName = attributes.getNamedItem("type").getNodeValue();
-
-                String numberStr;
-
-                if (attributes.getNamedItem("min") == null) {
-                    throw new Exception("min was not specified for the parameter at index " + parameterIndex);
-                }
-
-                numberStr = attributes.getNamedItem("min").getNodeValue();
-                Number min = NumberParser.parse(numberStr);
-
-                if (attributes.getNamedItem("max") == null) {
-                    throw new Exception("max was not specified for the parameter at index " + parameterIndex);
-                }
-
-                numberStr = attributes.getNamedItem("max").getNodeValue();
-                Number max = NumberParser.parse(numberStr);
-
-                ProblemParameter<?> parameter = GapParameterFactory.createParameter(typeName, min, max);
-
-                String name = "";
-                String description = "";
-
-                if (attributes.getNamedItem("name") != null) {
-                    name = attributes.getNamedItem("name").getNodeValue();
-                }
-
-                if (attributes.getNamedItem("description") != null) {
-                    description = attributes.getNamedItem("description").getNodeValue();
-                }
-
-                parameter.setName(name);
-                parameter.setDescription(description);
-
-                // TODO - Is it necessary to set step for Integer and exp for Exponential ?
-
-                problemParameters[parameterIndex] = parameter;
+            if (attributes.getNamedItem("type") == null) {
+                throw new Exception("type was not specified for the parameter at index " + parameterIndex);
             }
+
+            String typeName = attributes.getNamedItem("type").getNodeValue();
+
+            String numberStr;
+
+            if (attributes.getNamedItem("min") == null) {
+                throw new Exception("min was not specified for the parameter at index " + parameterIndex);
+            }
+
+            numberStr = attributes.getNamedItem("min").getNodeValue();
+            Number min = NumberParser.parse(numberStr);
+
+            if (attributes.getNamedItem("max") == null) {
+                throw new Exception("max was not specified for the parameter at index " + parameterIndex);
+            }
+
+            numberStr = attributes.getNamedItem("max").getNodeValue();
+            Number max = NumberParser.parse(numberStr);
+
+            ProblemParameter<?> parameter = GapParameterFactory.createParameter(typeName, min, max);
+
+            String name = "";
+            String description = "";
+
+            if (attributes.getNamedItem("name") != null) {
+                name = attributes.getNamedItem("name").getNodeValue();
+            }
+
+            if (attributes.getNamedItem("description") != null) {
+                description = attributes.getNamedItem("description").getNodeValue();
+            }
+
+            parameter.setName(name);
+            parameter.setDescription(description);
+
+            // TODO - Is it necessary to set step for Integer and exp for Exponential ?
+
+            problemParameters[parameterIndex] = parameter;
+        }
 
         return problemParameters;
     }
 
     @Override
     public List<String> extractBenchmarksList() {
-        String tagName = GapSetupParameters.BENCHMARKS.getName();
+        String tagName = CommonSetupParameters.BENCHMARKS.getName();
         NodeList benchmarksTag = xmlDocument.getElementsByTagName(tagName);
 
         List<String> benchmarksNames = new LinkedList<>();
@@ -150,7 +150,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public Map<String, String> parseDbConnectionData() {
-        String tagName = GapSetupParameters.DATABASE.getName();
+        String tagName = CommonSetupParameters.DATABASE.getName();
         NodeList databaseNode = xmlDocument.getElementsByTagName(tagName);
 
         NamedNodeMap attributes = databaseNode.item(0).getAttributes();
@@ -174,7 +174,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public String extractType() {
-        String tagName = GapSetupParameters.GAP_CONFIG.getName();
+        String tagName = CommonSetupParameters.PROBLEM_CONFIG.getName();
         NodeList simulatorTag = xmlDocument.getElementsByTagName(tagName);
         NamedNodeMap simulatorAttributes = simulatorTag.item(0).getAttributes();
 
@@ -183,7 +183,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public String extractName() {
-        String tagName = GapSetupParameters.GAP_CONFIG.getName();
+        String tagName = CommonSetupParameters.PROBLEM_CONFIG.getName();
         NodeList simulatorTag = xmlDocument.getElementsByTagName(tagName);
         NamedNodeMap simulatorAttributes = simulatorTag.item(0).getAttributes();
 
@@ -210,7 +210,7 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
 
     @Override
     public Map<String, Objective> extractObjectives() {
-        String tagName = GapSetupParameters.OBJECTIVES.getName();
+        String tagName = CommonSetupParameters.OBJECTIVES.getName();
         NodeList systemMetrics = ((Element) xmlDocument.getElementsByTagName(tagName).item(0)).getElementsByTagName("objective");
         Map<String, Objective> objectives = new HashMap<>();
         for (int i = 0; i < systemMetrics.getLength(); i++) {

@@ -1,4 +1,4 @@
-package core.model.start;
+package core.application;
 
 import core.model.paths.PathUtils;
 import input.adapters.collector.gap.GAPInputCollector;
@@ -17,5 +17,8 @@ public class SimulationBoot {
 
         InputDataEnhancer enhancer = new GapInputDataEnhancer();
         enhancer.expandDataFromFiles(inputData);
+
+        AlgorithmRunner algorithmRunner = new AlgorithmRunner(inputData);
+        algorithmRunner.run();
     }
 }
