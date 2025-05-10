@@ -1,10 +1,10 @@
 package core.algorithm.adapters;
 
+import core.network.ClientsRepository;
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.Map;
 // TODO - SEE THE WrappedEvolutionaryAlgorithm<S, R> CLASS FROM test-jmetal-6.0-radu BRANCH
 
 @SuppressWarnings("unchecked cast")
-public abstract class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgorithm<S, R> {
+public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgorithm<S, R> {
     protected AbstractEvolutionaryAlgorithm<S, R> algorithm;
     Map<String, Method> methodsDictionary;
 
@@ -27,6 +27,11 @@ public abstract class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutio
         List<S> offspringPopulation;
         List<S> matingPopulation;
         population = createInitialPopulation();
+        try {
+            ClientsRepository.getInstance(null).join();
+        } catch (Exception e) {
+            throw new RuntimeException("InputData is null: ", e);
+        }
         population = evaluatePopulation(population);
         initProgress();
         // TODO - checkpoint here ?
@@ -113,21 +118,47 @@ public abstract class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutio
         }
     }
 
+    @Override
+    public R result(){
+        try {
+            return (R) this.methodsDictionary.get("result").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: result", e);
+        }
+    }
+
+    @Override
+    public String name(){
+        try {
+            return (String) this.methodsDictionary.get("name").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: name", e);
+        }
+    }
+
+    @Override
+    public String description(){
+        try {
+            return (String) this.methodsDictionary.get("description").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: description", e);
+        }
+    }
+
     private Map<String, Method> getMethods(AbstractEvolutionaryAlgorithm<S,R> aea) {
         Map<String, Method> methods = new Hashtable<>();
-        Class jmetal = aea.getClass();
-        while (jmetal != null && !AbstractEvolutionaryAlgorithm.class.equals(jmetal)) {
-            jmetal = jmetal.getSuperclass();
-        }
+//        Class jmetal = aea.getClass();
 //        do {
 //            jmetal = jmetal.getSuperclass();
 //
 //        } while (!jmetal.getName().endsWith("AbstractEvolutionaryAlgorithm"));
+//
+//        Class current = this.getClass();
+//        Method[] allMethods = current.getMethods();
 
-        Class current = this.getClass();
-
-        Method[] allMethods = current.getMethods();
-        Method[] alljMetalMethods = jmetal.getMethods();
+        Class<?> jmetal = AbstractEvolutionaryAlgorithm.class;
+        Method[] allMethods = WrappedEvolutionaryAlgorithm.class.getDeclaredMethods();
+        Method[] alljMetalMethods = jmetal.getDeclaredMethods();
         for (Method m : allMethods) {
             String methodName = m.getName();
             if (methodName.startsWith("run") || methodName.startsWith("main")) {
