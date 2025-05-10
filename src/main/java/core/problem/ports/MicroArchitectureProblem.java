@@ -47,6 +47,7 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
 
             sendForSimulation(individual, doubleSolution);
 
+            // TODO - Andrei -> The app does not wait here for the response
             List<Objective> evaluatedObjectives = individual.getObjectives();
 
             int j = 0;

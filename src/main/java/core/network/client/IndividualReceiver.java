@@ -37,7 +37,7 @@ public class IndividualReceiver implements Runnable {
             InetAddress ip;
             try {
                 ip = InetAddress.getLocalHost();
-                System.out.println("<neighbor ip=\"" + ip.getHostAddress() + "\" listenPort=\"" + port + "\" availableSlots = \"1\" />");
+                System.out.println("<client ip=\"" + ip.getHostAddress() + "\" listenPort=\"" + port + "\" availableSlots = \"1\" />");
             } catch (UnknownHostException e) {
                 System.out.println("Client started on port:" + port);
                 e.fillInStackTrace();

@@ -1,23 +1,29 @@
 package core.algorithm.adapters;
 
+import core.network.ClientsRepository;
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-
-// TODO - SEE THE WrappedEvolutionaryAlgorithm<S, R> CLASS FROM test-jmetal-6.0-radu BRANCH
+import java.util.Map;
 
 @SuppressWarnings("unchecked cast")
-public abstract class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgorithm<S, R> {
+public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgorithm<S, R> {
     protected AbstractEvolutionaryAlgorithm<S, R> algorithm;
-    Dictionary<String, Method> methodsDictionary;
+    protected Map<String, Method> methodsDictionary;
+    protected ClientsRepository clientsRepository;
 
     public WrappedEvolutionaryAlgorithm(AbstractEvolutionaryAlgorithm<S, R> algorithm) {
         this.algorithm = algorithm;
         methodsDictionary = getMethods(algorithm);
+
+        try {
+            clientsRepository = ClientsRepository.getInstance(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // TODO - Integrate the database save of an individual in this flow
@@ -26,16 +32,45 @@ public abstract class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutio
         List<S> offspringPopulation;
         List<S> matingPopulation;
         population = createInitialPopulation();
+        clientsRepository.join();
         population = evaluatePopulation(population);
+        clientsRepository.join();
         initProgress();
-        // TODO - checkpoint here ?
         while (!isStoppingConditionReached()) {
             matingPopulation = selection(population);
             offspringPopulation = reproduction(matingPopulation);
+            clientsRepository.join();
             offspringPopulation = evaluatePopulation(offspringPopulation);
+            clientsRepository.join();
             population = replacement(population, offspringPopulation);
-            // TODO - checkpoint here ?
             updateProgress();
+        }
+    }
+
+    @Override
+    public R result() {
+        try {
+            return (R) this.methodsDictionary.get("result").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
+        }
+    }
+
+    @Override
+    public String name() {
+        try {
+            return (String) this.methodsDictionary.get("name").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
+        }
+    }
+
+    @Override
+    public String description() {
+        try {
+            return (String) this.methodsDictionary.get("description").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
         }
     }
 
@@ -45,35 +80,86 @@ public abstract class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutio
         try {
             return (List<S>) this.methodsDictionary.get("createInitialPopulation").invoke(algorithm);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
         }
     }
 
-    private Dictionary<String, Method> getMethods(AbstractEvolutionaryAlgorithm<S,R> aea) {
-        Dictionary<String, Method> methods = new Hashtable<>();
-        Class jmetal = aea.getClass();
-        do {
-            jmetal = jmetal.getSuperclass();
+    @Override
+    public void initProgress() {
+        try {
+            this.methodsDictionary.get("initProgress").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: initProgress" +  e);
+        }
+    }
 
-        } while (!jmetal.getName().endsWith("AbstractEvolutionaryAlgorithm"));
+    @Override
+    public List<S> selection(List<S> population) {
+        try {
+            return (List<S>) this.methodsDictionary.get("selection").invoke(algorithm, population);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: selection", e);
+        }
+    }
 
-        Class current = this.getClass();
+    @Override
+    public List<S> reproduction(List<S> population) {
+        try {
+            return (List<S>) this.methodsDictionary.get("reproduction").invoke(algorithm, population);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: reproduction", e);
+        }
+    }
 
-        Method[] allMethods = current.getDeclaredMethods();
-        Method[] alljMetalMethods = jmetal.getDeclaredMethods();
-        for (Method m : allMethods) {
-            String methodName = m.getName();
-            if (methodName.startsWith("run") || methodName.startsWith("main")) {
-                continue;
-            }
+    @Override
+    public List<S> evaluatePopulation(List<S> population) {
+        try {
+            return (List<S>) this.methodsDictionary.get("evaluatePopulation").invoke(algorithm, population);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: evaluatePopulation", e);
+        }
+    }
 
-            for (Method mj : alljMetalMethods) {
-                if (mj.getName().equals(methodName)) {
-                    mj.setAccessible(true);
-                    methods.put(methodName, mj);
-                    break;
+    @Override
+    public List<S> replacement(List<S> population, List<S> offspringPopulation) {
+        try {
+            return (List<S>) this.methodsDictionary.get("replacement").invoke(algorithm, population, offspringPopulation);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: replacement", e);
+        }
+    }
+
+    @Override
+    public void updateProgress() {
+        try {
+            this.methodsDictionary.get("updateProgress").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: updateProgress", e);
+        }
+    }
+
+    @Override
+    public boolean isStoppingConditionReached() {
+        try {
+            return (boolean) this.methodsDictionary.get("isStoppingConditionReached").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: isStoppingConditionReached", e);
+        }
+    }
+
+    private Map<String, Method> getMethods(AbstractEvolutionaryAlgorithm<S,R> aea) {
+        Map<String, Method> methods = new Hashtable<>();
+
+        Class<?> jmetal = aea.getClass();
+        while (jmetal != null && !Object.class.equals(jmetal)) {
+            for (Method m : jmetal.getDeclaredMethods()) {
+                String methodName = m.getName();
+                if (!methodName.startsWith("run") && !methodName.startsWith("main")) {
+                    m.setAccessible(true);
+                    methods.putIfAbsent(methodName, m);
                 }
             }
+            jmetal = jmetal.getSuperclass();
         }
 
         return methods;

@@ -1,10 +1,12 @@
 package core.application;
 
+import core.algorithm.adapters.WrappedEvolutionaryAlgorithm;
 import core.network.ClientsRepository;
 import core.problem.application.ProblemFactory;
 import input.model.InputData;
 import input.model.setup.CommonSetupParameters;
 import org.uma.jmetal.algorithm.Algorithm;
+import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.crossover.impl.SBXCrossover;
@@ -48,13 +50,15 @@ public class AlgorithmRunner {
         int noOfGenerations = 15;
 
         // TODO -> Instantiate algorithms using WrappedEvolutionaryAlgorithm wrappers -> George
-        Algorithm<List<DoubleSolution>> algorithm = new NSGAIIBuilder<>(problem, crossover, mutation, populationSize)
+        AbstractEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> algorithm = new NSGAIIBuilder<>(problem, crossover, mutation, populationSize)
                 .setSelectionOperator(selection)
                 .setMaxEvaluations(populationSize * noOfGenerations)
                 .build();
 
-        algorithm.run();
-        List<DoubleSolution> resultPopulation = algorithm.result();
+        WrappedEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> wrappedEvolutionaryAlgorithm = new WrappedEvolutionaryAlgorithm<>(algorithm);
+        wrappedEvolutionaryAlgorithm.run();
+
+        List<DoubleSolution> resultPopulation = wrappedEvolutionaryAlgorithm.result();
 
         System.out.println("Algorithm has finished with a result population of count -> " + resultPopulation.size());
     }
