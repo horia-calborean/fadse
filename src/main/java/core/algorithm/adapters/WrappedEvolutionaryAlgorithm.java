@@ -14,11 +14,18 @@ import java.util.Map;
 @SuppressWarnings("unchecked cast")
 public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgorithm<S, R> {
     protected AbstractEvolutionaryAlgorithm<S, R> algorithm;
-    Map<String, Method> methodsDictionary;
+    protected Map<String, Method> methodsDictionary;
+    protected ClientsRepository clientsRepository;
 
     public WrappedEvolutionaryAlgorithm(AbstractEvolutionaryAlgorithm<S, R> algorithm) {
         this.algorithm = algorithm;
         methodsDictionary = getMethods(algorithm);
+
+        try {
+            clientsRepository = ClientsRepository.getInstance(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // TODO - Integrate the database save of an individual in this flow
@@ -27,21 +34,46 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
         List<S> offspringPopulation;
         List<S> matingPopulation;
         population = createInitialPopulation();
-        try {
-            ClientsRepository.getInstance(null).join();
-        } catch (Exception e) {
-            throw new RuntimeException("InputData is null: ", e);
-        }
+        clientsRepository.join();
         population = evaluatePopulation(population);
+        clientsRepository.join();
         initProgress();
-        // TODO - checkpoint here ?
         while (!isStoppingConditionReached()) {
             matingPopulation = selection(population);
             offspringPopulation = reproduction(matingPopulation);
+            clientsRepository.join();
             offspringPopulation = evaluatePopulation(offspringPopulation);
+            clientsRepository.join();
             population = replacement(population, offspringPopulation);
             // TODO - checkpoint here ?
             updateProgress();
+        }
+    }
+
+    @Override
+    public R result() {
+        try {
+            return (R) this.methodsDictionary.get("result").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
+        }
+    }
+
+    @Override
+    public String name() {
+        try {
+            return (String) this.methodsDictionary.get("name").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
+        }
+    }
+
+    @Override
+    public String description() {
+        try {
+            return (String) this.methodsDictionary.get("description").invoke(algorithm);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
         }
     }
 
@@ -51,6 +83,7 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
         try {
             return (List<S>) this.methodsDictionary.get("createInitialPopulation").invoke(algorithm);
         } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
             throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
         }
     }
@@ -118,60 +151,48 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
         }
     }
 
+        Class current = this.getClass();
+
     @Override
-    public R result(){
+    public List<S> replacement(List<S> population, List<S> offspringPopulation) {
         try {
-            return (R) this.methodsDictionary.get("result").invoke(algorithm);
+            return (List<S>) this.methodsDictionary.get("replacement").invoke(algorithm, population, offspringPopulation);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to invoke method: result", e);
+            throw new RuntimeException("Failed to invoke method: replacement", e);
         }
     }
 
     @Override
-    public String name(){
+    public void updateProgress() {
         try {
-            return (String) this.methodsDictionary.get("name").invoke(algorithm);
+            this.methodsDictionary.get("updateProgress").invoke(algorithm);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to invoke method: name", e);
+            throw new RuntimeException("Failed to invoke method: updateProgress", e);
         }
     }
 
     @Override
-    public String description(){
+    public boolean isStoppingConditionReached() {
         try {
-            return (String) this.methodsDictionary.get("description").invoke(algorithm);
+            return (boolean) this.methodsDictionary.get("isStoppingConditionReached").invoke(algorithm);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to invoke method: description", e);
+            throw new RuntimeException("Failed to invoke method: isStoppingConditionReached", e);
         }
     }
 
     private Map<String, Method> getMethods(AbstractEvolutionaryAlgorithm<S,R> aea) {
         Map<String, Method> methods = new Hashtable<>();
-//        Class jmetal = aea.getClass();
-//        do {
-//            jmetal = jmetal.getSuperclass();
-//
-//        } while (!jmetal.getName().endsWith("AbstractEvolutionaryAlgorithm"));
-//
-//        Class current = this.getClass();
-//        Method[] allMethods = current.getMethods();
 
-        Class<?> jmetal = AbstractEvolutionaryAlgorithm.class;
-        Method[] allMethods = WrappedEvolutionaryAlgorithm.class.getDeclaredMethods();
-        Method[] alljMetalMethods = jmetal.getDeclaredMethods();
-        for (Method m : allMethods) {
-            String methodName = m.getName();
-            if (methodName.startsWith("run") || methodName.startsWith("main")) {
-                continue;
-            }
-
-            for (Method mj : alljMetalMethods) {
-                if (mj.getName().equals(methodName)) {
-                    mj.setAccessible(true);
-                    methods.put(methodName, mj);
-                    break;
+        Class<?> jmetal = aea.getClass();
+        while (jmetal != null && !Object.class.equals(jmetal)) {
+            for (Method m : jmetal.getDeclaredMethods()) {
+                String methodName = m.getName();
+                if (!methodName.startsWith("run") && !methodName.startsWith("main")) {
+                    m.setAccessible(true);
+                    methods.putIfAbsent(methodName, m);
                 }
             }
+            jmetal = jmetal.getSuperclass();
         }
 
         return methods;

@@ -52,6 +52,11 @@ public class Objective implements Cloneable, Serializable {
     }
 
     @Override
+    public String toString(){
+        return String.valueOf(value);
+    }
+
+    @Override
     public Objective clone() {
         Objective cloned = new Objective(this.name, this.type, this.isMinimized);
         cloned.unit = this.unit;

@@ -47,6 +47,11 @@ public abstract class ProblemParameter<T> implements Serializable {
         return value;
     }
 
+    @Override
+    public String toString(){
+        return value.toString();
+    }
+
     public abstract void setValueFromDouble(double value);
 
     public abstract ProblemParameter<T> clone();

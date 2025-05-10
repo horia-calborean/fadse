@@ -50,20 +50,15 @@ public class AlgorithmRunner {
         int noOfGenerations = 15;
 
         // TODO -> Instantiate algorithms using WrappedEvolutionaryAlgorithm wrappers -> George
-//        Algorithm<List<DoubleSolution>> algorithm = new NSGAIIBuilder<>(problem, crossover, mutation, populationSize)
-//                .setSelectionOperator(selection)
-//                .setMaxEvaluations(populationSize * noOfGenerations)
-//                .build();
-//
-//        algorithm.run();
-        AbstractEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> nsga2 = new NSGAIIBuilder<>(problem, crossover, mutation, populationSize)
+        AbstractEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> algorithm = new NSGAIIBuilder<>(problem, crossover, mutation, populationSize)
                 .setSelectionOperator(selection)
                 .setMaxEvaluations(populationSize * noOfGenerations)
                 .build();
-        WrappedEvolutionaryAlgorithm algorithm = new WrappedEvolutionaryAlgorithm(nsga2){};
-        algorithm.run();
 
-        List<DoubleSolution> resultPopulation = (List<DoubleSolution>) algorithm.result();
+        WrappedEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> wrappedEvolutionaryAlgorithm = new WrappedEvolutionaryAlgorithm<>(algorithm);
+        wrappedEvolutionaryAlgorithm.run();
+
+        List<DoubleSolution> resultPopulation = wrappedEvolutionaryAlgorithm.result();
 
         System.out.println("Algorithm has finished with a result population of count -> " + resultPopulation.size());
     }

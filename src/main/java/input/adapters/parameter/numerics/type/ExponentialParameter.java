@@ -33,6 +33,29 @@ public class ExponentialParameter extends ProblemParameter<Integer> implements S
 
     @Override
     public void setValueFromDouble(double value) {
-        this.value = (int) Math.round(value);
+        int closest = -1;
+        double minDiff = Double.MAX_VALUE;
+        int power = 0;
+
+        while (true) {
+            double candidateDouble = Math.pow(exp, power);
+            int candidate = (int) Math.round(candidateDouble);
+
+            if (candidate > upperBound) {
+                break;
+            }
+
+            if (candidate >= lowerBound) {
+                double diff = Math.abs(candidate - value);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closest = candidate;
+                }
+            }
+
+            power++;
+        }
+
+        this.value = closest;
     }
 }
