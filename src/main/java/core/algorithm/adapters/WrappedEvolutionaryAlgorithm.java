@@ -84,7 +84,6 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
             return (List<S>) this.methodsDictionary.get("createInitialPopulation").invoke(algorithm);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
-            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
         }
     }
 
@@ -123,35 +122,6 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
             throw new RuntimeException("Failed to invoke method: evaluatePopulation", e);
         }
     }
-
-    @Override
-    public List<S> replacement(List<S> population, List<S> offspringPopulation) {
-        try {
-            return (List<S>) this.methodsDictionary.get("replacement").invoke(algorithm, population, offspringPopulation);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to invoke method: replacement", e);
-        }
-    }
-
-    @Override
-    public void updateProgress() {
-        try {
-            this.methodsDictionary.get("updateProgress").invoke(algorithm);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to invoke method: updateProgress", e);
-        }
-    }
-
-    @Override
-    public boolean isStoppingConditionReached() {
-        try {
-            return (boolean) this.methodsDictionary.get("isStoppingConditionReached").invoke(algorithm);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to invoke method: isStoppingConditionReached", e);
-        }
-    }
-
-        Class current = this.getClass();
 
     @Override
     public List<S> replacement(List<S> population, List<S> offspringPopulation) {
