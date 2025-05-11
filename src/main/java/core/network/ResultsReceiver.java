@@ -79,8 +79,7 @@ public class ResultsReceiver implements Runnable {
                             } catch (Exception e) {//simulationStatus.getNumberOfActiveSimulations() might throw concurrent modification exception
                             }
                             // utils.Utils.loadNeighbors(null)
-                            InputData inputData = response.getIndividual().getInputData();
-                            ListOfFadseClients fadseClients = (ListOfFadseClients) inputData.get(CommonSetupParameters.FADSE_CLIENTS);
+                            ListOfFadseClients fadseClients = ListOfFadseClients.getInstance();
                             FadseClientData n = fadseClients.getByIpAndPort(socket.getInetAddress(), response.getClientListenPort());
                             if (n != null) {
                                 n.setNumberOfOccupiedSlots(n.getNumberOfOccupiedSlots() - 1);

@@ -30,7 +30,7 @@ public class ClientsRepository {
 
     private ClientsRepository(InputData inputData) throws IOException {
         this.inputData = inputData;
-        fadseClients = (ListOfFadseClients) inputData.get(CommonSetupParameters.FADSE_CLIENTS);
+        fadseClients = ListOfFadseClients.getInstance();
         receiver = ResultsReceiver.getInstance();
         simulationStatus = SimulationStatus.getInstance();
         simulationStatus.setReceiver(receiver);

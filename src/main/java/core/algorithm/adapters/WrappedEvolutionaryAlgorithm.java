@@ -34,14 +34,12 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
         List<S> offspringPopulation;
         List<S> matingPopulation;
         population = createInitialPopulation();
-        clientsRepository.join();
         population = evaluatePopulation(population);
         clientsRepository.join();
         initProgress();
         while (!isStoppingConditionReached()) {
             matingPopulation = selection(population);
             offspringPopulation = reproduction(matingPopulation);
-            clientsRepository.join();
             offspringPopulation = evaluatePopulation(offspringPopulation);
             clientsRepository.join();
             population = replacement(population, offspringPopulation);

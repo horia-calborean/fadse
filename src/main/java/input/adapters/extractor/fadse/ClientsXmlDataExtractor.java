@@ -20,7 +20,7 @@ public class ClientsXmlDataExtractor extends XmlDataExtractor implements Clients
 
     @Override
     public ListOfFadseClients extractClientsData() {
-        ListOfFadseClients listOfFadseClients = new ListOfFadseClients();
+        ListOfFadseClients listOfFadseClients = ListOfFadseClients.getInstance();
 
         try {
             xmlDocument.getDocumentElement().normalize();

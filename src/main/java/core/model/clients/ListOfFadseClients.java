@@ -6,9 +6,17 @@ import java.util.LinkedList;
 
 public class ListOfFadseClients implements Serializable {
     protected LinkedList<FadseClientData> data;
+    private static ListOfFadseClients instance;
 
-    public ListOfFadseClients() {
+    private ListOfFadseClients() {
         data = new LinkedList<>();
+    }
+
+    public static ListOfFadseClients getInstance() {
+        if (instance == null) {
+            instance = new ListOfFadseClients();
+        }
+        return instance;
     }
 
     public void add(FadseClientData data) {
