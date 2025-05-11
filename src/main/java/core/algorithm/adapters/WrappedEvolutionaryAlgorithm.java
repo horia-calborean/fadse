@@ -154,7 +154,7 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
         Map<String, Method> methods = new Hashtable<>();
 
         Class<?> jmetal = aea.getClass();
-        while (jmetal != null && !Object.class.equals(jmetal)) {
+        while (jmetal != null && !WrappedEvolutionaryAlgorithm.class.equals(jmetal)) {
             for (Method m : jmetal.getDeclaredMethods()) {
                 String methodName = m.getName();
                 if (!methodName.startsWith("run") && !methodName.startsWith("main")) {
