@@ -187,13 +187,33 @@ public class ClientsRepository {
 //                        System.out.println("value for solution["+simulationStatus.getSolution(sentM.getMessageId()).getDecisionVariables()+"] for objective["+i+"] = "+o.getValue());
                 value = (o.getValue() + value);//Add all the values. later we will divide it by the number of benchmarks
                 s.objectives()[i] = value;
-                // TODO - If the following lines are useless, remove them. If not, investigate how and when to initialize these arrays
+
+                if(!s.attributes().containsKey("counter"))
+                {
+                    s.attributes().put("counter", 0);
+                }
+
                 int counter = (int) s.attributes().get("counter");
                 s.attributes().put("counter", counter + 1);
-                String sum = ((String[])s.attributes().get("sum"))[i];
-                s.attributes().put("sum", sum + "+" + o.getValue());
-                Double tempSum = ((Double[])s.attributes().get("tempSum"))[i];
-                s.attributes().put("tempSum", tempSum + "+" + o.getValue());
+
+                if(!s.attributes().containsKey("sum"))
+                {
+                    s.attributes().put("sum", new String[100]);
+                }
+
+                String[] sum = (String[]) s.attributes().get("sum");
+                sum[i] = sum[i] + "+" + o.getValue();
+                s.attributes().put("sum", sum);
+
+                if(!s.attributes().containsKey("tempSum"))
+                {
+                    s.attributes().put("tempSum", new double[100]);
+                }
+
+                double[] tempSum = (double[]) s.attributes().get("tempSum");
+                tempSum[i] = tempSum[i] + o.getValue();
+                s.attributes().put("tempSum", tempSum);
+
                 //s.setObjective(i, o.getValue());
                 if (infeasible || !localKeptMessage.getIndividual().isFeasible()) {
                     ConstraintHandling.numberOfViolatedConstraints(s, (Integer.MAX_VALUE));
@@ -252,15 +272,17 @@ public class ClientsRepository {
                 double value = s.objectives()[i];
                 int benchmarkSize = ((List<String>)(inputData.get(CommonSetupParameters.BENCHMARKS))).size();
                 value = value / benchmarkSize;//compute the average
-                s.objectives()[i] = ((Double[])s.attributes().get("tempSum"))[i] / benchmarkSize;
-                System.out.println(((String[])s.attributes().get("sum"))[i] + "/" + benchmarkSize + " = " + ((Double[])s.attributes().get("tempSum"))[i] / benchmarkSize + "=" + value);
+                s.objectives()[i] = ((double[])s.attributes().get("tempSum"))[i] / benchmarkSize;
+                System.out.println(((String[])s.attributes().get("sum"))[i] + "/" + benchmarkSize + " = " + ((double[])s.attributes().get("tempSum"))[i] / benchmarkSize + "=" + value);
                 //cleaning up the solution - has to be done for algorithms that reuse the same object as PSO algorithms
                 String[] sum = ((String[])s.attributes().get("sum"));
                 sum[i] = null;
                 s.attributes().put("sum", sum);
-                Double[] tempSum = ((Double[])s.attributes().get("tempSum"));
+
+                double[] tempSum = ((double[])s.attributes().get("tempSum"));
                 tempSum[i] = 0.0;
                 s.attributes().put("tempSum", tempSum);
+
                 s.attributes().put("counter", 0);
             }
         }

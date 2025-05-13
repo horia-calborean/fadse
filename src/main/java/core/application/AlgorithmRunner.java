@@ -5,7 +5,6 @@ import core.network.ClientsRepository;
 import core.problem.application.ProblemFactory;
 import input.model.InputData;
 import input.model.setup.CommonSetupParameters;
-import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
@@ -46,8 +45,8 @@ public class AlgorithmRunner {
         double mutationDistributionIndex = 20.0;
         MutationOperator<DoubleSolution> mutation = new PolynomialMutation(mutationProbability, mutationDistributionIndex);
         SelectionOperator<List<DoubleSolution>, DoubleSolution> selection = new BinaryTournamentSelection<>(new RankingAndCrowdingDistanceComparator<>());
-        int populationSize = 10;
-        int noOfGenerations = 15;
+        int populationSize = 5;
+        int noOfGenerations = 10;
 
         // TODO -> Instantiate algorithms using WrappedEvolutionaryAlgorithm wrappers -> George
         AbstractEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> algorithm = new NSGAIIBuilder<>(problem, crossover, mutation, populationSize)
