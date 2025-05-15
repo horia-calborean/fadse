@@ -45,8 +45,8 @@ public class AlgorithmRunner {
         double mutationDistributionIndex = 20.0;
         MutationOperator<DoubleSolution> mutation = new PolynomialMutation(mutationProbability, mutationDistributionIndex);
         SelectionOperator<List<DoubleSolution>, DoubleSolution> selection = new BinaryTournamentSelection<>(new RankingAndCrowdingDistanceComparator<>());
-        int populationSize = 5;
-        int noOfGenerations = 10;
+        int populationSize = 10;
+        int noOfGenerations = 8;
 
         // TODO -> Instantiate algorithms using WrappedEvolutionaryAlgorithm wrappers -> George
         AbstractEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> algorithm = new NSGAIIBuilder<>(problem, crossover, mutation, populationSize)

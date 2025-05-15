@@ -144,7 +144,9 @@ public class IndividualReceiver implements Runnable {
                 closeAllConnections(inputStream, outputStream, socket);
             }
             if (isSimulationStarted) {
-                Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, "Now I can start the simulation...");
+                String ip = serverSocket.getInetAddress().getHostAddress();
+                int port = serverSocket.getLocalPort();
+                Logger.getLogger(IndividualReceiver.class.getName()).log(Level.SEVERE, "Client [" + ip + ":" + port + " starts the simulation of individual " + receivedMessage.getIndividual());
                 startSimulation(receivedMessage, simulator);
                 Logger.getLogger(IndividualReceiver.class.getName()).log(Level.INFO, "I've finished the simulation (?)");
             }

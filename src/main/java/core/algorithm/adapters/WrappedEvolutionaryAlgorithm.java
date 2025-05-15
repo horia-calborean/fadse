@@ -2,12 +2,17 @@ package core.algorithm.adapters;
 
 import core.network.ClientsRepository;
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
+import org.uma.jmetal.solution.Solution;
+import org.uma.jmetal.util.SolutionListUtils;
+import output.application.CsvUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @SuppressWarnings("unchecked cast")
 public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgorithm<S, R> {
@@ -29,29 +34,33 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
     // TODO - Integrate the database save of an individual in this flow
     @Override
     public void run() {
+        String path = "D:\\Downloads\\fadse.xlsx";
         List<S> offspringPopulation;
         List<S> matingPopulation;
         population = createInitialPopulation();
+        CsvUtils.writeExcel((List<? extends Solution<?>>) population, "initial pop non-evaluated", path);
         population = evaluatePopulation(population);
         clientsRepository.join();
+        CsvUtils.writeExcel((List<? extends Solution<?>>) population, "initial pop evaluated", path);
+        Logger.getLogger(WrappedEvolutionaryAlgorithm.class.getName()).log(Level.INFO, "Initial population evaluated");
         initProgress();
+        int gen = 0;
         while (!isStoppingConditionReached()) {
             matingPopulation = selection(population);
             offspringPopulation = reproduction(matingPopulation);
             offspringPopulation = evaluatePopulation(offspringPopulation);
             clientsRepository.join();
+            Logger.getLogger(WrappedEvolutionaryAlgorithm.class.getName()).log(Level.INFO, "Offsprings evaluated");
             population = replacement(population, offspringPopulation);
             updateProgress();
+            CsvUtils.writeExcel((List<? extends Solution<?>>) population, "pop after gen " + gen, path);
+            Logger.getLogger(WrappedEvolutionaryAlgorithm.class.getName()).log(Level.INFO, "Generation " + (gen++) + " done");
         }
     }
 
     @Override
     public R result() {
-        try {
-            return (R) this.methodsDictionary.get("result").invoke(algorithm);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
-        }
+        return (R) SolutionListUtils.getNonDominatedSolutions((List<? extends Solution<?>>)population);
     }
 
     @Override
@@ -59,7 +68,7 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
         try {
             return (String) this.methodsDictionary.get("name").invoke(algorithm);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
+            throw new RuntimeException("Failed to invoke method: name", e);
         }
     }
 
@@ -68,11 +77,10 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
         try {
             return (String) this.methodsDictionary.get("description").invoke(algorithm);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to invoke method: createInitialPopulation", e);
+            throw new RuntimeException("Failed to invoke method: description", e);
         }
     }
 
-    // TODO - DO THE SAME WITH THE REST OF THE METHODSs
     @Override
     public List<S> createInitialPopulation() {
         try {

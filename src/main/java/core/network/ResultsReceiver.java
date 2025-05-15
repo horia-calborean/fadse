@@ -75,7 +75,7 @@ public class ResultsReceiver implements Runnable {
                             simulationStatus.removeSimulation(response.getMessageId());
                             try {
                                 Logger.getLogger(ResultsReceiver.class.getName()).log(Level.INFO, "results size:[" + results.size() + "]; removed[" + socket.getInetAddress() + ":" + response.getClientListenPort() + "-id:" + response.getMessageId() + ";still simulating " + simulationStatus.getNumberOfActiveSimulations() + " ind");
-                                Logger.getLogger(ResultsReceiver.class.getName()).log(Level.INFO, "the individual is: " + response.getIndividual());
+                                Logger.getLogger(ResultsReceiver.class.getName()).log(Level.INFO, "Server received results for individual: " + response.getIndividual());
                             } catch (Exception e) {//simulationStatus.getNumberOfActiveSimulations() might throw concurrent modification exception
                             }
                             // utils.Utils.loadNeighbors(null)

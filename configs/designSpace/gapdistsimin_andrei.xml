@@ -25,10 +25,10 @@
     </parameters>
     <benchmarks>
         <item name="default-mibench-netw-dijkstra"/>
-        <item name="default-mibench-cons-jpeg-encode"/>
-        <item name="default-mibench-offi-stringsearch"/>
+        <!--<item name="default-mibench-cons-jpeg-encode"/>
+         <item name="default-mibench-offi-stringsearch"/>
         <item name="default-mibench-auto-qsort"/>
-        <!-- <item name="default-mibench-tele-gsm-encode" />
+        <item name="default-mibench-tele-gsm-encode" />
          <item name="default-mibench-secu-rijndael-encode-nounroll" />
          <item name="default-mibench-secu-rijndael-decode-nounroll" />
          <item name="default-mibench-cons-jpeg-decode" />
