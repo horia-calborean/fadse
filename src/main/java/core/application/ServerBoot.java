@@ -7,9 +7,9 @@ import input.application.enhancer.gap.GapInputDataEnhancer;
 import input.model.InputData;
 import input.ports.collector.MicroArchInputCollector;
 
-public class SimulationBoot {
+public class ServerBoot {
     public static void main(String[] args) {
-        System.out.println("main(String[] args) from SimulationBoot -> started");
+        System.out.println("main(String[] args) from ServerBoot -> started");
 
         String dseFilePath = PathUtils.getDseRelativePath("gapdistsimin_andrei.xml");
         MicroArchInputCollector inputCollector = new GAPInputCollector(dseFilePath);

@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@SuppressWarnings("unchecked cast")
 public class ClientsRepository {
     private static ClientsRepository instance;
     protected final ResultsReceiver receiver;
@@ -78,7 +79,7 @@ public class ClientsRepository {
                     n.setNumberOfOccupiedSlots(n.getNumberOfOccupiedSlots() + 1);//this neighbor has just filled one of his slots
                     individualSent = true;
                     individualsToSend.remove(ind);
-                    Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "FadseIndividual sent to: " + n);
+                    Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "Server sent the individual " + ind + " to: " + n);
                 } catch (UnknownHostException ex) {
                     Logger.getLogger(ClientsRepository.class.getName()).log(Level.SEVERE, "Don't know about host", ex);
                 } catch (IOException ex) {
@@ -187,13 +188,33 @@ public class ClientsRepository {
 //                        System.out.println("value for solution["+simulationStatus.getSolution(sentM.getMessageId()).getDecisionVariables()+"] for objective["+i+"] = "+o.getValue());
                 value = (o.getValue() + value);//Add all the values. later we will divide it by the number of benchmarks
                 s.objectives()[i] = value;
-                // TODO - If the following lines are useless, remove them. If not, investigate how and when to initialize these arrays
+
+                if(!s.attributes().containsKey("counter"))
+                {
+                    s.attributes().put("counter", 0);
+                }
+
                 int counter = (int) s.attributes().get("counter");
                 s.attributes().put("counter", counter + 1);
-                String sum = ((String[])s.attributes().get("sum"))[i];
-                s.attributes().put("sum", sum + "+" + o.getValue());
-                Double tempSum = ((Double[])s.attributes().get("tempSum"))[i];
-                s.attributes().put("tempSum", tempSum + "+" + o.getValue());
+
+                if(!s.attributes().containsKey("sum"))
+                {
+                    s.attributes().put("sum", new String[100]);
+                }
+
+                String[] sum = (String[]) s.attributes().get("sum");
+                sum[i] = (sum[i] == null || sum[i].isEmpty()) ? String.valueOf(o.getValue()) : sum[i] + " + " + o.getValue();
+                s.attributes().put("sum", sum);
+
+                if(!s.attributes().containsKey("tempSum"))
+                {
+                    s.attributes().put("tempSum", new double[100]);
+                }
+
+                double[] tempSum = (double[]) s.attributes().get("tempSum");
+                tempSum[i] = tempSum[i] + o.getValue();
+                s.attributes().put("tempSum", tempSum);
+
                 //s.setObjective(i, o.getValue());
                 if (infeasible || !localKeptMessage.getIndividual().isFeasible()) {
                     ConstraintHandling.numberOfViolatedConstraints(s, (Integer.MAX_VALUE));
@@ -249,18 +270,20 @@ public class ClientsRepository {
         for (Solution<?> s : solutions) {
             //System.out.println(s.getNumberOfViolatedConstraint() != 0 ? "Infeasible" : "Feasible");
             for (int i = 0; i < s.objectives().length; i++) {
-                double value = s.objectives()[i];
-                int benchmarkSize = ((List<String>)(inputData.get(CommonSetupParameters.BENCHMARKS))).size();
-                value = value / benchmarkSize;//compute the average
-                s.objectives()[i] = ((Double[])s.attributes().get("tempSum"))[i] / benchmarkSize;
-                System.out.println(((String[])s.attributes().get("sum"))[i] + "/" + benchmarkSize + " = " + ((Double[])s.attributes().get("tempSum"))[i] / benchmarkSize + "=" + value);
+                double objectiveSum = s.objectives()[i];
+                int benchmarkCount = ((List<String>)(inputData.get(CommonSetupParameters.BENCHMARKS))).size();
+                double objectiveAverage = objectiveSum / benchmarkCount;
+                s.objectives()[i] = objectiveAverage;
+                // System.out.println(objectiveSum + " / " + benchmarkCount + " = " + objectiveSum / benchmarkCount + " = " + objectiveAverage);
                 //cleaning up the solution - has to be done for algorithms that reuse the same object as PSO algorithms
                 String[] sum = ((String[])s.attributes().get("sum"));
                 sum[i] = null;
                 s.attributes().put("sum", sum);
-                Double[] tempSum = ((Double[])s.attributes().get("tempSum"));
+
+                double[] tempSum = ((double[])s.attributes().get("tempSum"));
                 tempSum[i] = 0.0;
                 s.attributes().put("tempSum", tempSum);
+
                 s.attributes().put("counter", 0);
             }
         }
@@ -322,7 +345,6 @@ public class ClientsRepository {
         for (String messageId : simulationStatus.getActiveSimulationsIds()) {
 //            Logger.getLogger(ClientsRepository.class.getName()).log(Level.INFO, "handling messageID " + messageId + "...");
             Simulation s = simulationStatus.getSimulation(messageId);
-            // TODO -> Refactor & get rid of Gap -> Andrei
             Map<String, String> problemConfigParameters = (Map<String, String>) inputData.get(CommonSetupParameters.PROBLEM_CONFIG);
             int maxTime = Integer.parseInt(problemConfigParameters.get("maximumTimeOfASimulation"));
             if (s != null && System.currentTimeMillis() - s.getSimulationStartedTime().getTime() > 1000L * 60 * maxTime) {

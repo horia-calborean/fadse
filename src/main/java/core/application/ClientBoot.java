@@ -16,7 +16,7 @@ public class ClientBoot {
     public static void main(String[] args) {
         System.out.println("main(String[] args) from ClientBoot -> started");
 
-        int clientPort = (args.length >= 2) ? Integer.parseInt(args[1]) : 4445;
+        int clientPort = (args.length >= 2) ? Integer.parseInt(args[1]) : 4450;
 
         IndividualReceiver individualReceiver = new IndividualReceiver(clientPort);
         Thread receiverThread = new Thread(individualReceiver);
