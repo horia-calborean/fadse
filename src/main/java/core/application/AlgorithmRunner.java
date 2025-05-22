@@ -1,13 +1,12 @@
 package core.application;
 
 import core.algorithm.adapters.WrappedEvolutionaryAlgorithm;
+import core.algorithm.factory.AlgorithmFactoryProvider;
 import core.network.ClientsRepository;
 import core.problem.application.ProblemFactory;
 import input.model.InputData;
 import input.model.setup.CommonSetupParameters;
-import org.uma.jmetal.algorithm.Algorithm;
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
-import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.crossover.impl.SBXCrossover;
 import org.uma.jmetal.operator.mutation.MutationOperator;
@@ -39,6 +38,10 @@ public class AlgorithmRunner {
         Problem<DoubleSolution> problem = ProblemFactory.createProblem(problemName, inputData);
 
         // TODO -> Read the following data from InputData & create a factory -> George
+        WrappedEvolutionaryAlgorithm<?, ?> wrappedAlgorithm = AlgorithmFactoryProvider.getAlgorithm(inputData, problem);
+        wrappedAlgorithm.run();
+        List<DoubleSolution> resultPopulation = (List<DoubleSolution>) wrappedAlgorithm.result();
+
         double crossoverProbability = 0.9;
         double crossoverDistributionIndex = 20.0;
         CrossoverOperator<DoubleSolution> crossover = new SBXCrossover(crossoverProbability, crossoverDistributionIndex);
@@ -50,16 +53,16 @@ public class AlgorithmRunner {
         int noOfGenerations = 8;
 
         // TODO -> Instantiate algorithms using WrappedEvolutionaryAlgorithm wrappers -> George
-        AbstractEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> algorithm = new NSGAIIBuilder<>(problem, crossover, mutation, populationSize)
-                .setSelectionOperator(selection)
-                .setMaxEvaluations(populationSize * noOfGenerations)
-                .build();
-
-        WrappedEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> wrappedEvolutionaryAlgorithm = new WrappedEvolutionaryAlgorithm<>(algorithm);
-        wrappedEvolutionaryAlgorithm.run();
-
-        List<DoubleSolution> resultPopulation = wrappedEvolutionaryAlgorithm.result();
-
-        System.out.println("Algorithm has finished with a result population of count -> " + resultPopulation.size());
+//        AbstractEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> algorithm = new NSGAIIBuilder<>(problem, crossover, mutation, populationSize)
+//                .setSelectionOperator(selection)
+//                .setMaxEvaluations(populationSize * noOfGenerations)
+//                .build();
+//
+//        WrappedEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> wrappedEvolutionaryAlgorithm = new WrappedEvolutionaryAlgorithm<>(algorithm);
+//        wrappedEvolutionaryAlgorithm.run();
+//
+//        List<DoubleSolution> resultPopulation = wrappedEvolutionaryAlgorithm.result();
+//
+//        System.out.println("Algorithm has finished with a result population of count -> " + resultPopulation.size());
     }
 }
