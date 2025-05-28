@@ -35,7 +35,7 @@
          <item name="default-mibench-tele-gsm-decode" />
          <item name="default-mibench-tele-adpcm-file-decode" /> -->
     </benchmarks>
-    <metaheuristic name = "CNSGAII" config_path = "nsgaii.properties"/>
+    <metaheuristic name = "NSGAII" config_path = "nsgaii.properties"/>
     <objectives>
         <!-- system_metric name="instruction per clock cycle IPC" type="float" unit="" desired="large" / -->
         <objective name = "Hardware complexity"        type = "float" unit = "" desired = "small"/>

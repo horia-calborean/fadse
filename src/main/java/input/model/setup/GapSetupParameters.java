@@ -1,5 +1,6 @@
 package input.model.setup;
 
+//TODO: move them to CommonSetupParameters if possible
 public enum GapSetupParameters implements SetupParameter {
     METAHEURISTIC("metaheuristic"),
     METAHEURISTIC_DATA(""),
