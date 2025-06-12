@@ -1,0 +1,17 @@
+{
+  "selection": {
+    "operator": "BinaryTournament"
+  },
+  "crossover": {
+    "operator": "SinglePointCrossover",
+    "probability": 0.9,
+    "distributionIndex": 20
+  },
+  "mutation": {
+    "operator": "BitFlipMutation",
+    "probability": 0.16,
+    "distributionIndex": 20
+  },
+  "populationSize": 10,
+  "maxEvaluations": 250
+}

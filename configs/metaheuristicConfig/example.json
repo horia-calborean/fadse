@@ -1,0 +1,60 @@
+{
+  "selection": {
+    "operator": "BinaryTournament"
+  },
+  "crossover": {
+    "operator": "SinglePointCrossover",
+    "probability": 0.9,
+    "distributionIndex": 20
+  },
+  "crossover2": {
+  "type": "differentialEvolution",
+  "cr": 0.9,
+  "f": 0.6,
+  "variant": "RAND_1_BIN",
+
+    "enum DE_VARIANT": [
+  "RAND_1_BIN",
+  "RAND_1_EXP",
+  "RAND_2_BIN",
+  "RAND_2_EXP",
+  "BEST_1_BIN",
+  "BEST_1_EXP",
+  "BEST_2_BIN",
+  "BEST_2_EXP",
+  "RAND_TO_BEST_1_BIN",
+  "RAND_TO_BEST_1_EXP",
+  "CURRENT_TO_RAND_1_BIN",
+  "CURRENT_TO_RAND_1_EXP"]
+
+},
+  "mutation": {
+    "operator": "BitFlipMutation",
+    "probability": 0.16,
+    "distributionIndex": 20
+  },
+  "mutation2": {
+    "operator": "CompositeMutation",
+    "mutations": [
+      {
+        "operator": "PolynomialMutation",
+        "probability": 0.1,
+        "distributionIndex": 20
+      },
+      {
+        "operator": "BitFlipMutation",
+        "probability": 0.05
+      }
+    ]
+  },
+  "mutation3": {
+  "operator": "GroupedAndLinkedPolynomialMutation",
+  "distributionIndex": 20.0,
+  "grouping": {
+    "type": "ListLinearGrouping",
+    "numberOfGroups": 3
+  }
+  },
+  "populationSize": 10,
+  "maxEvaluations": 250
+}

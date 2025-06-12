@@ -3,9 +3,11 @@ package input.application.enhancer.gap;
 import core.model.clients.ListOfFadseClients;
 import core.model.paths.PathUtils;
 import input.adapters.document.InputDocumentFactory;
+import input.adapters.document.JsonInputDocument;
 import input.adapters.document.PropertiesInputDocument;
 import input.adapters.document.XmlInputDocument;
 import input.adapters.extractor.common.AlgorithmPropertiesDataExtractor;
+import input.adapters.extractor.common.AlgorithmJsonDataExtractor;
 import input.adapters.extractor.fadse.ClientsXmlDataExtractor;
 import input.application.enhancer.InputDataEnhancer;
 import input.model.InputData;
@@ -41,7 +43,9 @@ public class GapInputDataEnhancer implements InputDataEnhancer {
             filePath = PathUtils.getAbsolutePath(filePath);
             inputDocument = InputDocumentFactory.createDocument(filePath);
             extractor = createExtractor(inputDocument);
-            Map<String, Object> algorithmData = ((AlgorithmPropertiesDataExtractor)extractor).extractData();
+            //Map<String, Object> algorithmData = ((AlgorithmPropertiesDataExtractor)extractor).extractData();
+            Map<String, Object> algorithmData = ((AlgorithmJsonDataExtractor)extractor).extractData();
+
             inputData.set(GapSetupParameters.METAHEURISTIC_DATA, algorithmData);
         }
     }
@@ -51,6 +55,8 @@ public class GapInputDataEnhancer implements InputDataEnhancer {
             return new ClientsXmlDataExtractor((XmlInputDocument) inputDocument);
         } else if (inputDocument instanceof PropertiesInputDocument) {
             return new AlgorithmPropertiesDataExtractor((PropertiesInputDocument) inputDocument);
+        } else if (inputDocument instanceof JsonInputDocument) {
+            return new AlgorithmJsonDataExtractor((JsonInputDocument) inputDocument);
         }
         throw new IllegalArgumentException("Error when creating GAP input data extractor");
     }
