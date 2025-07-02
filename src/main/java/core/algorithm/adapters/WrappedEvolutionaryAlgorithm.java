@@ -6,8 +6,13 @@ import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.SolutionListUtils;
 import output.application.CsvUtils;
 
+import javax.sound.sampled.Line;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +26,10 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
     protected AbstractEvolutionaryAlgorithm<S, R> algorithm;
     protected Map<String, Method> methodsDictionary;
     protected ClientsRepository clientsRepository;
+    protected String cvsPath;
 
-    public WrappedEvolutionaryAlgorithm(AbstractEvolutionaryAlgorithm<S, R> algorithm) {
+    public WrappedEvolutionaryAlgorithm(AbstractEvolutionaryAlgorithm<S, R> algorithm, String path) {
+        this.cvsPath = path + "fadse.xlsx";
         this.algorithm = algorithm;
         methodsDictionary = getMethods(algorithm);
 
@@ -36,14 +43,22 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
     // TODO - Integrate the database save of an individual in this flow
     @Override
     public void run() {
-        String path = "D:\\Downloads\\fadse.xlsx";
+        Path pathObj = Paths.get(cvsPath);
+        try {
+            boolean deleted = Files.deleteIfExists(pathObj);
+            Logger.getLogger(WrappedEvolutionaryAlgorithm.class.getName()).log(Level.INFO, "Deleted file: " + deleted);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
         List<S> offspringPopulation;
         List<S> matingPopulation;
         population = createInitialPopulation();
-        CsvUtils.writeExcel((List<? extends Solution<?>>) population, "initial pop non-evaluated", path);
+        CsvUtils.writeExcel((List<? extends Solution<?>>) population, "initial pop non-evaluated", cvsPath);
         population = evaluatePopulation(population);
         clientsRepository.join();
-        CsvUtils.writeExcel((List<? extends Solution<?>>) population, "initial pop evaluated", path);
+        CsvUtils.writeExcel((List<? extends Solution<?>>) population, "initial pop evaluated", cvsPath);
         Logger.getLogger(WrappedEvolutionaryAlgorithm.class.getName()).log(Level.INFO, "Initial population evaluated");
         initProgress();
         int gen = 0;
@@ -56,7 +71,7 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
             population = replacement(population, offspringPopulation);
             // TODO - checkpoint here ?
             updateProgress();
-            CsvUtils.writeExcel((List<? extends Solution<?>>) population, "pop after gen " + gen, path);
+            CsvUtils.writeExcel((List<? extends Solution<?>>) population, "pop after gen " + gen, cvsPath);
             Logger.getLogger(WrappedEvolutionaryAlgorithm.class.getName()).log(Level.INFO, "Generation " + (gen++) + " done");
         }
     }

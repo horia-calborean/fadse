@@ -46,7 +46,7 @@ public abstract class Simulator {
 
     public void performSimulation(FadseIndividual individual) {
         System.out.println("\n\n---------- PERFORM SIMULATION ---------");
-
+        //TODO: add check for DB here + insert
         simulatorRunner.setParameters(individual.getParameters());
 
          Map<String,Objective> objectivesMap = (Map<String, Objective>) inputData.get(CommonSetupParameters.OBJECTIVES);

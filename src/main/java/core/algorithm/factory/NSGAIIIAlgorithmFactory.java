@@ -1,10 +1,14 @@
 package core.algorithm.factory;
 
 import core.algorithm.adapters.WrappedEvolutionaryAlgorithm;
+import core.algorithm.factory.operators.crossover.CrossoverFactory;
+import core.algorithm.factory.operators.mutation.MutationFactory;
+import core.algorithm.factory.operators.selection.SelectionFactory;
 import input.model.InputData;
 import input.model.setup.GapSetupParameters;
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
+import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
 import org.uma.jmetal.operator.crossover.impl.SBXCrossover;
 import org.uma.jmetal.operator.mutation.MutationOperator;
@@ -12,38 +16,50 @@ import org.uma.jmetal.operator.mutation.impl.PolynomialMutation;
 import org.uma.jmetal.operator.selection.SelectionOperator;
 import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
 import org.uma.jmetal.problem.Problem;
+import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
 import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
 
 import java.util.HashMap;
 import java.util.List;
 
-public class NSGAIIIAlgorithmFactory implements AlgorithmFactoryInterface{
+public class NSGAIIIAlgorithmFactory<S extends Solution<?>> implements AlgorithmFactoryInterface<S, List<S>>{
 
     @Override
-    public WrappedEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> create(InputData inputData, Problem problem) {
-        //TODO: change it for nsga3
-        HashMap<String, Object> metaheuristic = (HashMap<String, Object>) inputData.get(GapSetupParameters.METAHEURISTIC);
-        int populationSize = (int) metaheuristic.get("populationSize");
-        int generations = (int) metaheuristic.get("generations");
+    public WrappedEvolutionaryAlgorithm<S, List<S>> create(InputData inputData, Problem<S> problem) {
 
-        double crossoverProbability = 0.9;
-        double crossoverDistributionIndex = 20.0;
-        double mutationProbability = 1.0 / problem.numberOfVariables();
-        double mutationDistributionIndex = 20.0;
+        HashMap<String, Object> metaheuristicData = (HashMap<String, Object>) inputData.get(GapSetupParameters.METAHEURISTIC_DATA);
+        String cvsPath = (String) inputData.get(GapSetupParameters.OUTPUT_PATH);
 
-        CrossoverOperator<DoubleSolution> crossover = new SBXCrossover(crossoverProbability, crossoverDistributionIndex);
-        MutationOperator<DoubleSolution> mutation = new PolynomialMutation(mutationProbability, mutationDistributionIndex);
-        SelectionOperator<List<DoubleSolution>, DoubleSolution> selection =
-                new BinaryTournamentSelection<>(new RankingAndCrowdingDistanceComparator<>());
+        int populationSize = (int) metaheuristicData.get("populationSize");
+        int maxEvaluations = (int) metaheuristicData.get("maxEvaluations");
 
-        AbstractEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> nsga2 = new NSGAIIBuilder<>(
-                problem, crossover, mutation, populationSize)
+        // FACTORIES
+        SelectionFactory selectionFactory = new SelectionFactory(metaheuristicData);
+        MutationFactory mutationFactory = new MutationFactory(metaheuristicData);
+        CrossoverFactory crossoverFactory = new CrossoverFactory(metaheuristicData);
+
+        SelectionOperator<?, ?> selectionOperator = selectionFactory.create();
+        MutationOperator<?> mutationOperator = mutationFactory.create();
+        CrossoverOperator<?> crossoverOperator = crossoverFactory.create();
+
+        @SuppressWarnings("unchecked")
+        SelectionOperator<List<S>, S> selection = (SelectionOperator<List<S>, S>) selectionOperator;
+        @SuppressWarnings("unchecked")
+        MutationOperator<S> mutation = (MutationOperator<S>) mutationOperator;
+        @SuppressWarnings("unchecked")
+        CrossoverOperator<S> crossover = (CrossoverOperator<S>) crossoverOperator;
+
+        AbstractEvolutionaryAlgorithm<S, List<S>> nsga3 = new NSGAIIIBuilder<>(
+                problem)
                 .setSelectionOperator(selection)
-                .setMaxEvaluations(populationSize * generations)
+                .setCrossoverOperator(crossover)
+                .setMutationOperator(mutation)
+                .setMaxIterations(maxEvaluations)
+                .setPopulationSize(populationSize)
                 .build();
 
-        return new WrappedEvolutionaryAlgorithm<>(nsga2);
+        return new WrappedEvolutionaryAlgorithm<>(nsga3, cvsPath);
     }
 
 }

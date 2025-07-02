@@ -233,7 +233,7 @@ public class GAPRunner extends SimulatorRunner {
                 benchmarkDirectory = new File(
                         problemParameters.get("benchmark_target_directory"));
                 benchmarkDirectory = new File(
-                        benchmarkDirectory.getAbsolutePath() + "\\gap_dump_" + System.currentTimeMillis() + "_" + basename);
+                        benchmarkDirectory.getAbsolutePath() + "/gap_dump_" + System.currentTimeMillis() + "_" + basename);
                 benchmarkDirectory.mkdirs();
                 GAPDirectoryDustman.getInstance().register(benchmarkDirectory);
                 System.out.println("- Target directory: " + benchmarkDirectory);
@@ -322,7 +322,7 @@ public class GAPRunner extends SimulatorRunner {
                 benchmarkDirectory = new File(
                         problemParameters.get("benchmark_target_directory"));
                 benchmarkDirectory = new File(
-                        benchmarkDirectory.getAbsolutePath() + "\\gap_dump_" + System.currentTimeMillis() + "_" + basename);
+                        benchmarkDirectory.getAbsolutePath() + "/gap_dump_" + System.currentTimeMillis() + "_" + basename);
                 benchmarkDirectory.mkdirs();
                 GAPDirectoryDustman.getInstance().register(benchmarkDirectory);
                 System.out.println("- Target directory: " + benchmarkDirectory);
@@ -415,7 +415,7 @@ public class GAPRunner extends SimulatorRunner {
                 benchmarkDirectory = new File(
                         problemParameters.get("benchmark_target_directory"));
                 benchmarkDirectory = new File(
-                        benchmarkDirectory.getAbsolutePath() + "\\gap_dump_" + System.currentTimeMillis() + "_" + basename);
+                        benchmarkDirectory.getAbsolutePath() + "/gap_dump_" + System.currentTimeMillis() + "_" + basename);
                 benchmarkDirectory.mkdirs();
                 GAPDirectoryDustman.getInstance().register(benchmarkDirectory);
                 System.out.println("- Target directory: " + benchmarkDirectory);
@@ -505,7 +505,7 @@ public class GAPRunner extends SimulatorRunner {
             benchmarkDirectory = new File(
             simulator.getInputDocument().getSimulatorParameter("benchmark_target_directory"));
             benchmarkDirectory = new File(
-            benchmarkDirectory.getAbsolutePath() + "\\gap_dump_" + System.currentTimeMillis() + "_" + basename);
+            benchmarkDirectory.getAbsolutePath() + "/gap_dump_" + System.currentTimeMillis() + "_" + basename);
             benchmarkDirectory.mkdirs();
             GAPDirectoryDustman.getInstance().register(benchmarkDirectory);
             System.out.println("- TGAPDirectoryDustmanarget directory: " + benchmarkDirectory);
@@ -576,7 +576,7 @@ public class GAPRunner extends SimulatorRunner {
                     benchmarkDirectory = new File(
                             problemParameters.get("benchmark_target_directory"));
                     benchmarkDirectory = new File(
-                            benchmarkDirectory.getAbsolutePath() + "\\gap_dump_" + System.currentTimeMillis() + "_" + basename);
+                            benchmarkDirectory.getAbsolutePath() + "/gap_dump_" + System.currentTimeMillis() + "_" + basename);
                     benchmarkDirectory.mkdirs();
                     GAPDirectoryDustman.getInstance().register(benchmarkDirectory);
                     System.out.println("- Target directory: " + benchmarkDirectory);
@@ -672,7 +672,7 @@ public class GAPRunner extends SimulatorRunner {
                 benchmarkDirectory = new File(
                         problemParameters.get("benchmark_target_directory"));
                 benchmarkDirectory = new File(
-                        benchmarkDirectory.getAbsolutePath() + "\\gap_dump_" + System.currentTimeMillis() + "_" + basename);
+                        benchmarkDirectory.getAbsolutePath() + "/gap_dump_" + System.currentTimeMillis() + "_" + basename);
                 benchmarkDirectory.mkdirs();
                 GAPDirectoryDustman.getInstance().register(benchmarkDirectory);
                 System.out.println("- Target directory: " + benchmarkDirectory);
@@ -716,6 +716,7 @@ public class GAPRunner extends SimulatorRunner {
                     GaptimizeRunner.runGaptimize(para, true);
                 } else {
                     // Create Copy of Benchmark
+                    System.out.println("- Will search for: " + benchmarkDirectory);
                     bench.copyBenchmark(benchmarkDirectory);
                 }
 

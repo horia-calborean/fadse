@@ -13,5 +13,5 @@
     "distributionIndex": 20
   },
   "populationSize": 10,
-  "maxEvaluations": 80
+  "maxEvaluations": 4
 }

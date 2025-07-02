@@ -29,7 +29,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ro.ulbsibiu.fadse.Boot</mainClass>
+                            <mainClass>core.application.ServerBoot</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -42,7 +42,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ro.ulbsibiu.fadse.Boot</mainClass>
+                            <mainClass>core.application.ServerBoot</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -97,7 +97,7 @@
                     </execution>
                 </executions>
                 <configuration>  
-                    <mainClass>ro.ulbsibiu.fadse.Boot</mainClass>  
+                    <mainClass>core.application.ServerBoot</mainClass>
                     <arguments>  
                         <argument>falsesimin_clbu.xml</argument>  
                         <argument>startpop.csv</argument>  

@@ -129,35 +129,6 @@ public class SelectionFactory {
         return points;
     }
 
-//    private double[][] parseReferenceVectors(String vectorString) {
-//        String[] vectors = vectorString.split(";");
-//        double[][] result = new double[vectors.length][];
-//
-//        for (int i = 0; i < vectors.length; i++) {
-//            String[] components = vectors[i].split(",");
-//            result[i] = new double[components.length];
-//            for (int j = 0; j < components.length; j++) {
-//                result[i][j] = Double.parseDouble(components[j]);
-//            }
-//        }
-//
-//        return result;
-//    }
-//
-//    private List<Double> parseInterestPoints(String input) {
-//        List<Double> points = new ArrayList<>();
-//        if (input != null && !input.isEmpty()) {
-//            String[] vectors = input.split(";");
-//            for (String vec : vectors) {
-//                String[] components = vec.split(",");
-//                for (String comp : components) {
-//                    points.add(Double.parseDouble(comp.trim()));
-//                }
-//            }
-//        }
-//        return points;
-//    }
-
     private <T> T require(String name, T value) {
         if (value == null) {
             throw new IllegalArgumentException("Missing required parameter '" + name + "' for mutation operator " + type);

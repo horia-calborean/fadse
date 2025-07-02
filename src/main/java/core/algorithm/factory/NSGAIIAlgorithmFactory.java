@@ -27,6 +27,7 @@ public class NSGAIIAlgorithmFactory<S extends Solution<?>> implements AlgorithmF
     public WrappedEvolutionaryAlgorithm<S, List<S>> create(InputData inputData, Problem<S>   problem) {
 
         HashMap<String, Object> metaheuristicData = (HashMap<String, Object>) inputData.get(GapSetupParameters.METAHEURISTIC_DATA);
+        String cvsPath = (String) inputData.get(GapSetupParameters.OUTPUT_PATH);
 
         int populationSize = (int) metaheuristicData.get("populationSize");
         int maxEvaluations = (int) metaheuristicData.get("maxEvaluations");
@@ -40,7 +41,6 @@ public class NSGAIIAlgorithmFactory<S extends Solution<?>> implements AlgorithmF
         MutationOperator<?> mutationOperator = mutationFactory.create();
         CrossoverOperator<?> crossoverOperator = crossoverFactory.create();
 
-        //DifferentialEvolutionCrossover dec = new DifferentialEvolutionCrossover(0.5, 0.5, "RAND_2_EXP");
         @SuppressWarnings("unchecked")
         SelectionOperator<List<S>, S> selection =
                 (SelectionOperator<List<S>, S>) selectionOperator;
@@ -51,19 +51,12 @@ public class NSGAIIAlgorithmFactory<S extends Solution<?>> implements AlgorithmF
         @SuppressWarnings("unchecked")
         CrossoverOperator<S> crossover = (CrossoverOperator<S>) crossoverOperator;
 
-
-//        MutationOperator<S> mutation = mutationFactory.create(
-//                mutationoperator, mutationProbability, mutationDistributionIndex);
-//        CrossoverOperator<S> crossover = crossoverFactory.create(
-//                crossoverOperator, crossoverProbability, crossoverDistributionIndex);
-
-
         AbstractEvolutionaryAlgorithm<S, List<S>> nsga2 = new NSGAIIBuilder<>(
                 problem, crossover, mutation, populationSize)
                 .setSelectionOperator(selection)
                 .setMaxEvaluations(maxEvaluations)
                 .build();
 
-        return new WrappedEvolutionaryAlgorithm<>(nsga2);
+        return new WrappedEvolutionaryAlgorithm<>(nsga2, cvsPath);
     }
 }

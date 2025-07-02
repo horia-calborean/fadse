@@ -7,8 +7,10 @@ import input.model.InputData;
 import input.model.setup.CommonSetupParameters;
 import input.ports.parameter.problem.ProblemParameter;
 import org.uma.jmetal.problem.doubleproblem.impl.AbstractDoubleProblem;
+import org.uma.jmetal.problem.integerproblem.impl.AbstractIntegerProblem;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.solution.integersolution.IntegerSolution;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("unchecked cast")
-public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
+public abstract class MicroArchitectureProblem extends AbstractIntegerProblem {
     protected final InputData inputData;
 
     public MicroArchitectureProblem(InputData inputData) {
@@ -30,11 +32,11 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
     }
 
     @Override
-    public DoubleSolution evaluate(DoubleSolution doubleSolution) {
+    public IntegerSolution evaluate(IntegerSolution integerSolution) {
         List<String> benchmarks = (List<String>) inputData.get(CommonSetupParameters.BENCHMARKS);
 
         ProblemParameter<?>[] designVariables = (ProblemParameter<?>[]) inputData.get(CommonSetupParameters.DESIGN_VARIABLES);
-        List<Double> optimizedValues = doubleSolution.variables();
+        List<Integer> optimizedValues = integerSolution.variables();
         ProblemParameter<?>[] newDesignVariables = getNewVariablesFrom(designVariables, optimizedValues);
 
         FadseIndividual individual;
@@ -45,32 +47,32 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
             individual = new FadseIndividual(inputData, benchmark);
             individual.setParameters(newDesignVariables);
 
-            sendForSimulation(individual, doubleSolution);
+            sendForSimulation(individual, integerSolution);
 
             // TODO - Andrei -> The app does not wait here for the response
             List<Objective> evaluatedObjectives = individual.getObjectives();
 
             int j = 0;
             for (Objective objective : evaluatedObjectives) {
-                double value = doubleSolution.objectives()[j];
+                double value = integerSolution.objectives()[j];
 
                 value = (objective.getValue() + (benchmarkIndex) * value) / (benchmarkIndex + 1);
 
-                doubleSolution.objectives()[j] = value;
+                integerSolution.objectives()[j] = value;
                 j++;
             }
         }
 
-        return doubleSolution;
+        return integerSolution;
     }
 
     protected void setRangeLimitsFrom(ProblemParameter<?>[] designVariables) {
-        List<Double> lowerLimits = new ArrayList<>(designVariables.length);
-        List<Double> upperLimits = new ArrayList<>(designVariables.length);
+        List<Integer> lowerLimits = new ArrayList<>(designVariables.length);
+        List<Integer> upperLimits = new ArrayList<>(designVariables.length);
 
         IntStream.range(0, designVariables.length).forEach((i) -> {
-            Double lower = ((Number) designVariables[i].getLowerBound()).doubleValue();
-            Double upper = ((Number) designVariables[i].getUpperBound()).doubleValue();
+            Integer lower = ((Number) designVariables[i].getLowerBound()).intValue();
+            Integer upper = ((Number) designVariables[i].getUpperBound()).intValue();
             lowerLimits.add(lower);
             upperLimits.add(upper);
         });
@@ -78,7 +80,7 @@ public abstract class MicroArchitectureProblem extends AbstractDoubleProblem {
         variableBounds(lowerLimits, upperLimits);
     }
 
-    protected ProblemParameter<?>[] getNewVariablesFrom(ProblemParameter<?>[] designVariables, List<Double> optimizedValues) {
+    protected ProblemParameter<?>[] getNewVariablesFrom(ProblemParameter<?>[] designVariables, List<Integer> optimizedValues) {
         ProblemParameter<?>[] newDesignVariables = new ProblemParameter<?>[designVariables.length];
 
         for (int i = 0; i < designVariables.length; i++) {
