@@ -101,8 +101,10 @@ public class GAPRunner extends SimulatorRunner {
         String sim = problemParameters.get("simulator_executable");
         String my_sim = sim.replace(".exe", simulator_id + ".exe");
 
-        if (!(new File(my_sim)).canRead()) {
-            FileCopy.copy(new File(sim), new File(my_sim));
+        File mySimFile = new File(my_sim);
+        if (!mySimFile.canRead()) {
+            FileCopy.copy(new File(sim), mySimFile);
+            mySimFile.setExecutable(true);
         }
 
         return my_sim;
@@ -172,10 +174,10 @@ public class GAPRunner extends SimulatorRunner {
                 }
             } else if (parameter_key.equals(GAPConstants.DO_QDLRU)) {
                 File confs_file = new File(
-                        this.simpleParameters.get(GAPConstants.P_TARGET_DIRECTORY) + "\\" + "qdconf_"
-                        + this.simpleParameters.get(GAPConstants.N_LINES) + "_"
-                        + this.simpleParameters.get(GAPConstants.N_COLUMNS) + "_"
-                        + this.simpleParameters.get(GAPConstants.N_LAYERS) + "_basic.txt");
+                        this.simpleParameters.get(GAPConstants.P_TARGET_DIRECTORY) + "/" + "qdconf_"
+                                + this.simpleParameters.get(GAPConstants.N_LINES) + "_"
+                                + this.simpleParameters.get(GAPConstants.N_COLUMNS) + "_"
+                                + this.simpleParameters.get(GAPConstants.N_LAYERS) + "_basic.txt");
 
                 if (parameter_value.equals("1") && confs_file.canRead()) {
                     sbParamList.add("2");
@@ -214,13 +216,14 @@ public class GAPRunner extends SimulatorRunner {
 
         // Check if Benchmark exists (can be found in yaml file which has been set in gapsimin)
         String basename = individual.getSelectedBenchmark();
-        Benchmark bench = BenchmarkRepository.getDump(basename);
+        Benchmark original = BenchmarkRepository.getDump(basename);
+        NewBenchmark bench = new NewBenchmark(original);
         if (bench == null) {
             System.out.println("ERROR: Benchmark " + basename + " was not found!");
             return;
         }
 
-        // Let's start here a large try-catch-statement. 
+        // Let's start here a large try-catch-statement.
         // Cleanup must be done in the finally-section.
         try {
             // Create copy of benchmark
@@ -301,8 +304,8 @@ public class GAPRunner extends SimulatorRunner {
                 // Now update benchmark-object:
                 // - STRC-File
                 System.out.println("Current STRC-File: " + bench.getStreamfile_compressed());
-                System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
-                bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
+                System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
+                bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
                 System.out.println("Updated STRC-File: " + bench.getStreamfile_compressed());
 
                 // - Dump-directory
@@ -394,8 +397,8 @@ public class GAPRunner extends SimulatorRunner {
 
                 // - STRC-File
                 System.out.println("Current STRC-File: " + bench.getStreamfile_compressed());
-                System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
-                bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
+                System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
+                bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
                 System.out.println("Updated STRC-File: " + bench.getStreamfile_compressed());
 
                 // - Dump-directory
@@ -483,8 +486,8 @@ public class GAPRunner extends SimulatorRunner {
                 // Now update benchmark-object:
                 // - STRC-File
                 System.out.println("Current STRC-File: " + bench.getStreamfile_compressed());
-                System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
-                bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
+                System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
+                bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
                 System.out.println("Updated STRC-File: " + bench.getStreamfile_compressed());
 
                 // - Dump-directory
@@ -551,8 +554,8 @@ public class GAPRunner extends SimulatorRunner {
 
             // - STRC-File
             System.out.println("Current STRC-File: " + bench.getStreamfile_compressed());
-            System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
-            bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
+            System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
+            bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
             System.out.println("Updated STRC-File: " + bench.getStreamfile_compressed());
 
             // - Dump-directory
@@ -632,8 +635,8 @@ public class GAPRunner extends SimulatorRunner {
                     // Now update benchmark-object:
                     // - STRC-File
                     System.out.println("Current STRC-File: " + bench.getStreamfile_compressed());
-                    System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
-                    bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
+                    System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
+                    bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
                     System.out.println("Updated STRC-File: " + bench.getStreamfile_compressed());
 
                     // - Dump-directory
@@ -648,10 +651,10 @@ public class GAPRunner extends SimulatorRunner {
                         Integer.parseInt(this.simpleParameters.get(GAPConstants.N_LAYERS)));
 
                 File confs_file = new File(
-                        benchmarkDirectory.getAbsoluteFile() + "\\" + "qdconf_"
-                        + this.simpleParameters.get(GAPConstants.N_LINES) + "_"
-                        + this.simpleParameters.get(GAPConstants.N_COLUMNS) + "_"
-                        + this.simpleParameters.get(GAPConstants.N_LAYERS) + "_basic.txt");
+                        benchmarkDirectory.getAbsoluteFile() + "/" + "qdconf_"
+                                + this.simpleParameters.get(GAPConstants.N_LINES) + "_"
+                                + this.simpleParameters.get(GAPConstants.N_COLUMNS) + "_"
+                                + this.simpleParameters.get(GAPConstants.N_LAYERS) + "_basic.txt");
 
                 // BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(confs_file));
                 BufferedWriter bw = new BufferedWriter(new FileWriter(confs_file));
@@ -731,8 +734,8 @@ public class GAPRunner extends SimulatorRunner {
 
                 // - STRC-File
                 System.out.println("Current STRC-File: " + bench.getStreamfile_compressed());
-                System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
-                bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "\\executed_instructions_compressed.txt");
+                System.out.println("New STRC-File:     " + this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
+                bench.setStreamfile_compressed(this.simulator.getSimulatorOutputFile() + "/executed_instructions_compressed.txt");
                 System.out.println("Updated STRC-File: " + bench.getStreamfile_compressed());
 
                 // - Dump-directory
@@ -869,7 +872,7 @@ public class GAPRunner extends SimulatorRunner {
         // Get last line of ipcDump.txt
         String last_line = null;
         String resultDirName = this.simulator.getSimulatorOutputFile();
-        File ipcDump = new File(resultDirName + "\\" + "IpcDump.txt");
+        File ipcDump = new File(resultDirName + "/" + "IpcDump.txt");
         // System.out.println("File to monitor: " + ipcDump);
 
         try {
@@ -1033,7 +1036,7 @@ public class GAPRunner extends SimulatorRunner {
     }
 
     private void generateBatchForGap(String absolutePath) {
-        File file = new File(absolutePath + "\\run.bat");
+        File file = new File(absolutePath + "/run.bat");
 
         BufferedWriter bw = null;
         try {
@@ -1060,7 +1063,7 @@ public class GAPRunner extends SimulatorRunner {
         }
     }
 
-    private void executeAndMonitor(Benchmark bench, File benchmarkDirectory) throws Exception {
+    private void executeAndMonitor(NewBenchmark bench, File benchmarkDirectory) throws Exception {
         // Prepare command to execute
         String executeCommand = "";
         for (String s : this.getCommandLine()) {
@@ -1069,8 +1072,8 @@ public class GAPRunner extends SimulatorRunner {
 
         System.out.println(
                 "- Starting simulator: ["
-                + simulatorName
-                + "] with the following command: \n" + executeCommand);
+                        + simulatorName
+                        + "] with the following command: \n" + executeCommand);
 
         // Init progression check
         initProgressionCheck();
@@ -1092,7 +1095,7 @@ public class GAPRunner extends SimulatorRunner {
             my_cmd = my_cmd.trim();
             String checksum = getInputChecksum(bench, benchmarkDirectory, my_cmd, simulatorName);
 
-            String zipname = benchmarkDirectory.getAbsoluteFile().getParent() + "\\" + checksum + ".zip";
+            String zipname = benchmarkDirectory.getAbsoluteFile().getParent() + "/" + checksum + ".zip";
             System.out.println("##### Name of the Zipfile: " + zipname);
             zipfile = new File(zipname);
 
@@ -1192,7 +1195,7 @@ public class GAPRunner extends SimulatorRunner {
         }
     }
 
-    private String getInputChecksum(Benchmark bench, File benchmarkDirectory, String a, String b) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
+    private String getInputChecksum(NewBenchmark bench, File benchmarkDirectory, String a, String b) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
         TreeMap<String, String> checksums = new TreeMap<String, String>();
 
         File[] listOfFiles = benchmarkDirectory.listFiles();
@@ -1348,10 +1351,10 @@ public class GAPRunner extends SimulatorRunner {
 class StringUtils {
 
     static final byte[] HEX_CHAR_TABLE = {
-        (byte) '0', (byte) '1', (byte) '2', (byte) '3',
-        (byte) '4', (byte) '5', (byte) '6', (byte) '7',
-        (byte) '8', (byte) '9', (byte) 'a', (byte) 'b',
-        (byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f'
+            (byte) '0', (byte) '1', (byte) '2', (byte) '3',
+            (byte) '4', (byte) '5', (byte) '6', (byte) '7',
+            (byte) '8', (byte) '9', (byte) 'a', (byte) 'b',
+            (byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f'
     };
 
     public static String getHexString(byte[] raw)
@@ -1369,8 +1372,8 @@ class StringUtils {
 
     public static void main(String args[]) throws Exception {
         byte[] byteArray = {
-            (byte) 255, (byte) 254, (byte) 253,
-            (byte) 252, (byte) 251, (byte) 250
+                (byte) 255, (byte) 254, (byte) 253,
+                (byte) 252, (byte) 251, (byte) 250
         };
 
         System.out.println(StringUtils.getHexString(byteArray));
