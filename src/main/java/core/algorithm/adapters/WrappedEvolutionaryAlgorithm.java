@@ -1,12 +1,14 @@
 package core.algorithm.adapters;
 
 import core.network.ClientsRepository;
+import core.qualityindicator.EpsilonIndicator;
+import core.qualityindicator.HypervolumeIndicator;
+import core.qualityindicator.SpreadIndicator;
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
 import org.uma.jmetal.solution.Solution;
 import org.uma.jmetal.util.SolutionListUtils;
 import output.application.CsvUtils;
 
-import javax.sound.sampled.Line;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -62,6 +64,10 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
         Logger.getLogger(WrappedEvolutionaryAlgorithm.class.getName()).log(Level.INFO, "Initial population evaluated");
         initProgress();
         int gen = 0;
+        int noObjectives = SolutionListUtils.getNonDominatedSolutions((List<? extends Solution<?>>)population).get(0).objectives().length;
+        HypervolumeIndicator<Solution<?>> hv = new HypervolumeIndicator<>(noObjectives);
+        SpreadIndicator<Solution<?>> spread= new SpreadIndicator<>(noObjectives);
+        EpsilonIndicator<Solution<?>> eps = new EpsilonIndicator<>(noObjectives);
         while (!isStoppingConditionReached()) {
             matingPopulation = selection(population);
             offspringPopulation = reproduction(matingPopulation);
@@ -72,6 +78,12 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
             // TODO - checkpoint here ?
             updateProgress();
             CsvUtils.writeExcel((List<? extends Solution<?>>) population, "pop after gen " + gen, cvsPath);
+            double hvValue = hv.calculateHypervolume(SolutionListUtils.getNonDominatedSolutions((List<? extends Solution<?>>) population));
+            double spreadValue = spread.calculateSpread(SolutionListUtils.getNonDominatedSolutions((List<? extends Solution<?>>) population));
+            double epsilonValue = eps.calculateEpsilon(SolutionListUtils.getNonDominatedSolutions((List<? extends Solution<?>>) population));
+            CsvUtils.appendValue("Hypervolume", gen, hvValue, cvsPath);
+            CsvUtils.appendValue("Spread", gen, spreadValue, cvsPath);
+            CsvUtils.appendValue("Epsilon", gen, epsilonValue, cvsPath);
             Logger.getLogger(WrappedEvolutionaryAlgorithm.class.getName()).log(Level.INFO, "Generation " + (gen++) + " done");
         }
     }

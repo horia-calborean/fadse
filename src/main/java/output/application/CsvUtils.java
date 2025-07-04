@@ -144,4 +144,41 @@ public class CsvUtils {
             e.fillInStackTrace();
         }
     }
+
+    public static void appendValue(String sheetName, int gen, double value, String filePath) {
+        Workbook workbook;
+        Sheet sheet;
+
+        File file = new File(filePath);
+        boolean fileExists = file.exists();
+
+        try (FileInputStream is = fileExists ? new FileInputStream(filePath) : null) {
+            workbook = fileExists ? new XSSFWorkbook(is) : new XSSFWorkbook();
+            sheet = workbook.getSheet(sheetName);
+
+            if (sheet == null) {
+                sheet = workbook.createSheet(sheetName);
+                // Create header row
+                Row header = sheet.createRow(0);
+                header.createCell(0).setCellValue("Generation");
+                header.createCell(1).setCellValue("Value");
+            }
+
+            // Add the new row (gen + 1 because header is row 0)
+            Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+            row.createCell(0).setCellValue(gen);
+            row.createCell(1).setCellValue(value);
+
+            // Write back to file
+            try (FileOutputStream os = new FileOutputStream(filePath)) {
+                workbook.write(os);
+            }
+
+            workbook.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

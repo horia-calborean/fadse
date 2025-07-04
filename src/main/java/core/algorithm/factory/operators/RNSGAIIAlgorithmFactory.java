@@ -1,6 +1,7 @@
-package core.algorithm.factory;
+package core.algorithm.factory.operators;
 
 import core.algorithm.adapters.WrappedEvolutionaryAlgorithm;
+import core.algorithm.factory.AlgorithmFactoryInterface;
 import core.algorithm.factory.operators.crossover.CrossoverFactory;
 import core.algorithm.factory.operators.mutation.MutationFactory;
 import core.algorithm.factory.operators.selection.SelectionFactory;
@@ -8,32 +9,34 @@ import input.model.InputData;
 import input.model.setup.GapSetupParameters;
 import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
 import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
-import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
+import org.uma.jmetal.algorithm.multiobjective.rnsgaii.RNSGAIIBuilder;
 import org.uma.jmetal.operator.crossover.CrossoverOperator;
-import org.uma.jmetal.operator.crossover.impl.SBXCrossover;
 import org.uma.jmetal.operator.mutation.MutationOperator;
-import org.uma.jmetal.operator.mutation.impl.PolynomialMutation;
 import org.uma.jmetal.operator.selection.SelectionOperator;
-import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.Solution;
-import org.uma.jmetal.solution.doublesolution.DoubleSolution;
-import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
 
 import java.util.HashMap;
 import java.util.List;
 
-public class NSGAIIIAlgorithmFactory<S extends Solution<?>> implements AlgorithmFactoryInterface<S, List<S>>{
+public class RNSGAIIAlgorithmFactory<S extends Solution<?>> implements AlgorithmFactoryInterface<S, List<S>> {
 
     @Override
-    public WrappedEvolutionaryAlgorithm<S, List<S>> create(InputData inputData, Problem<S> problem) {
+    public WrappedEvolutionaryAlgorithm<S, List<S>> create(InputData inputData, Problem<S>   problem) {
 
         HashMap<String, Object> metaheuristicData = (HashMap<String, Object>) inputData.get(GapSetupParameters.METAHEURISTIC_DATA);
         String cvsPath = (String) inputData.get(GapSetupParameters.OUTPUT_PATH);
 
         int populationSize = (int) metaheuristicData.get("populationSize");
         int maxEvaluations = (int) metaheuristicData.get("maxEvaluations");
-        int numberOfDivisions = metaheuristicData.containsKey("numberOfDivisions") ? (int) metaheuristicData.get("numberOfDivisions") : 12;
+        double epsilon = (double) metaheuristicData.get("epsilon");
+        List<Double> interestPoints = (List<Double>) metaheuristicData.get("interestPoints");
+
+        int matingPoolSize = metaheuristicData.containsKey("matingPoolSize") ?
+                (int) metaheuristicData.get("matingPoolSize") : populationSize;
+        int offspringPopulationSize = metaheuristicData.containsKey("offspringPopulationSize") ?
+                (int) metaheuristicData.get("offspringPopulationSize") : populationSize;
+
         // FACTORIES
         SelectionFactory selectionFactory = new SelectionFactory(metaheuristicData);
         MutationFactory mutationFactory = new MutationFactory(metaheuristicData);
@@ -44,23 +47,23 @@ public class NSGAIIIAlgorithmFactory<S extends Solution<?>> implements Algorithm
         CrossoverOperator<?> crossoverOperator = crossoverFactory.create();
 
         @SuppressWarnings("unchecked")
-        SelectionOperator<List<S>, S> selection = (SelectionOperator<List<S>, S>) selectionOperator;
+        SelectionOperator<List<S>, S> selection =
+                (SelectionOperator<List<S>, S>) selectionOperator;
+
         @SuppressWarnings("unchecked")
         MutationOperator<S> mutation = (MutationOperator<S>) mutationOperator;
+
         @SuppressWarnings("unchecked")
         CrossoverOperator<S> crossover = (CrossoverOperator<S>) crossoverOperator;
 
-        AbstractEvolutionaryAlgorithm<S, List<S>> nsga3 = new NSGAIIIBuilder<>(
-                problem)
+        AbstractEvolutionaryAlgorithm<S, List<S>> rnsga2 = new RNSGAIIBuilder<>(
+                problem, crossover, mutation, interestPoints, epsilon)
                 .setSelectionOperator(selection)
-                .setCrossoverOperator(crossover)
-                .setMutationOperator(mutation)
-                .setMaxIterations(maxEvaluations)
+                .setMaxEvaluations(maxEvaluations)
                 .setPopulationSize(populationSize)
-                .setNumberOfDivisions(numberOfDivisions)
+                .setMatingPoolSize(matingPoolSize)
+                .setOffspringPopulationSize(offspringPopulationSize)
                 .build();
-
-        return new WrappedEvolutionaryAlgorithm<>(nsga3, cvsPath);
+        return new WrappedEvolutionaryAlgorithm<>(rnsga2, cvsPath);
     }
-
 }

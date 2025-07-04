@@ -1,6 +1,7 @@
 package core.algorithm.factory;
 
 import core.algorithm.adapters.WrappedEvolutionaryAlgorithm;
+import core.algorithm.factory.operators.RNSGAIIAlgorithmFactory;
 import input.model.InputData;
 import input.model.setup.GapSetupParameters;
 import org.uma.jmetal.problem.Problem;
@@ -16,7 +17,7 @@ public class AlgorithmFactory {
     static {
         factories.put("NSGAII", new NSGAIIAlgorithmFactory<>());
         factories.put("NSGAIII", new NSGAIIIAlgorithmFactory<>());
-        //factories.put("CNSGAII", new CNSGAIIAlgorithmFactory());
+        factories.put("RNSGAII", new RNSGAIIAlgorithmFactory<>());
         // Add more: factories.put("SPEA2", new SPEA2AlgorithmFactory()); etc.
     }
 
