@@ -3,15 +3,15 @@
     "operator": "BinaryTournament"
   },
   "crossover": {
-    "operator": "IntegerSBXCrossover",
+    "operator": "SBXCrossover",
     "probability": 0.9,
     "distributionIndex": 20
   },
   "mutation": {
-    "operator": "IntegerPolynomialMutation",
+    "operator": "PolynomialMutation",
     "probability": 0.16,
     "distributionIndex": 20
   },
-  "populationSize": 10,
-  "maxEvaluations": 80
+  "populationSize": 100,
+  "maxEvaluations": 25000
 }

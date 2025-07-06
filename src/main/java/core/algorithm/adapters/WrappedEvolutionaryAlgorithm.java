@@ -78,9 +78,9 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
             // TODO - checkpoint here ?
             updateProgress();
             CsvUtils.writeExcel((List<? extends Solution<?>>) population, "pop after gen " + gen, cvsPath);
-            double hvValue = hv.calculateHypervolume(SolutionListUtils.getNonDominatedSolutions((List<? extends Solution<?>>) population));
-            double spreadValue = spread.calculateSpread(SolutionListUtils.getNonDominatedSolutions((List<? extends Solution<?>>) population));
-            double epsilonValue = eps.calculateEpsilon(SolutionListUtils.getNonDominatedSolutions((List<? extends Solution<?>>) population));
+            double hvValue = hv.calculateNormalizedHypervolume((List<Solution<?>>)population);
+            double spreadValue = spread.calculateSpread((List<? extends Solution<?>>) population);
+            double epsilonValue = eps.calculateEpsilon((List<? extends Solution<?>>) population);
             CsvUtils.appendValue("Hypervolume", gen, hvValue, cvsPath);
             CsvUtils.appendValue("Spread", gen, spreadValue, cvsPath);
             CsvUtils.appendValue("Epsilon", gen, epsilonValue, cvsPath);
@@ -159,7 +159,7 @@ public class WrappedEvolutionaryAlgorithm<S,R> extends AbstractEvolutionaryAlgor
     @Override
     public List<S> replacement(List<S> population, List<S> offspringPopulation) {
         try {
-            return (List<S>) this.methodsDictionary.get("replacement").invoke(algorithm, population, offspringPopulation);
+                return (List<S>) this.methodsDictionary.get("replacement").invoke(algorithm, population, offspringPopulation);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Failed to invoke method: replacement", e);
         }

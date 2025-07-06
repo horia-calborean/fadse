@@ -15,10 +15,8 @@ public class EpsilonIndicator<S extends Solution<?>> extends QualityIndicator<S>
 
     public double calculateEpsilon(List<? extends S> population) {
         List<S> casted = (List<S>) population; // safe due to generic contract
-        Ranking<S> fronts = new FastNonDominatedSortRanking<S>().compute(casted);
-        List<S> firstFront = fronts.getSubFront(0);
 
-        double[][] normalizedFront = normalizeFront(firstFront);
+        double[][] normalizedFront = normalizeFront(casted);
         Epsilon eps = new Epsilon(this.referenceFront);
 
         return eps.compute(normalizedFront);

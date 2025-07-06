@@ -16,18 +16,48 @@ public abstract class QualityIndicator<S extends Solution<?>> {
     protected double[][] generateNormalizedReferenceFront(int numberOfObjectives) {
         referenceFront = new double[numberOfObjectives + 1][numberOfObjectives];
 
-        for (int i = 0; i < numberOfObjectives; i++) {
-            for (int j = 0; j < numberOfObjectives; j++) {
-                referenceFront[i][j] = 1.0;
+//        for (int i = 0; i < numberOfObjectives; i++) {
+//            for (int j = 0; j < numberOfObjectives; j++) {
+//                referenceFront[i][j] = 1.0;
+//            }
+//            referenceFront[i][i] = 0.0; // best value in objective i
+//        }
+//
+//        // Add center point with 0.5 in all objectives
+//        for (int j = 0; j < numberOfObjectives; j++) {
+//            referenceFront[numberOfObjectives][j] = 0.5;
+//        }
+
+        if(numberOfObjectives==2){
+            double[][] referenceFrontNorm = new double[100][2];
+            for (int i = 0; i < 100; i++) {
+                double x = i / 100.0 - 1;
+                referenceFrontNorm[i][0] = x;
+                referenceFrontNorm[i][1] = 1.0 - x;
             }
-            referenceFront[i][i] = 0.0; // best value in objective i
-        }
 
-        // Add center point with 0.5 in all objectives
-        for (int j = 0; j < numberOfObjectives; j++) {
-            referenceFront[numberOfObjectives][j] = 0.5;
+            return referenceFrontNorm;
         }
+        else if (numberOfObjectives==3){
+            int divisions = 20;
+            int index = 0;
+            double[][] referenceFrontNorm = new double[(divisions + 1) * (divisions + 2) / 2][3];
 
+            for (int i = 0; i <= divisions; i++) {
+                for (int j = 0; j <= divisions - i; j++) {
+                    int k = divisions - i - j;
+                    double f1 = i / (double) divisions;
+                    double f2 = j / (double) divisions;
+                    double f3 = k / (double) divisions;
+
+                    referenceFrontNorm[index][0] = f1;
+                    referenceFrontNorm[index][1] = f2;
+                    referenceFrontNorm[index][2] = f3;
+                    index++;
+                }
+            }
+            return referenceFrontNorm;
+        }
         return referenceFront;
     }
 
@@ -78,14 +108,7 @@ public abstract class QualityIndicator<S extends Solution<?>> {
                 matrix[i][j] = sol.objectives()[j];
             }
         }
-//        Ranking<S> fronts = new FastNonDominatedSortRanking<S>().compute(population);
-//        List<S> firstFront = fronts.getSubFront(0);
-//        double[][] matrix = new double[convertToMatrix(firstFront).length][2];
-//        for (int i = 0; i < convertToMatrix(firstFront).length; i++) {
-//            double x = i / (double)(convertToMatrix(firstFront).length - 1);
-//            referenceFrontNorm[i][0] = x;
-//            referenceFrontNorm[i][1] = 1.0 - x;
-//        }
+
         return matrix;
     }
 
