@@ -64,6 +64,6 @@ public class RNSGAIIAlgorithmFactory<S extends Solution<?>> implements Algorithm
                 .setMatingPoolSize(matingPoolSize)
                 .setOffspringPopulationSize(offspringPopulationSize)
                 .build();
-        return new WrappedEvolutionaryAlgorithm<>(rnsga2, cvsPath);
+        return new WrappedEvolutionaryAlgorithm<>(rnsga2, cvsPath, inputData);
     }
 }

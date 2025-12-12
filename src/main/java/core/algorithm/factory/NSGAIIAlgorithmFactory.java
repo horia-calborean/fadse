@@ -57,6 +57,6 @@ public class NSGAIIAlgorithmFactory<S extends Solution<?>> implements AlgorithmF
                 .setMaxEvaluations(maxEvaluations)
                 .build();
 
-        return new WrappedEvolutionaryAlgorithm<>(nsga2, cvsPath);
+        return new WrappedEvolutionaryAlgorithm<>(nsga2, cvsPath, inputData);
     }
 }

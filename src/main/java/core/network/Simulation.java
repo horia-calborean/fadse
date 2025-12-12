@@ -90,7 +90,7 @@ public class Simulation {
     }
 
     public void setRetries(int retries) {
-        this.retries++;
+        this.retries = retries;  // FIXED: Now actually sets the value instead of incrementing
     }
 
     public void increaseRetries() {

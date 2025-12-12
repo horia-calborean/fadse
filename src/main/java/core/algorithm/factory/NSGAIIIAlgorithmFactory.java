@@ -60,7 +60,7 @@ public class NSGAIIIAlgorithmFactory<S extends Solution<?>> implements Algorithm
                 .setNumberOfDivisions(numberOfDivisions)
                 .build();
 
-        return new WrappedEvolutionaryAlgorithm<>(nsga3, cvsPath);
+        return new WrappedEvolutionaryAlgorithm<>(nsga3, cvsPath, inputData);
     }
 
 }
