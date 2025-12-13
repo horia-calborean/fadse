@@ -3,28 +3,42 @@ package core.network.client;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.*;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import core.model.individual.FadseIndividual;
 import core.model.objectives.Objective;
 
+/**
+ * SimulatorOutputParser - Parses simulation output files and extracts objectives.
+ *
+ * Improvements:
+ * - Proper resource management (Scanner always closed)
+ * - Better logging instead of System.out
+ * - Null validation
+ * - File reference updated when needed
+ * - Removed dead code
+ */
 public class SimulatorOutputParser {
+    private static final Logger LOGGER = Logger.getLogger(SimulatorOutputParser.class.getName());
 
     protected String defaultDelimiter;
     protected Simulator simulator;
     protected Map<String, Double> results;
     protected LinkedList<Objective> currentObjectives;
     public StringBuilder fileContents;
-    protected File file;
+    protected File file;  // File reference for subclasses (updated before use)
 
     public SimulatorOutputParser(Simulator simulator) {
-        this.simulator = simulator;
+        this.simulator = Objects.requireNonNull(simulator, "Simulator cannot be null");
         this.defaultDelimiter = ":\\s+";
         this.currentObjectives = new LinkedList<>();
         this.results = new HashMap<>();
-        file = new File(this.simulator.getSimulatorOutputFile());
+        this.file = null;  // Will be set when needed
     }
 
     protected boolean isInOutputs(String name) {
@@ -32,21 +46,22 @@ public class SimulatorOutputParser {
     }
 
     public void setObjectives(LinkedList<Objective> objectives) {
-        this.currentObjectives = objectives;
+        this.currentObjectives = objectives != null ? objectives : new LinkedList<>();
         this.prepareObjectives();
     }
 
     public void setObjectives(Map<String, Objective> objectives) {
         this.currentObjectives = new LinkedList<>();
-        for (Map.Entry<String, Objective> entry : objectives.entrySet()) {
-            this.currentObjectives.add(entry.getValue());
+        if (objectives != null) {
+            for (Map.Entry<String, Objective> entry : objectives.entrySet()) {
+                this.currentObjectives.add(entry.getValue());
+            }
         }
-
         this.prepareObjectives();
     }
 
     public void addSimpleObjective(String name, double value) {
-        System.out.println("- Add Objective: " + name + " " + value);
+        LOGGER.log(Level.FINE, String.format("Add Objective: %s = %.4f", name, value));
         this.results.put(name, value);
     }
 
@@ -58,28 +73,37 @@ public class SimulatorOutputParser {
         processFile(individual);
         LinkedList<Objective> finalResults = new LinkedList<>();
 
+        // Check if all objectives were found
         for (Objective obj : this.currentObjectives) {
             String key = obj.getName();
             if (this.results.containsKey(key)) {
                 obj.setValue(this.results.get(key));
+                finalResults.add(obj);
             } else {
+                LOGGER.log(Level.WARNING, String.format(
+                    "Objective '%s' not found in simulation output", key
+                ));
                 individual.setBadValuesForObjectives();
                 setWorstObjectives(finalResults);
-                break;
+                return finalResults;
             }
-            finalResults.add(obj);
         }
 
+        // Check if any objective has worst value (MAX_VALUE)
         for (Objective item : finalResults) {
             if (item.getValue() == Double.MAX_VALUE) {
+                LOGGER.log(Level.WARNING, String.format(
+                    "Objective '%s' has worst value (MAX_VALUE)", item.getName()
+                ));
                 individual.setBadValuesForObjectives();
                 setWorstObjectives(finalResults);
-                break;
+                return finalResults;
             }
         }
 
+        // Check if individual is feasible
         if (!individual.isFeasible()) {
-            System.out.println("Individual is infeasible - clear objectives.");
+            LOGGER.log(Level.WARNING, "Individual is infeasible - setting worst objectives");
             setWorstObjectives(finalResults);
         }
 
@@ -105,55 +129,70 @@ public class SimulatorOutputParser {
     protected void processFile(FadseIndividual individual) {
         this.results = this.getSimpleObjectives();
 
+        // Use this.file if it was set by subclass (e.g., GAPOutputParser does directory navigation)
+        // Otherwise, get fresh path from simulator
+        File file = this.file;
+
+        if (file == null) {
+            String outputFilePath = simulator.getSimulatorOutputFile();
+            if (outputFilePath == null || outputFilePath.trim().isEmpty()) {
+                LOGGER.log(Level.SEVERE, "Simulator output file not configured");
+                return;
+            }
+            file = new File(outputFilePath);
+        }
+
+        if (!file.exists()) {
+            LOGGER.log(Level.SEVERE, String.format("Output file does not exist: %s", file.getAbsolutePath()));
+            return;
+        }
+
+        Scanner scanner = null;
         try {
-            // if there is a saved element in database then use the scanner
-            // on the text from database
-            boolean inTheDatabase = false;
-            Scanner scanner;
             fileContents = new StringBuilder();
+            scanner = new Scanner(file);
 
-            String dbResult = null;
-
-            System.out.println("Using Output file");
-            scanner = new Scanner(this.file);
+            LOGGER.log(Level.INFO, "Parsing output file: " + file.getAbsolutePath());
 
             // Read output file line by line and look for objectives...
             int currentLine = 0;
-            try {
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine();
-
-                    if (!inTheDatabase) {
-                        fileContents.append(line).append("\n");
-                    }
-
-                    this.processLine(line.trim(), ++currentLine);
-                }
-            } finally {
-                scanner.close();
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                fileContents.append(line).append("\n");
+                this.processLine(line.trim(), ++currentLine);
             }
 
+            LOGGER.log(Level.INFO, String.format("Parsed %d lines from output file", currentLine));
 
         } catch (FileNotFoundException ex) {
-            System.out.println(ex.getMessage());
+            LOGGER.log(Level.SEVERE, String.format("File not found: %s", file.getAbsolutePath()), ex);
+        } finally {
+            if (scanner != null) {
+                scanner.close();
+            }
         }
     }
 
     protected void processLine(String textLine, int lineNumber) {
-        Scanner scanner = new Scanner(textLine).useLocale(Locale.ENGLISH);
-        scanner.useDelimiter(this.defaultDelimiter);
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(textLine).useLocale(Locale.ENGLISH);
+            scanner.useDelimiter(this.defaultDelimiter);
 
-        if (scanner.hasNext()) {
-            String name = scanner.next().trim();
-            if (this.isInOutputs(name)) {
-                if (scanner.hasNextFloat()) {
-                    float value = scanner.nextFloat();
-                    addSimpleObjective(name, value);
+            if (scanner.hasNext()) {
+                String name = scanner.next().trim();
+                if (this.isInOutputs(name)) {
+                    if (scanner.hasNextFloat()) {
+                        float value = scanner.nextFloat();
+                        addSimpleObjective(name, value);
+                    }
                 }
             }
+        } finally {
+            if (scanner != null) {
+                scanner.close();
+            }
         }
-
-        scanner.close();
     }
 
     protected void setWorstObjectives(LinkedList<Objective> finalResults) {

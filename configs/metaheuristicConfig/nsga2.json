@@ -12,6 +12,6 @@
     "probability": 0.16,
     "distributionIndex": 20
   },
-  "populationSize": 2,
-  "maxEvaluations": 4
+  "populationSize": 26,
+  "maxEvaluations": 260
 }

@@ -288,6 +288,24 @@ public abstract class MicroArchitectureProblem extends AbstractIntegerProblem {
                     j, objectiveSums[j], average
             ));
         }
+
+        // CRITICAL: Validate that objectives are not zero after averaging
+        // Zero objectives typically indicate failed simulations (clients never send [0, 0])
+        boolean hasZeroObjective = false;
+        for (int j = 0; j < objectiveCount; j++) {
+            if (solution.objectives()[j] == 0.0) {
+                hasZeroObjective = true;
+                break;
+            }
+        }
+
+        if (hasZeroObjective) {
+            LOGGER.log(Level.SEVERE, String.format(
+                    "Solution has zero objectives after aggregation (sum: %s, count: %d) - likely failed simulations. Setting to MAX_VALUE.",
+                    java.util.Arrays.toString(objectiveSums), validIndividualCount
+            ));
+            setBadObjectiveValues(solution);
+        }
     }
 
     /**

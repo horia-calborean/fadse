@@ -259,10 +259,8 @@ public class ResultsReceiver implements Runnable {
                 return;
             }
 
-            // Process response
-            processResponse(response, socket);
-
-            // Send ACK back to client
+            // CRITICAL: Send ACK back to client IMMEDIATELY before processing
+            // This prevents client timeout during potentially slow processing
             response.setType(Message.TYPE_ACK);
             out.writeObject(response);
             out.flush();
@@ -273,6 +271,9 @@ public class ResultsReceiver implements Runnable {
                     response.getClientListenPort(),
                     response.getMessageId()
             ));
+
+            // Now process response asynchronously (won't block client)
+            processResponse(response, socket);
 
         } catch (java.net.SocketTimeoutException e) {
             LOGGER.log(Level.WARNING, String.format(

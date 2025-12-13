@@ -53,7 +53,6 @@ public class NSGAIIAlgorithmFactory<S extends Solution<?>> implements AlgorithmF
 
         AbstractEvolutionaryAlgorithm<S, List<S>> nsga2 = new NSGAIIBuilder<>(
                 problem, crossover, mutation, populationSize)
-                .setSelectionOperator(selection)
                 .setMaxEvaluations(maxEvaluations)
                 .build();
 

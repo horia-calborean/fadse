@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,6 +117,28 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
         // PARALLEL EVALUATION
         population = evaluatePopulationInParallel(population);
 
+        // Validate initial population after evaluation
+        int invalidInitialCount = 0;
+        for (S solution : population) {
+            if (solution instanceof IntegerSolution) {
+                IntegerSolution intSolution = (IntegerSolution) solution;
+                if (hasInvalidObjectives(intSolution)) {
+                    LOGGER.log(Level.SEVERE, String.format(
+                            "Initial population has solution with invalid objectives: %s",
+                            Arrays.toString(intSolution.objectives())
+                    ));
+                    invalidInitialCount++;
+                }
+            }
+        }
+
+        if (invalidInitialCount > 0) {
+            LOGGER.log(Level.SEVERE, String.format(
+                    "WARNING: %d out of %d solutions in initial population have invalid objectives!",
+                    invalidInitialCount, population.size()
+            ));
+        }
+
         CsvUtils.writeExcel((List<? extends Solution<?>>) population, "initial pop evaluated", csvPath);
         LOGGER.log(Level.INFO, "Initial population evaluated in PARALLEL");
 
@@ -128,6 +151,17 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
         SpreadIndicator<Solution<?>> spreadIndicator = new SpreadIndicator<>(numberOfObjectives);
         EpsilonIndicator<Solution<?>> epsIndicator = new EpsilonIndicator<>(numberOfObjectives);
 
+        // Set fixed reference point from initial population for comparable hypervolume across generations
+        // Using 1.5x margin to allow for improvements beyond initial population
+        @SuppressWarnings("unchecked")
+        List<Solution<?>> initialSolutionList = (List<Solution<?>>) population;
+        hvIndicator.setFixedReferencePointFromPopulation(initialSolutionList, 1.5);
+        LOGGER.log(Level.INFO, "Fixed reference point set for hypervolume calculation (comparable across generations)");
+
+        // Set ideal point from initial population for epsilon indicator
+        epsIndicator.setIdealPointFromPopulation(initialSolutionList);
+        LOGGER.log(Level.INFO, "Ideal point set for epsilon indicator (tracks convergence to best known values)");
+
         // Main evolutionary loop
         int generation = 0;
         while (!isStoppingConditionReached()) {
@@ -135,18 +169,19 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
 
             // Selection
             List<S> matingPopulation = selection(population);
+            LOGGER.log(Level.INFO, "Mating population selected: " + matingPopulation.size() + " solutions");
 
             // Reproduction
             List<S> offspringPopulation = reproduction(matingPopulation);
-            LOGGER.log(Level.FINE, "Offspring population created: " + offspringPopulation.size() + " solutions");
+            LOGGER.log(Level.INFO, "Offspring population created: " + offspringPopulation.size() + " solutions");
 
             // PARALLEL EVALUATION - all offspring evaluated simultaneously!
             offspringPopulation = evaluatePopulationInParallel(offspringPopulation);
-
             LOGGER.log(Level.INFO, "Offspring evaluated in PARALLEL for generation " + generation);
 
             // Replacement
             population = replacement(population, offspringPopulation);
+            LOGGER.log(Level.INFO, "Replacement done for generation " + generation);
 
             // Update progress
             updateProgress();
@@ -229,11 +264,28 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
             long aggregateStart = System.currentTimeMillis();
 
             int aggregatedCount = 0;
+            int fixedCount = 0;
             for (S solution : population) {
                 try {
                     if (solution instanceof IntegerSolution) {
                         parallelProblem.aggregateObjectives((IntegerSolution) solution);
                         aggregatedCount++;
+
+                        // CRITICAL FIX: Validate objectives after aggregation
+                        // Detect solutions with zero or invalid objectives
+                        IntegerSolution intSolution = (IntegerSolution) solution;
+                        if (hasInvalidObjectives(intSolution)) {
+                            LOGGER.log(Level.SEVERE, String.format(
+                                    "Solution %d has invalid objectives after aggregation: %s - setting to MAX_VALUE",
+                                    intSolution.hashCode(),
+                                    Arrays.toString(intSolution.objectives())
+                            ));
+                            // Set bad fitness values to prevent these from dominating the population
+                            for (int j = 0; j < intSolution.objectives().length; j++) {
+                                intSolution.objectives()[j] = Double.MAX_VALUE;
+                            }
+                            fixedCount++;
+                        }
                     }
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE, "Failed to aggregate objectives for solution", e);
@@ -242,8 +294,8 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
 
             long aggregateTime = System.currentTimeMillis() - aggregateStart;
             LOGGER.log(Level.INFO, String.format(
-                    "Phase 3 complete: Aggregated %d solutions in %dms",
-                    aggregatedCount, aggregateTime
+                    "Phase 3 complete: Aggregated %d solutions in %dms (%d had invalid objectives and were fixed)",
+                    aggregatedCount, aggregateTime, fixedCount
             ));
 
             // Cleanup
@@ -331,6 +383,32 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
         return null;
     }
 
+    /**
+     * Checks if a solution has invalid objectives that indicate evaluation failure.
+     *
+     * Invalid objectives include:
+     * - Any objective that is exactly 0.0 (uninitialized or failed aggregation)
+     * - Any objective that is NaN
+     * - Any objective that is negative (objectives should be positive in most problems)
+     *
+     * @param solution The solution to check
+     * @return true if the solution has invalid objectives
+     */
+    private boolean hasInvalidObjectives(IntegerSolution solution) {
+        if (solution == null || solution.objectives() == null) {
+            return true;
+        }
+
+        for (double objective : solution.objectives()) {
+            // Check for uninitialized (0.0), NaN, or negative values
+            if (objective == 0.0 || Double.isNaN(objective) || objective < 0.0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private int getNumberOfObjectives(List<S> population) {
         if (population == null || population.isEmpty()) {
             throw new IllegalStateException("Population is empty");
@@ -363,11 +441,36 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
 
         try {
             @SuppressWarnings("unchecked")
-            List<Solution<?>> solutionList = (List<Solution<?>>) population;
+            List<Solution<?>> paretoFront = SolutionListUtils.getNonDominatedSolutions((List<Solution<?>>) population);
 
-            double hvValue = hvIndicator.calculateNormalizedHypervolume(solutionList);
-            double spreadValue = spreadIndicator.calculateSpread(solutionList);
-            double epsilonValue = epsIndicator.calculateEpsilon(solutionList);
+            // Check for solutions with all objectives equal to 0
+            int zeroObjectivesInPopulation = 0;
+            int zeroObjectivesInPareto = 0;
+
+            for (Solution<?> solution : (List<Solution<?>>) population) {
+                if (solution.objectives()[0] == 0 || solution.objectives()[1] == 0) {
+                    zeroObjectivesInPopulation++;
+                }
+            }
+
+            for (Solution<?> solution : paretoFront) {
+                if (solution.objectives()[0] == 0 || solution.objectives()[1] == 0) {
+                    zeroObjectivesInPareto++;
+                }
+            }
+
+            if (zeroObjectivesInPopulation > 0 || zeroObjectivesInPareto > 0) {
+                LOGGER.log(Level.WARNING, String.format(
+                        "Generation %d: Found %d solutions with all-zero objectives in population (%d total), " +
+                                "%d in Pareto front (%d total)",
+                        generation, zeroObjectivesInPopulation, population.size(),
+                        zeroObjectivesInPareto, paretoFront.size()
+                ));
+            }
+
+            double hvValue = hvIndicator.calculateNormalizedHypervolume(paretoFront);
+            double spreadValue = spreadIndicator.calculateSpread(paretoFront);
+            double epsilonValue = epsIndicator.calculateEpsilon(paretoFront);
 
             CsvUtils.appendValue("Hypervolume", generation, hvValue, csvPath);
             CsvUtils.appendValue("Spread", generation, spreadValue, csvPath);
@@ -436,7 +539,28 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
 
     @Override
     public List<S> evaluatePopulation(List<S> population) {
-        // Use our parallel implementation instead of the wrapped algorithm's
+        // Log who is calling this method for debugging
+        StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
+        String callerMethod = caller.getMethodName();
+        String callerClass = caller.getClassName();
+
+        LOGGER.log(Level.INFO, String.format(
+            "evaluatePopulation() called with %d solutions from %s.%s()",
+            population.size(), callerClass, callerMethod
+        ));
+
+        // CRITICAL: Skip evaluation if called from reproduction()
+        // We explicitly evaluate offspring AFTER reproduction completes
+        // to maintain the embarrassingly parallel pattern (dispatch all, wait once)
+        if ("reproduction".equals(callerMethod)) {
+            LOGGER.log(Level.INFO, String.format(
+                "Skipping evaluation during reproduction() - will evaluate explicitly afterward (%d solutions)",
+                population.size()
+            ));
+            return population; // Return unevaluated - we'll evaluate later
+        }
+
+        // For all other callers, use our parallel implementation
         return evaluatePopulationInParallel(population);
     }
 
@@ -458,45 +582,94 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
     private void invokeMethodVoid(String methodName) {
         Method method = methodsDictionary.get(methodName);
         if (method == null) {
-            throw new IllegalStateException("Method '" + methodName + "' not found");
+            LOGGER.log(Level.SEVERE, "Method '" + methodName + "' not found. Available methods: " +
+                methodsDictionary.keySet());
+            throw new IllegalStateException("Method '" + methodName + "' not found in dictionary");
         }
         try {
             method.invoke(algorithm);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            LOGGER.log(Level.SEVERE, "Failed to invoke method: " + methodName, e);
-            throw new RuntimeException("Failed to invoke method: " + methodName, e);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            LOGGER.log(Level.SEVERE, String.format(
+                "Failed to invoke void method '%s': %s - %s",
+                methodName,
+                cause != null ? cause.getClass().getName() : "unknown",
+                cause != null ? cause.getMessage() : "no message"
+            ), e);
+            throw new RuntimeException("Failed to invoke method: " + methodName +
+                " (cause: " + (cause != null ? cause.getMessage() : "unknown") + ")", e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE, "Access denied to method: " + methodName, e);
+            throw new RuntimeException("Cannot access method: " + methodName, e);
         }
     }
 
     private <T> T invokeMethod(String methodName, Class<T> returnType) {
         Method method = methodsDictionary.get(methodName);
         if (method == null) {
-            throw new IllegalStateException("Method '" + methodName + "' not found");
+            LOGGER.log(Level.SEVERE, "Method '" + methodName + "' not found. Available methods: " +
+                methodsDictionary.keySet());
+            throw new IllegalStateException("Method '" + methodName + "' not found in dictionary");
         }
         try {
+            LOGGER.log(Level.FINE, String.format(
+                "Invoking method: %s with 0 arguments", method.getName()
+            ));
             Object result = method.invoke(algorithm);
             @SuppressWarnings("unchecked")
             T typedResult = (T) result;
             return typedResult;
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            LOGGER.log(Level.SEVERE, "Failed to invoke method: " + methodName, e);
-            throw new RuntimeException("Failed to invoke method: " + methodName, e);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            LOGGER.log(Level.SEVERE, String.format(
+                "Failed to invoke method '%s': %s - %s",
+                methodName,
+                cause != null ? cause.getClass().getName() : "unknown",
+                cause != null ? cause.getMessage() : "no message"
+            ), e);
+            throw new RuntimeException("Failed to invoke method: " + methodName +
+                " (cause: " + (cause != null ? cause.getMessage() : "unknown") + ")", e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE, "Access denied to method: " + methodName, e);
+            throw new RuntimeException("Cannot access method: " + methodName, e);
         }
     }
 
     private <T> T invokeMethod(String methodName, Class<T> returnType, Object... args) {
         Method method = methodsDictionary.get(methodName);
         if (method == null) {
-            throw new IllegalStateException("Method '" + methodName + "' not found");
+            LOGGER.log(Level.SEVERE, "Method '" + methodName + "' not found. Available methods: " +
+                methodsDictionary.keySet());
+            throw new IllegalStateException("Method '" + methodName + "' not found in dictionary");
         }
+
         try {
+            LOGGER.log(Level.FINE, String.format(
+                "Invoking method: %s with %d arguments (expected params: %d)",
+                method.getName(), args.length, method.getParameterCount()
+            ));
+
             Object result = method.invoke(algorithm, args);
             @SuppressWarnings("unchecked")
             T typedResult = (T) result;
             return typedResult;
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            LOGGER.log(Level.SEVERE, "Failed to invoke method: " + methodName, e);
-            throw new RuntimeException("Failed to invoke method: " + methodName, e);
+        } catch (InvocationTargetException e) {
+            // CRITICAL: Extract and log the actual cause of the exception
+            Throwable cause = e.getCause();
+            LOGGER.log(Level.SEVERE, String.format(
+                "Failed to invoke method '%s' with %d args: %s - %s",
+                methodName,
+                args.length,
+                cause != null ? cause.getClass().getName() : "unknown",
+                cause != null ? cause.getMessage() : "no message"
+            ), e);
+
+            // Include the cause in the exception message
+            throw new RuntimeException("Failed to invoke method: " + methodName +
+                " (cause: " + (cause != null ? cause.getClass().getSimpleName() + ": " + cause.getMessage() : "unknown") + ")", e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.SEVERE, "Access denied to method: " + methodName, e);
+            throw new RuntimeException("Cannot access method: " + methodName, e);
         }
     }
 
@@ -511,12 +684,24 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
                     continue;
                 }
                 method.setAccessible(true);
-                methods.putIfAbsent(methodName, method);
+
+                // Only add if not already present (child class methods take precedence)
+                if (!methods.containsKey(methodName)) {
+                    methods.put(methodName, method);
+                    LOGGER.log(Level.FINE, String.format(
+                        "Registered method: %s with %d parameters from class %s",
+                        methodName, method.getParameterCount(), currentClass.getSimpleName()
+                    ));
+                }
             }
             currentClass = currentClass.getSuperclass();
         }
 
-        LOGGER.log(Level.FINE, "Retrieved " + methods.size() + " methods from algorithm");
+        LOGGER.log(Level.INFO, String.format(
+            "Retrieved %d methods from algorithm %s: %s",
+            methods.size(), aea.getClass().getSimpleName(), methods.keySet()
+        ));
+
         return methods;
     }
 }
