@@ -17,6 +17,7 @@ public class AlgorithmFactory {
     static {
         factories.put("NSGAII", new NSGAIIAlgorithmFactory<>());
         factories.put("NSGAIII", new NSGAIIIAlgorithmFactory<>());
+        factories.put("NSGAIIIB", new NSGAIIIBAlgorithmFactory<>());
         factories.put("RNSGAII", new RNSGAIIAlgorithmFactory<>());
         // Add more: factories.put("SPEA2", new SPEA2AlgorithmFactory()); etc.
     }

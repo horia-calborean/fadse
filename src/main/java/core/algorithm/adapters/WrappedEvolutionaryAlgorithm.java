@@ -155,7 +155,7 @@ public class WrappedEvolutionaryAlgorithm<S, R> extends AbstractEvolutionaryAlgo
         // Using 1.5x margin to allow for improvements beyond initial population
         @SuppressWarnings("unchecked")
         List<Solution<?>> initialSolutionList = (List<Solution<?>>) population;
-        hvIndicator.setFixedReferencePointFromPopulation(initialSolutionList, 1.5);
+        hvIndicator.setFixedReferencePointFromPopulation(initialSolutionList, 2.15);
         LOGGER.log(Level.INFO, "Fixed reference point set for hypervolume calculation (comparable across generations)");
 
         // Set ideal point from initial population for epsilon indicator

@@ -73,7 +73,13 @@ public class HVTest {
                 CsvUtils.appendValue("Hypervolume", generation, hvValue, outputFilePath);
 
                 generation++;
+
+                if(generation == 48){
+                    CsvUtils.writeExcel(paretoFront, "pareto front", outputFilePath);
+                }
             }
+
+            //TODO: FOR THE LAST GENERATION, PRINT IN A SEPARATE SHEET THE PARETO FRONT OBJECTIVES
 
             LOGGER.log(Level.INFO, "Hypervolume calculation complete. Results saved to: " + outputFilePath);
 

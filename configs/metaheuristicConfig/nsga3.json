@@ -12,7 +12,7 @@
     "probability": 0.16,
     "distributionIndex": 20
   },
-  "numberOfDivisions": 52,
-  "populationSize": 2,
-  "maxEvaluations": 80
+  "numberOfDivisions": 99,
+  "populationSize": 100,
+  "maxEvaluations": 5000
 }
