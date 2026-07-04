@@ -1,0 +1,16 @@
+target/
+.venv/
+__pycache__/
+*.pyc
+
+# Simulator output and generated local configurations
+results/
+m5out/
+configs/designSpace/gem5_local.xml
+configs/designSpace/local/
+configs/metaheuristicConfig/gem5_smoke.json
+workloads/*.local.json
+
+# Third-party benchmark sources and binaries
+workloads/gapbs/
+.idea/
