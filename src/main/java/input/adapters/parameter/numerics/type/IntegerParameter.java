@@ -15,6 +15,9 @@ public class IntegerParameter extends ProblemParameter<Integer> implements Seria
     }
 
     public void setStep(int step) {
+        if (step <= 0) {
+            throw new IllegalArgumentException("Integer parameter step must be positive");
+        }
         this.step = step;
     }
 
@@ -36,6 +39,8 @@ public class IntegerParameter extends ProblemParameter<Integer> implements Seria
     public void setValueFromDouble(double value) {
         int clampedValue = (int) Math.max(lowerBound, Math.min(upperBound, value));
         int stepsFromLower = Math.round((clampedValue - lowerBound) / (float) step);
+        int maxSteps = (upperBound - lowerBound) / step;
+        stepsFromLower = Math.max(0, Math.min(maxSteps, stepsFromLower));
         this.value = lowerBound + stepsFromLower * step;
     }
 }

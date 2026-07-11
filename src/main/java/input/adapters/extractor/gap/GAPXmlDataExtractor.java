@@ -4,6 +4,7 @@ import core.model.objectives.Objective;
 import core.model.paths.PathUtils;
 import input.adapters.document.XmlInputDocument;
 import input.adapters.extractor.XmlDataExtractor;
+import input.adapters.parameter.numerics.type.IntegerParameter;
 import input.adapters.parameter.problem.gap.GapParameterFactory;
 import input.model.setup.CommonSetupParameters;
 import input.model.setup.GapSetupParameters;
@@ -99,12 +100,32 @@ public class GAPXmlDataExtractor extends XmlDataExtractor implements Metaheurist
             parameter.setName(name);
             parameter.setDescription(description);
 
-            // TODO - Is it necessary to set step for Integer and exp for Exponential ?
+            setStepIfConfigured(attributes, parameter);
 
             problemParameters[parameterIndex] = parameter;
         }
 
         return problemParameters;
+    }
+
+    private static void setStepIfConfigured(NamedNodeMap attributes, ProblemParameter<?> parameter) {
+        Node stepNode = attributes.getNamedItem("step");
+        if (stepNode == null || !(parameter instanceof IntegerParameter)) {
+            return;
+        }
+
+        Number step = NumberParser.parse(stepNode.getNodeValue());
+        double numericStep = step.doubleValue();
+        if (!Double.isFinite(numericStep)
+                || numericStep <= 0
+                || numericStep != Math.rint(numericStep)
+                || numericStep > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(
+                    "Integer parameter step must be a positive whole number: "
+                            + stepNode.getNodeValue()
+            );
+        }
+        ((IntegerParameter) parameter).setStep((int) numericStep);
     }
 
     @Override
