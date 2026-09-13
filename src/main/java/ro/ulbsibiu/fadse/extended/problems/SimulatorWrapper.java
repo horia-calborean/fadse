@@ -33,14 +33,16 @@ public abstract class SimulatorWrapper extends AbstractDoubleProblem {
         List<Double> lowerLimit = new ArrayList<>(numberOfVariables);
         List<Double> upperLimit = new ArrayList<>(numberOfVariables);
         for (int var = 0; var < numberOfVariables; var++) {
-            lowerLimit.set(var, 0.0);
-            upperLimit.set(var, 1.0);
+            double lower = 0.0;
+            double upper = 1.0;
             try {
-                lowerLimit.set(var, environment.getInputDocument().getParameters()[var].getLowerBound());
-                upperLimit.set(var, environment.getInputDocument().getParameters()[var].getUpperBound());
+                lower = environment.getInputDocument().getParameters()[var].getLowerBound();
+                upper = environment.getInputDocument().getParameters()[var].getUpperBound();
             } catch (JMetalException ex) {
                 Logger.getLogger(SimulatorWrapper.class.getName()).log(Level.SEVERE, null, ex);
             }
+            lowerLimit.add(lower);
+            upperLimit.add(upper);
         }
         variableBounds(lowerLimit, upperLimit);
     }

@@ -1,0 +1,345 @@
+FADSE Project Structure - Introduction
+=======================================
+
+FADSE is a Java framework for automatic design-space exploration (DSE) - it runs
+multi-objective optimization algorithms (NSGA-II, SPEA2, SMPSO, etc.) to search parameter
+spaces for hardware/architecture simulators, distributing simulation work across networked
+client machines with MySQL-backed result caching.
+
+On this branch (fadse-jmetal-6.6-problem), the repo contains TWO PARALLEL IMPLEMENTATIONS
+side by side - a legacy one and a new in-progress rewrite. Nothing has been deleted yet.
+
+Top-level layout
+-----------------
+configs/        design-space XMLs, per-algorithm .properties, network/watchdog INI
+doc/            papers, manuals, DB schema, patches
+lib/            local Maven repo for deps not on Central (stepstep-gui, jfuzzylogic, ctg-xml, jgraphx)
+src/main/java/
+  jmetal/       bundled fork of jMetal (old algorithm library) - LEGACY
+  ro/ulbsibiu/fadse/   original monolithic FADSE code - LEGACY
+  core/         new domain + orchestration layer - NEW
+  input/        new config-parsing layer - NEW
+  output/       small new output-writing helpers - NEW
+
+1. Legacy path (ro.ulbsibiu.fadse + jmetal)
+--------------------------------------------
+Still the one wired into the Maven build (pom.xml main class is ro.ulbsibiu.fadse.Boot).
+Flow:
+
+Boot.main() -> reads a design-space XML via io.XMLInputReader into an Environment/
+InputDocument -> hands off to AlgorithmRunner, which looks up a jMetal Algorithm/Problem
+by name and runs it. The Problem is a SimulatorWrapper around a SimulatorBase subclass -
+one per supported simulator, under extended/problems/simulators/{gap,m5,msim2,msim3,
+Multi2Sim,sniper,unimap,...}. Each connector: extract parameter values from an Individual
+-> build a simulator command line -> run it -> parse output -> fill objectives.
+
+Distribution: extended/problems/simulators/network - server side hands individuals to
+remote clients (BootClient -> IndividualReceiver), which run the simulator locally and
+send results back as Message objects.
+
+Persistence/metrics: persistence (MySQL result caching), extended/qualityIndicator
+(hypervolume, coverage, etc.).
+
+This is stable, if old (targets Java 1.5-era conventions).
+
+2. New path (core / input / output)
+-------------------------------------
+A ports-and-adapters (hexagonal) rewrite, but only implemented end-to-end for the GAP
+simulator so far, and only working against real org.uma.jmetal 6.6 (not the bundled
+fork). It's genuinely unstable - commit history is a string of "Working on problem" /
+"fixed" commits, there's a hardcoded Windows debug path in one file, and a leftover
+empty stub class.
+
+- input.model.InputData - replaces Environment/InputDocument: just a
+  Map<SetupParameter, Object> of everything parsed from config (design variables,
+  objectives, benchmarks, DB info, etc.).
+
+- input.ports.collector.MicroArchInputCollector / input.adapters.collector.gap.
+  GAPInputCollector - reads the design-space XML/JSON and delegates to a bunch of small
+  *Extractor interfaces (ports) with per-format implementations (adapters), each pulling
+  out one concern (benchmarks, objectives, metaheuristic config, DB config, GAP-specific
+  params).
+
+- core.problem.application.ProblemFactory - reflection-based lookup from simulator name
+  -> a core.problem.adapters.*Problem class. core.problem.ports.MicroArchitectureProblem
+  is the shared base (extends jMetal 6.6's AbstractDoubleProblem): its evaluate() builds
+  a FadseIndividual per benchmark and sends it off for simulation via ClientsRepository.
+
+- core.algorithm.adapters.WrappedEvolutionaryAlgorithm - wraps a jMetal 6.6 algorithm via
+  reflection so it can insert clientsRepository.join() between generations, i.e. block
+  until distributed simulation results come back - bridging jMetal's synchronous loop
+  with FADSE's async network model.
+
+- core.network - the reworked version of the old network layer (ClientsRepository,
+  SimulationStatus, IndividualReceiver, GAP-specific runner/parser under
+  core.network.client.gap).
+
+- Entry points: core.application.ServerBoot / ClientBoot - but these aren't wired into
+  the Maven build's main class yet; you run them directly, and ServerBoot currently
+  hardcodes its config filename rather than taking a CLI arg.
+
+Practical implication
+----------------------
+If you're asked to add a new simulator or fix something, check which side of the
+codebase the request actually concerns - GAP-related new-architecture work goes in
+core/input, everything else still lives in the legacy ro.ulbsibiu.fadse tree, and the
+two are not meant to be merged casually since they use different jMetal versions and API
+shapes.
+
+
+How to build
+=============
+Requires a JDK compatible with the compiler plugin's target (Java 14, see pom.xml) and
+Maven. All the non-Central dependencies (stepstep-gui, jfuzzylogic, ctg-xml, jgraphx)
+resolve from the in-project repo at lib/, so the build works offline:
+
+    mvn -o package
+
+This runs the maven-resources-plugin step first (copies configs/ into
+target/configs), compiles everything under src/main/java (both the legacy and the new
+code, since they all live in one source root and compile together), and then the
+maven-assembly-plugin packages a fat jar (jar-with-dependencies) with
+ro.ulbsibiu.fadse.Boot as its manifest main class:
+
+    target/fadse-0.0.1-jar-with-dependencies.jar
+
+If you only need compiled classes (e.g. to run a class directly with java -cp), you can
+skip packaging:
+
+    mvn -o compile
+
+There is no separate lint/checkstyle step configured in the pom.
+
+To run one of the NEW (core/input) entry points directly (they are not wired into the
+jar's main class), you need the full runtime classpath. Generate it once with:
+
+    mvn -o dependency:build-classpath -Dmdep.outputFile=cp.txt
+
+then run with `-cp target/classes:$(cat cp.txt)` as shown below.
+
+
+How to start the project
+==========================
+FADSE has no single "start" command - which class you run depends on which
+implementation (legacy or new) and which role (server, client, monitor) you want.
+
+--- Legacy implementation (ro.ulbsibiu.fadse.Boot) ---
+
+This is what the packaged jar runs by default. It plays one of three roles depending on
+its first argument, run from the project root (so it can find ./configs):
+
+  Server (default - drives the DSE algorithm):
+    java -jar target/fadse-0.0.1-jar-with-dependencies.jar <designSpaceConfig.xml> [neighborConfig.xml] [checkpoint.csv] [speed.spd] [fuzzy.fcl]
+  e.g.:
+    java -jar target/fadse-0.0.1-jar-with-dependencies.jar falsesimin.xml
+  (extra args after the first are matched by file EXTENSION, not position: .xml ->
+  neighbor config, .csv -> checkpoint file, .spd -> SMPSO speed checkpoint, .fcl ->
+  fuzzy rules file. If you omit the design-space file name it defaults to
+  "gapdistsimin_radu.xml". The file is resolved from ./configs/designSpace/.)
+
+  Client (runs the actual simulator, connects back to the server):
+    java -jar target/fadse-0.0.1-jar-with-dependencies.jar client [port]
+
+  Monitor (Swing GUI to watch progress):
+    java -jar target/fadse-0.0.1-jar-with-dependencies.jar monitor
+
+  You can also use Maven directly for the server role:
+    mvn -o exec:java
+  (pom.xml's exec-maven-plugin already points at ro.ulbsibiu.fadse.Boot with default
+  arguments falsesimin_clbu.xml / startpop.csv.)
+
+  Eclipse launch configs are also provided: FADSE-Server.launch, FADSE-Client.launch,
+  FADSE-Monitor.launch - import these into an Eclipse/m2e workspace to run/debug
+  directly from the IDE.
+
+  Networking (ports, IPs, watchdog timeout) comes from configs/fadseConfig.ini.
+  Distributed client machines are listed in configs/neighbor/*.xml.
+
+--- New implementation (core.application.*) ---
+
+Not packaged as the jar's main class yet, so run these directly against the compiled
+classpath, from the project root:
+
+  Server:
+    java -cp target/classes:$(cat cp.txt) core.application.ServerBoot
+  (no CLI args are read - it hardcodes configs/designSpace/gapdistsimin_andrei.xml as
+  its design-space file. Edit that file, or edit ServerBoot.java, to point elsewhere.)
+
+  Client:
+    java -cp target/classes:$(cat cp.txt) core.application.ClientBoot client [port]
+
+  There is no new Monitor - use the legacy one (java -jar ... monitor) if you need to
+  observe progress.
+
+  This path only has one problem/simulator wired up so far: GAP.
+
+
+How to test
+=============
+There is no automated test suite (no JUnit/TestNG dependency in pom.xml, no src/test
+sources with real unit tests). "Testing" this project today means:
+
+1. Manual smoke-test classes - a handful of root-level classes in
+   ro.ulbsibiu.fadse have their own main() methods and act as ad-hoc test harnesses
+   (not part of any test runner): TestCLI, TestSimple, TestSimpleCache,
+   TestRulesKnowledge, TestRulesMsim2, TestTipper. Run one directly, e.g.:
+     mvn -o compile exec:java -Dexec.mainClass=ro.ulbsibiu.fadse.TestSimple
+   or via java -cp against target/classes once compiled.
+
+2. End-to-end run against the FalseSimulator - the safest way to check the legacy
+   pipeline (algorithm + config parsing + client/server networking) without a real
+   simulator installed:
+     - use configs/designSpace/falsesimin.xml (or falsesimin_clbu.xml, the
+       exec-maven-plugin default), which is configured to use
+       extended.problems.simulators.FalseSimulator - it doesn't run a real simulator,
+       just delays and returns dummy results.
+     - start a client (java -jar ... client), then the server
+       (java -jar ... falsesimin.xml) and watch the console/log output for
+       generations completing and individuals being simulated/returned.
+
+3. For the new GAP-based architecture, there's no equivalent fake-simulator test path
+   yet - exercising core/input requires an actual GAP setup (simulator_executable path,
+   benchmarks, etc.) configured in configs/designSpace/gapdistsimin_andrei.xml.
+
+Because there's no assertion-based test suite, any change should be verified by
+actually running the relevant Boot/ServerBoot + client pair end to end and checking the
+logs/console output and (if configured) the MySQL results table, rather than by running
+a test command.
+
+
+BUILD FIXED (2026-09-13): mvn package now succeeds
+=====================================================
+The build used to fail with ~200 compile errors (root cause: SimulatorWrapper and
+ro.ulbsibiu.fadse.utils.Utils were migrated on this branch to the new org.uma.jmetal 6.6
+API, but the old bundled jMetal algorithms - NSGAII, SPEA2, PESA2, MOCHC, IBEA, CNSGAII,
+AbYSS, DENSEA, FastPGA, OMOPSO, RandomSearch, SMPSO - still hard-cast their Problem field
+to ServerSimulator, which no longer IS-A jmetal.base.Problem once migrated). This has
+been resolved. `mvn clean package` now completes with BUILD SUCCESS and produces
+target/fadse-0.0.1-jar-with-dependencies.jar.
+
+What changed, in three parts:
+
+1. Two genuinely small, local bugs were fixed for real (no design impact):
+   - utils/SolutionSetHelper.java, utils/SolutionSetHelperResult.java: restored
+     jmetal.base.* imports that had been accidentally deleted.
+   - jmetal/base/operator/crossover/CrossoverFactory.java,
+     jmetal/base/operator/mutation/MutationFactory.java: removed only the specific
+     case-branches wiring in the now-dead legacy operators (RelationalSinglePointCrossover,
+     BitFlipMutationFuzzy*, RelationalBitFlipMutation, BitFlipMutationRandomDefuzzifier) -
+     these two factories are still used by every OTHER crossover/mutation operator
+     (including AbYSS, DENSEA, FastPGA, OMOPSO, RandomSearch, SMPSO), so the fix had to
+     be surgical, not a blanket exclude, or it would have broken those still-working
+     algorithms.
+   - extended/qualityIndicator/HypervolumeHelper.java: adapted its (dead-code, own
+     main()-only) call sites from jmetal.base.SolutionSet to the already-migrated
+     List<org.uma.jmetal.solution.Solution<?>> shape MetricsUtil now expects.
+
+2. Everything else genuinely old-API and unreachable from the live Boot ->
+   AlgorithmRunner -> ServerSimulator path was quarantined via <excludes> on the
+   maven-compiler-plugin in pom.xml (NOT deleted - fully reversible, just skipped by
+   javac). This includes the old bundled jMetal algorithms that reference
+   ServerSimulator (nsgaII, spea2, pesa2, mochc, ibea, cnsgaII, abyss, densea, fastPGA,
+   omopso, randomSearch, smpso), all of jmetal/experiments/** and jmetal/gui/** (jMetal's
+   own experiment-runner and Swing config tooling, which reference those algorithms), a
+   handful of legacy FADSE operators only ever wired into those algorithms
+   (RelationalSinglePointCrossover, BitFlipMutationFuzzy*, RelationalBitFlipMutation), and
+   a few standalone CLI tools that reference them (ro/ulbsibiu/fadse/{MetricsBoot,
+   ComputeMetrics,ProblemMainStarter}.java and three extended/qualityIndicator helpers:
+   CoverageOfTwoSets, HypervolumeNoTruePareto, SevenPointAverageDistance). See the
+   comment above the <excludes> block in pom.xml for the exact list and reasoning.
+   Un-exclude an entry once/if someone finishes porting it to org.uma.jmetal 6.6.
+   NOTE: still-working algorithms that DON'T reference ServerSimulator (cellde, gde3,
+   mocell, moead, paes, smsemoa, the singleObjective/* algorithms) were left untouched
+   and still compile and run as before.
+
+3. ro.ulbsibiu.fadse.AlgorithmRunner.run() - previously an unfinished stub that loaded
+   the Problem and printed its stats but never actually built or ran an algorithm - was
+   completed, mirroring the same org.uma.jmetal 6.6 builder pattern
+   core.application.AlgorithmRunner already uses for GAP: it currently wires up NSGA-II
+   only (reading populationSize_/maxEvaluations_/crossover & mutation params from the
+   metaheuristic .properties file), and throws UnsupportedOperationException for any
+   other configured metaheuristic - same level of completeness as the new architecture's
+   AlgorithmRunner, not more. ro.ulbsibiu.fadse.extended.problems.ProblemFactory's
+   Class.forName(problemName) bug was also fixed - it now maps the short simulator name
+   ("ServerSimulator", "DTLZ1") from the design-space XML to its actual fully-qualified
+   class name before instantiating it, and derives the reflective constructor's
+   parameter types from the actual getter-supplied arguments instead of assuming a
+   no-arg constructor.
+
+SMOKE TEST: ran end to end successfully (2026-09-13)
+=======================================================
+Ran the FalseSimulator smoke test for real (server + client, two processes, real TCP
+network round trips) and got clean multi-generation NSGA-II runs with no errors. This
+required fixing several more real bugs, on top of the "BUILD FIXED" work above - the
+build compiling was necessary but nowhere near sufficient. In order encountered:
+
+1. The join-mismatch flagged as a "known limitation" above was real and did break the
+   run (BindException: Address already in use) - core.algorithm.adapters.
+   WrappedEvolutionaryAlgorithm's core.network.ClientsRepository tried to bind a second
+   listener on the same ports ServerSimulator's own legacy listeners
+   (ro.ulbsibiu.fadse...network.server.{ResultsReceiver,StatusObserver}) had already
+   bound. Fixed by adding ro.ulbsibiu.fadse.algorithm.LegacyWrappedEvolutionaryAlgorithm
+   (mirrors core's wrapper via the same reflection technique, but calls
+   ServerSimulator.join()/is a no-op for non-ServerSimulator problems instead of touching
+   core.network at all) and switching ro.ulbsibiu.fadse.AlgorithmRunner to use it.
+
+2. Environment's constructor is hardcoded to GapInputParser (see the class's own TODO:
+   "GAPXMLParser ... shall not be hardcoded here"), which requires an
+   <output output_path="..."/> tag no shipped legacy design-space config has (and even
+   gapdistsimin_andrei.xml's own <output path="..."/> uses the wrong attribute name for
+   its own parser!). Added <output output_path="results"/> to
+   configs/designSpace/falsesimin.xml so it can be parsed at all.
+
+3. SimulatorWrapper's constructor built its variable-bounds lists via
+   `new ArrayList<>(numberOfVariables)` (only sets capacity, not size) then called
+   `.set(index, ...)` on the still-empty list -> IndexOutOfBoundsException on every run.
+   Fixed to build the lists with `.add(...)` instead.
+
+4. falsesimin.xml's example <rules> (array_size > 128) hits a separate, pre-existing bug
+   in ro.ulbsibiu.fadse.utils.MathEvaluator / environment.parameters.ExpresionParameter
+   (getValue() returns null for a literal operand, then NPEs on unboxing) - unrelated to
+   the jMetal migration, not fixed (out of scope), and not exercised by the smoke test:
+   created configs/designSpace/falsesimin_smoketest.xml, a copy of falsesimin.xml with
+   <rules> emptied out, used for the actual run instead of mutating the real example
+   further.
+
+5. The design-space XML's neighbor/client list has no compatible file on this branch:
+   the legacy Neighborhood.loadNeighbors() parser looks for <neighbor ip=... availableSlots=...
+   listenPort=.../> tags, but the only client-list file that exists on this branch,
+   configs/clients/clientsConfig.xml (built for the new core/input/GAP path), uses
+   <fadseClient .../> tags instead - the legacy parser would silently see zero neighbors.
+   Created configs/neighbor/simpleNeighborConfig.xml (old schema, points at
+   localhost:4450) for the legacy path to use; pass it explicitly as the second CLI arg.
+
+6. ro.ulbsibiu.fadse.extended.problems.getters.FalseSimulatorGetter did not exist - the
+   client-side reflection lookup (ProblemFactory.loadProblem, keyed off the "realSimulator"
+   name carried in each Message) needs a *Getter class per instantiable simulator, and only
+   ServerSimulatorGetter/DTLZ1Getter existed. Added FalseSimulatorGetter (identical to
+   ServerSimulatorGetter) and registered "FalseSimulator" in ProblemFactory's CLASS_NAMES map.
+
+7. ServerSimulator.join()'s per-objective bookkeeping (attributes "counter"/"sum"/"tempSum",
+   used for an average-across-benchmarks calculation and a "did every benchmark report
+   back" failsafe) was never initialized before first use (NullPointerException on the
+   very first individual) and, once initialized, overwrote the "sum"/"tempSum" attributes
+   with a scalar/String instead of mutating the array in place (would have thrown
+   ClassCastException on the second objective). Fixed to guard-initialize per solution and
+   mutate the arrays in place, matching the working equivalent logic already used in
+   core.network.ClientsRepository.join().
+
+How to reproduce: from the project root,
+  java -jar target/fadse-0.0.1-jar-with-dependencies.jar client 4450
+  # in a second terminal, after the first prints its <neighbor .../> line:
+  java -jar target/fadse-0.0.1-jar-with-dependencies.jar falsesimin_smoketest.xml configs/neighbor/simpleNeighborConfig.xml
+Expect repeating "Individual sent to: [/127.0.0.1:4450]" / "Join method finished." lines
+with no SEVERE/Exception output, across multiple generations (NSGA-II populationSize=10,
+maxEvaluations=250 per nsgaii.properties - this takes several minutes to fully finish,
+the smoke test only needs to observe a couple of clean generations to confirm the
+pipeline works).
+
+New/changed files from this session, all still present in the working tree (not
+committed): CLAUDE.md, introduction.txt, configs/neighbor/simpleNeighborConfig.xml,
+configs/designSpace/falsesimin_smoketest.xml, configs/designSpace/falsesimin.xml (added
+<output>), pom.xml (compiler excludes), plus the source fixes listed above and in the
+"BUILD FIXED" section. .classpath and .settings/*.prefs were auto-regenerated by this
+environment's IDE tooling (m2e/VS Code Java) to mirror the pom.xml changes - not
+manually edited.

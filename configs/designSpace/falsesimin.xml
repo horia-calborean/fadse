@@ -8,6 +8,7 @@
         this is the input file for the DTLZ1problem
 -->
 <design_space>
+    <output output_path="results"/>
     <simulator name="ServerSimulator" type="simulator" >
 <!--    <simulator name="FalseSimulator" type="simulator" >-->
         <parameter name="simulator_executable" value="/home/andrei/Work/Simulatoare/m-sim_v3.0/sim-outorder" />

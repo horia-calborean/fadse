@@ -111,6 +111,48 @@
                 <configuration>
                     <source>14</source>
                     <target>14</target>
+                    <!--
+                        These files still use the OLD bundled jmetal.base.* API (jmetal.base.Problem/
+                        Solution/SolutionSet), which is incompatible with the NEW org.uma.jmetal 6.6 API
+                        that SimulatorWrapper/ServerSimulator/Utils were migrated to on this branch.
+                        They are quarantined here (not deleted) so the module compiles; none of them
+                        are reachable from the live Boot -> AlgorithmRunner -> ServerSimulator path.
+                        Remove entries here once/if someone finishes porting them to org.uma.jmetal 6.6.
+                    -->
+                    <excludes>
+                        <exclude>jmetal/metaheuristics/nsgaII/**</exclude>
+                        <exclude>jmetal/metaheuristics/spea2/**</exclude>
+                        <exclude>jmetal/metaheuristics/pesa2/**</exclude>
+                        <exclude>jmetal/metaheuristics/mochc/**</exclude>
+                        <exclude>jmetal/metaheuristics/ibea/**</exclude>
+                        <exclude>jmetal/metaheuristics/cnsgaII/**</exclude>
+                        <exclude>jmetal/metaheuristics/abyss/**</exclude>
+                        <exclude>jmetal/metaheuristics/densea/**</exclude>
+                        <exclude>jmetal/metaheuristics/fastPGA/**</exclude>
+                        <exclude>jmetal/metaheuristics/omopso/**</exclude>
+                        <exclude>jmetal/metaheuristics/randomSearch/**</exclude>
+                        <exclude>jmetal/metaheuristics/smpso/**</exclude>
+                        <exclude>jmetal/metaheuristics/cellde/CellDE_main.java</exclude>
+                        <exclude>jmetal/metaheuristics/gde3/GDE3_main.java</exclude>
+                        <exclude>jmetal/experiments/**</exclude>
+                        <exclude>jmetal/gui/**</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/base/operator/crossover/RelationalSinglePointCrossover.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/base/operator/mutation/BitFlipMutationFuzzy.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/base/operator/mutation/BitFlipMutationFuzzyVirtualParameters.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/base/operator/mutation/BitFlipMutationRandomDefuzzifier.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/base/operator/mutation/RelationalBitFlipMutation.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/qualityIndicator/CoverageFromTwoFolders.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/qualityIndicator/HypervolumeFromNFolders.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/qualityIndicator/HypervolumeTwoSetDiference.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/qualityIndicator/CoverageOfTwoSets.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/qualityIndicator/HypervolumeNoTruePareto.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/extended/qualityIndicator/SevenPointAverageDistance.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/utils/SolutionSetHelper.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/utils/SolutionSetHelperResult.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/MetricsBoot.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/ComputeMetrics.java</exclude>
+                        <exclude>ro/ulbsibiu/fadse/ProblemMainStarter.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

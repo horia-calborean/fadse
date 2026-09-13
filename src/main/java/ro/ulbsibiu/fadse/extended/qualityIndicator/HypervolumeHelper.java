@@ -11,9 +11,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jmetal.base.SolutionSet;
+import org.uma.jmetal.solution.Solution;
 
 /**
  *
@@ -85,10 +86,10 @@ public class HypervolumeHelper {
     public static void main(String[] args){
         String folder = "D:\\Work\\Doctorat\\Output\\FADSE\\ServerSimulator\\MOCHC Scoala\\1345563456000";
         LinkedList<File> files = MetricsUtil.getListOfFiles(folder, "filled");
-        LinkedList<SolutionSet> solutions = new LinkedList<SolutionSet>();
+        LinkedList<List<Solution<?>>> solutions = new LinkedList<>();
         for(File file : files){
             try {
-                SolutionSet set =  MetricsUtil.readPopulation(file.getAbsolutePath(), 100, 2);
+                List<Solution<?>> set =  MetricsUtil.readPopulation(file.getAbsolutePath(), 100, 2);
                 solutions.add(set);
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(HypervolumeHelper.class.getName()).log(Level.SEVERE, null, ex);

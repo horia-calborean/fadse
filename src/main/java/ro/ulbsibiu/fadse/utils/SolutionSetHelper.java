@@ -16,6 +16,11 @@ import java.util.StringTokenizer;
 
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.extended.qualityIndicator.MetricsUtil;
+import jmetal.base.Problem;
+import jmetal.base.Solution;
+import jmetal.base.SolutionSet;
+import jmetal.problems.ProblemFactory;
+import jmetal.util.JMException;
 
 /**
  *

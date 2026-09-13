@@ -1,0 +1,19 @@
+# Maven build output
+target/
+
+# Eclipse IDE metadata that isn't part of this repo's tracked project files
+# (.classpath, .project and .settings/org.eclipse.jdt.core.prefs ARE tracked on purpose)
+.settings/org.eclipse.core.resources.prefs
+.settings/org.eclipse.jdt.apt.core.prefs
+
+# Other IDEs
+.vscode/
+.idea/
+*.iml
+
+# Runtime output (Environment creates a results<timestamp>/ dir per run; log files)
+/results*/
+*.log
+
+# OS cruft
+.DS_Store
