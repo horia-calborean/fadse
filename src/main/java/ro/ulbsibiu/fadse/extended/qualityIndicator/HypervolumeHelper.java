@@ -11,9 +11,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jmetal.base.SolutionSet;
+import org.uma.jmetal.solution.Solution;
 
 /**
  *
@@ -48,7 +49,7 @@ public class HypervolumeHelper {
             for (int i = 0; i < n; i++) {
                 parsedFilesN.add(MetricsUtil.parseFiles(nrOfobejctives, populationSizeN[i], listOfPopulationFilesN.get(i)));
                 System.out.println("Files found for folder " + i + ":" + parsedFilesN.get(i).size());
-                maxObjectivesN.add(MetricsUtil.getmaxObjectives(nrOfobejctives, parsedFilesN.get(i)));
+                maxObjectivesN.add(MetricsUtil.getMaxObjectives(nrOfobejctives, parsedFilesN.get(i)));
             }
             double[] maxObjectives = new double[nrOfobejctives];
             for (int i = 0; i < nrOfobejctives; i++) {
@@ -85,10 +86,10 @@ public class HypervolumeHelper {
     public static void main(String[] args){
         String folder = "D:\\Work\\Doctorat\\Output\\FADSE\\ServerSimulator\\MOCHC Scoala\\1345563456000";
         LinkedList<File> files = MetricsUtil.getListOfFiles(folder, "filled");
-        LinkedList<SolutionSet> solutions = new LinkedList<SolutionSet>();
+        LinkedList<List<Solution<?>>> solutions = new LinkedList<>();
         for(File file : files){
             try {
-                SolutionSet set =  MetricsUtil.readPopulation(file.getAbsolutePath(), 100, 2);
+                List<Solution<?>> set =  MetricsUtil.readPopulation(file.getAbsolutePath(), 100, 2);
                 solutions.add(set);
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(HypervolumeHelper.class.getName()).log(Level.SEVERE, null, ex);

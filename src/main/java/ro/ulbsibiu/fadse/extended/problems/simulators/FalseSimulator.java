@@ -44,9 +44,6 @@ import java.util.logging.Logger;
 import ro.ulbsibiu.fadse.environment.Environment;
 import ro.ulbsibiu.fadse.environment.Individual;
 import ro.ulbsibiu.fadse.environment.Objective;
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
-import ro.ulbsibiu.fadse.extended.problems.SimulatorWrapper;
-import jmetal.base.Solution;
 
 /**
  *

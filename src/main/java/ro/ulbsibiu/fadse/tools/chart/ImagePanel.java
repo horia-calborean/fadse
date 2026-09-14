@@ -39,18 +39,14 @@
  */
 package ro.ulbsibiu.fadse.tools.chart;
 
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import jmetal.qualityIndicator.util.MetricsUtil;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -59,7 +55,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 public class ImagePanel extends javax.swing.JPanel {
 
     private BufferedImage image;
-    MetricsUtil utils_;
+    //MetricsUtil utils_;
     double[][] solutionFront;
     double[] maximumValues;
     XYSeries series;
@@ -71,9 +67,9 @@ public class ImagePanel extends javax.swing.JPanel {
     public ImagePanel() {
         initComponents();
 
-        utils_ = new MetricsUtil();
-        solutionFront = utils_.readFront("outputs/string_search_obj_oder_date.txt");
-        maximumValues = utils_.getMaximumValues(solutionFront, 2);
+        //utils_ = new MetricsUtil();
+        //solutionFront = utils_.readFront("outputs/string_search_obj_oder_date.txt");
+        //maximumValues = utils_.getMaximumValues(solutionFront, 2);
         series = new XYSeries("XYGraph");
         series.add(solutionFront[0][0], solutionFront[0][1]);
         series.add(maximumValues[0],0);

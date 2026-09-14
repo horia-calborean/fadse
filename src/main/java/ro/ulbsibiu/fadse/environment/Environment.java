@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 import ro.ulbsibiu.fadse.environment.document.InputDocument;
 import ro.ulbsibiu.fadse.environment.parameters.CheckpointFileParameter;
-import ro.ulbsibiu.fadse.io.XMLInputReader;
+import ro.ulbsibiu.fadse.io.GapInputParser;
 import ro.ulbsibiu.fadse.persistence.ConnectionPool;
 
 public class Environment implements Serializable {
@@ -17,7 +17,9 @@ public class Environment implements Serializable {
     private String resultsFolder;
 
     public Environment(String inputFilePath) {
-        inputDocument = (new XMLInputReader()).parse(inputFilePath);
+        //inputDocument = (new XMLInputReader()).parse(inputFilePath);
+        // TODO - GAPXMLParser or any other parser shall not be hardcoded here, but rather passed as input from outside
+        inputDocument = (new GapInputParser(inputFilePath).getSimulationInput());
         ConnectionPool.setInputDocument(inputDocument);
         String currentdir = System.getProperty("user.dir");
         File dir = new File(currentdir);

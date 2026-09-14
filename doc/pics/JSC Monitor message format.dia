@@ -145,7 +145,7 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#neighbor
+            <dia:string>#fadseClient
 status#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">

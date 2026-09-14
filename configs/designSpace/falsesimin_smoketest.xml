@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : falsesimin_smoketest.xml
+    Description:
+        Trimmed copy of falsesimin.xml for an end-to-end FalseSimulator smoke test.
+        The <rules> section is emptied out: falsesimin.xml's example rule
+        (array_size > 128) hits a pre-existing, unrelated bug in
+        ro.ulbsibiu.fadse.utils.MathEvaluator / environment.parameters.ExpresionParameter
+        (MathEvaluator.getValue() returns null for the "128" operand), which is out of
+        scope for this smoke test.
+-->
+<design_space>
+    <output output_path="results"/>
+    <simulator name="ServerSimulator" type="simulator" >
+        <parameter name="simulator_executable" value="/home/andrei/Work/Simulatoare/m-sim_v3.0/sim-outorder" />
+        <parameter name="simulator_output_file" value="/home/andrei/Work/Simulatoare/m-sim_v3.0/out#.txt"/>
+        <parameter name="realSimulator" value = "FalseSimulator"/>
+        <parameter name="timeToRunSimulation" value = "0"/>
+        <parameter name="maximumTimeOfASimulation" value="3"/>
+        <parameter name="forceMinimumPercentageFeasibleIndividuals" value="0"/>
+    </simulator>
+    <database ip="172.16.8.69" port="1527" name="FADSE_DB" user="fadse" password="fadse"/>
+    <benchmarks>
+        <item name="1"/>
+    </benchmarks>
+    <metaheuristic name="NSGAII" config_path="nsgaii.properties" />
+    <parameters>
+         <parameter name="n_lines" description="param1" type="integer" min="4" max="32"/>
+        <parameter name="n_columns" description="param2" type="integer" min="4" max="32"/>
+        <parameter name="n_layers" description="param3" type="exp2" min="1" max="64"/>
+        <parameter name="c_chunk" description="c_chunk" type="exp2" min="1" max="32"/>
+        <parameter name="c_sets" description="c_sets" type="exp2" min="32" max="8192"/>
+        <parameter name="c_lines" description="c_lines" type="exp2" min="1" max="128"/>
+    </parameters>
+    <system_metrics>
+        <system_metric name="ipc" type="float" unit="" desired="small"/>
+        <system_metric name="sim_num_insn_0" type="float" unit="" desired="small"/>
+    </system_metrics>
+    <virtual_parameters>
+        <parameter name="array_size" value="n_lines*n_columns"/>
+    </virtual_parameters>
+    <rules>
+    </rules>
+    <relations>
+        <relation>
+            <if parameter="n_lines" value="8">
+                <then_invalidate>
+                    <parameter name="n_columns"/>
+                   <parameter name="c_sets"/>
+                </then_invalidate>
+            </if>
+        </relation>
+
+        <relation>
+            <if parameter="n_lines" value="16">
+                <then_invalidate>
+                    <parameter name="n_layers"/>
+                    <parameter name="c_sets"/>
+                </then_invalidate>
+            </if>
+        </relation>
+
+        <relation>
+            <if parameter="n_layers" value="2">
+                <then_invalidate>
+                    <parameter name="c_chunk"/>
+                </then_invalidate>
+            </if>
+        </relation>
+    </relations>
+</design_space>

@@ -63,9 +63,13 @@ public class ProblemFactory {
         try {
             Class problemClass = Class.forName(base + name);
             System.out.println("Base+name: "+base+name);
+            System.out.println("Env: "+params.length);
+
             Constructor[] constructors = problemClass.getConstructors();
             int i = 0;
             //find the constructor
+            System.out.println("Env: "+constructors.length);
+
             while ((i < constructors.length)
                     && (constructors[i].getParameterTypes().length != params.length)) {
                 i++;

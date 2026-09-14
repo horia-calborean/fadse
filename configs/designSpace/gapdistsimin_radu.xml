@@ -13,13 +13,13 @@
         <parameter name="realSimulator" value = "GAPSimulator"/>
         <!-- this is not really needed because it is extracted from benchmark paths -->
         <parameter name="simulator_output_file" value="irrelevant"/>
-        <parameter name="simulator_executable" value="D:\fadse\SimAlu.exe" />
+        <parameter name="simulator_executable" value="E:\Facultate\Master\fadseAux\fadse\SimAlu.exe" />
         <parameter name="simulator_simulation_mode" value="false"/>
-        <parameter name="benchmark_yaml_file" value="D:\fadse\dse-kiwi3-mibench-tiny-dumps.yml"/>
+        <parameter name="benchmark_yaml_file" value="E:\Facultate\Master\fadseAux\fadse\dse-kiwi3-mibench-tiny-dumps.yml"/>
         <!-- If you put TEMP here than the dumps are placed into the temporary folder of the OS -->
-        <parameter name="benchmark_target_directory" value="D:\fadse\fadse_dumps\" />
-        <parameter name="gaptimize_executable_file" value="D:\fadse\Stepstep_YAML.exe"/>
-        <parameter name="benchmark_repository_path" value="D:\fadse\mibench_tiny\"/>
+        <parameter name="benchmark_target_directory" value="E:\Facultate\Master\fadseAux\fadse\fadse_dumps\" />
+        <parameter name="gaptimize_executable_file" value="E:\Facultate\Master\fadseAux\fadse\Stepstep_YAML.exe"/>
+        <parameter name="benchmark_repository_path" value="E:\Facultate\Master\fadseAux\fadse\mibench_tiny\"/>
     </simulator>
     <benchmarks>
         <item name="default-mibench-netw-dijkstra" />
@@ -53,5 +53,5 @@
     </rules>
 	<relations>
 	</relations>
-	<output output_path="d:/work/doctorat/output/fadse/" />	
+	<output output_path="E:\Facultate\Master\fadseAux\FadseOutput\fadse\output" />
 </design_space>

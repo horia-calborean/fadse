@@ -160,8 +160,12 @@ public class ConnectionPool {
     /** Get next available connection */
     protected synchronized Connection getNextAvailableItem() throws SQLException {
         for (int i = 0; i < MAX_AVAILABLE; ++i) {
-            if (i == 22) {
-//                log.debug("ZWEIUNDZWANZIG - KRITISCH!!");
+            if (i == 5) {
+                try {
+                    DatabaseConnector.setInstance(new DummyDatabaseConnector());
+                } catch (Exception e) {
+                    System.out.println("error setting DatabaseConnector instance ");
+                }
             }
 
             if (i == 20) {

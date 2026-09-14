@@ -7,7 +7,6 @@ package ro.ulbsibiu.fadse.extended.base.stopCondition;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -46,7 +45,7 @@ public class HypervolumeStopCondition extends StopCondition {
         try {
             LinkedList<Double> hypValues = new LinkedList<Double>();
             LinkedList parsedFiles = MetricsUtil.parseFiles(nrOfobejctives, populationSize, listOfPopulationFiles);//TODO repalce 100 with real size of pop
-            double[] maxObjectives = MetricsUtil.getmaxObjectives(nrOfobejctives, parsedFiles);
+            double[] maxObjectives = MetricsUtil.getMaxObjectives(nrOfobejctives, parsedFiles);
             for (double[][] parsedFile : (LinkedList<double[][]>) parsedFiles) {
                 //repairing Pareto optimal set = removing objectives with the value 0 and replacing them with the first individual of the current pop
                 MetricsUtil.repairParetoOptimalSet(parsedFile, populationSize, nrOfobejctives);

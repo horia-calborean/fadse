@@ -1,85 +1,83 @@
 package ro.ulbsibiu.fadse.environment.parameters;
 
-import jmetal.base.Variable;
-import jmetal.base.variable.Int;
-import jmetal.base.variable.Permutation;
 
-public class PermutationParameter implements Parameter {
+public class PermutationParameter extends Parameter {
 
+    //private Permutation parameter;
     private int size = 2;
-    private String name;
-    private String type;
-    private String description;
-    private Permutation parameter;
+    public int[] vector;
+
+    private int[] Permutation(int size) {
+        int[] v = new int[size];
+
+        java.util.ArrayList<Integer> randomSequence = new
+                java.util.ArrayList<Integer>(size);
+
+        for (int i = 0; i < size; i++)
+            randomSequence.add(i);
+
+        java.util.Collections.shuffle(randomSequence);
+
+        for (int j = 0; j < randomSequence.size(); j++) {
+            v[j] = randomSequence.get(j);
+        }
+        return v;
+    }
 
     public PermutationParameter(String name, String type, String description) {
-        init(name, type, description, new Permutation(size));
+        super(name, type, description);
+
+        //init(name, type, description, 0, null); Permutation object without any values
+        // The following constructor was remodeled after the original PermutationParameter class (constructor without parameters)
+        init(this.size, Permutation(this.size));
     }
 
-    public PermutationParameter(String name, String type, String description, Permutation parameter) {
-       init(name, type, description, parameter);
-    }
-    private void init(String name, String type, String description, Permutation parameter) {
-        this.name = name;
-        this.type = type;
-        this.description = description;
-        this.parameter = parameter;
-        parameter.setName(name);
+    public PermutationParameter(String name, String type, String description, int size) {
+        super(name, type, description);
+        init(size, Permutation(size));
     }
 
+    public PermutationParameter(String name, String type, String description, int size, int[] vector) {
+        super(name, type, description);
+        init(size, vector);
+    }
+
+    private void init(int size, int[] vector) {
+        this.size = size;
+        this.vector = vector;
+    }
+
+    @Override
     public Object getValue() {//TODO test it
-        return parameter.toString();
+        return this.toString();
     }
 
+    @Override
     public void setValue(Object value) {
         //TODO what to do???
     }
 
     @Override
-    public String toString() {
-        return "" + parameter.toString() + "";
+    public Object clone() throws CloneNotSupportedException {
+        //return super.clone();
+        return new PermutationParameter(this.getName(), this.getType(), this.getDescription(), this.size, this.vector);
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
+    public String toString() {
+        String string = "";
+        for (int i = 0; i < this.size; i++)
+            string += this.vector[i] + " ";
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
+        return string;
     }
 
     public int getSize() {
-        return size;
+        return this.size;
     }
 
     public void setSize(int size) {
         this.size = size;
     }
-
-    public void setVariable(Variable v) {
-        parameter =  (Permutation) v;
-    }
-
-    public Variable getVariable() {
-         return parameter;
-    }
-
 }
+

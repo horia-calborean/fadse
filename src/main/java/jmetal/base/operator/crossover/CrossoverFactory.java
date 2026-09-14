@@ -9,7 +9,6 @@ package jmetal.base.operator.crossover;
 
 import java.util.Properties;
 
-import ro.ulbsibiu.fadse.extended.base.operator.crossover.RelationalSinglePointCrossover;
 import jmetal.base.operator.crossover.Crossover;
 import jmetal.util.Configuration;
 import jmetal.util.JMException;
@@ -40,8 +39,6 @@ public class CrossoverFactory {
       return new HUXCrossoverInt();
     else if (name.equalsIgnoreCase("DifferentialEvolutionCrossover"))
       return new DifferentialEvolutionCrossover();
-    else if (name.equalsIgnoreCase("RelationalSinglePointCrossover"))
-      return new RelationalSinglePointCrossover();
     else {
       Configuration.logger_.severe("CrossoverFactory.getCrossoverOperator. " +
           "Operator '" + name + "' not found ");
@@ -68,9 +65,6 @@ public class CrossoverFactory {
       return new HUXCrossover(PropUtils.getPropertiesWithPrefix(properties, name+"."));
     else if (name.equalsIgnoreCase("DifferentialEvolutionCrossover"))
       return new DifferentialEvolutionCrossover(PropUtils.getPropertiesWithPrefix(properties, name+"."));
-    else if (name.equalsIgnoreCase("RelationalSinglePointCrossover"))
-      return new RelationalSinglePointCrossover(PropUtils.getPropertiesWithPrefix(properties, name+"."));
-
     else {
       Configuration.logger_.severe("CrossoverFactory.getCrossoverOperator. " +
           "Operator '" + name + "' not found ");

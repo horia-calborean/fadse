@@ -37,7 +37,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
@@ -73,8 +72,8 @@ public class HypervolumeFromTwoFolders {
         if (metricsFolder.mkdir()) {
             LinkedList parsedFiles1 = MetricsUtil.parseFiles(nrOfobejctives1, populationSize1, listOfPopulationFiles1);
             LinkedList parsedFiles2 = MetricsUtil.parseFiles(nrOfobejctives2, populationSize2, listOfPopulationFiles2);
-            double[] maxObjectives1 = MetricsUtil.getmaxObjectives(nrOfobejctives1, parsedFiles1);
-            double[] maxObjectives2 = MetricsUtil.getmaxObjectives(nrOfobejctives2, parsedFiles2);
+            double[] maxObjectives1 = MetricsUtil.getMaxObjectives(nrOfobejctives1, parsedFiles1);
+            double[] maxObjectives2 = MetricsUtil.getMaxObjectives(nrOfobejctives2, parsedFiles2);
             double[] maxObjectives = new double[nrOfobejctives1];
             for(int i = 0; i<nrOfobejctives1;i++){
                 if(maxObjectives1[i]>maxObjectives2[i]){

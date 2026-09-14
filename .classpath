@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry excluding="jmetal/metaheuristics/nsgaII/**|jmetal/metaheuristics/spea2/**|jmetal/metaheuristics/pesa2/**|jmetal/metaheuristics/mochc/**|jmetal/metaheuristics/ibea/**|jmetal/metaheuristics/cnsgaII/**|jmetal/metaheuristics/abyss/**|jmetal/metaheuristics/densea/**|jmetal/metaheuristics/fastPGA/**|jmetal/metaheuristics/omopso/**|jmetal/metaheuristics/randomSearch/**|jmetal/metaheuristics/smpso/**|jmetal/metaheuristics/cellde/CellDE_main.java|jmetal/metaheuristics/gde3/GDE3_main.java|jmetal/experiments/**|jmetal/gui/**|ro/ulbsibiu/fadse/extended/base/operator/crossover/RelationalSinglePointCrossover.java|ro/ulbsibiu/fadse/extended/base/operator/mutation/BitFlipMutationFuzzy.java|ro/ulbsibiu/fadse/extended/base/operator/mutation/BitFlipMutationFuzzyVirtualParameters.java|ro/ulbsibiu/fadse/extended/base/operator/mutation/BitFlipMutationRandomDefuzzifier.java|ro/ulbsibiu/fadse/extended/base/operator/mutation/RelationalBitFlipMutation.java|ro/ulbsibiu/fadse/extended/qualityIndicator/CoverageFromTwoFolders.java|ro/ulbsibiu/fadse/extended/qualityIndicator/HypervolumeFromNFolders.java|ro/ulbsibiu/fadse/extended/qualityIndicator/HypervolumeTwoSetDiference.java|ro/ulbsibiu/fadse/extended/qualityIndicator/CoverageOfTwoSets.java|ro/ulbsibiu/fadse/extended/qualityIndicator/HypervolumeNoTruePareto.java|ro/ulbsibiu/fadse/extended/qualityIndicator/SevenPointAverageDistance.java|ro/ulbsibiu/fadse/utils/SolutionSetHelper.java|ro/ulbsibiu/fadse/utils/SolutionSetHelperResult.java|ro/ulbsibiu/fadse/MetricsBoot.java|ro/ulbsibiu/fadse/ComputeMetrics.java|ro/ulbsibiu/fadse/ProblemMainStarter.java" kind="src" output="target/classes" path="src/main/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
@@ -11,21 +16,46 @@
 	<classpathentry kind="lib" path="lib/jgraphx.jar"/>
 	<classpathentry kind="lib" path="lib/Stepstep_ConfigurationAnalysis.jar"/>
 	<classpathentry kind="lib" path="lib/Stepstep_GUI.jar"/>
-	<classpathentry kind="src" output="target/classes" path="FADSE/src">
-		<attributes>
-			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-14">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="**" kind="src" output="target/test-classes" path="src/test/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="test" value="true"/>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="target/generated-sources/annotations">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="ignore_optional_problems" value="true"/>
+			<attribute name="m2e-apt" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="target/test-classes" path="target/generated-test-sources/test-annotations">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="ignore_optional_problems" value="true"/>
+			<attribute name="m2e-apt" value="true"/>
+			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>

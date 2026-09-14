@@ -1,175 +1,84 @@
 package ro.ulbsibiu.fadse;
 
-import java.io.File;
+import org.uma.jmetal.algorithm.impl.AbstractEvolutionaryAlgorithm;
+import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAIIBuilder;
+import org.uma.jmetal.operator.crossover.CrossoverOperator;
+import org.uma.jmetal.operator.crossover.impl.SBXCrossover;
+import org.uma.jmetal.operator.mutation.MutationOperator;
+import org.uma.jmetal.operator.mutation.impl.PolynomialMutation;
+import org.uma.jmetal.operator.selection.SelectionOperator;
+import org.uma.jmetal.operator.selection.impl.BinaryTournamentSelection;
+import org.uma.jmetal.problem.Problem;
+import org.uma.jmetal.solution.doublesolution.DoubleSolution;
+import org.uma.jmetal.util.comparator.RankingAndCrowdingDistanceComparator;
+import ro.ulbsibiu.fadse.algorithm.LegacyWrappedEvolutionaryAlgorithm;
+import ro.ulbsibiu.fadse.environment.Environment;
+import ro.ulbsibiu.fadse.extended.problems.ProblemFactory;
+
 import java.io.FileInputStream;
-
-import jmetal.base.*;
-import jmetal.problems.*;
-import jmetal.util.Configuration;
-import jmetal.util.JMException;
-
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
-import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ro.ulbsibiu.fadse.environment.Environment;
-import ro.ulbsibiu.fadse.extended.problems.simulators.network.server.status.SimulationStatus;
-import jmetal.experiments.Settings;
-import jmetal.experiments.SettingsFactory;
-import jmetal.qualityIndicator.QualityIndicator;
-
-/*
- *
- *
- * This file is part of the FADSE tool.
- *
- * Authors: Horia Andrei Calborean {horia.calborean at ulbsibiu.ro}, Andrei
- * Zorila Copyright (c) 2009-2010 All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *   * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- *
- *   * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * The names of its contributors NOT may be used to endorse or promote products
- * derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- *
- */
-/**
- *
- * @author Horia Calborean <horia.calborean at ulbsibiu.ro>
- */
 public class AlgorithmRunner {
+    public void run(Environment environment) {
+        Problem<DoubleSolution> problem = ProblemFactory.<DoubleSolution>loadProblem(environment);
 
-    public static Logger logger_; // Logger object
-    public static FileHandler fileHandler_; // FileHandler object
-    private Algorithm algorithm = null; // The algorithm to use
+        System.out.println("Problem name = " + problem.name());
+        System.out.println("Problem numberOfVariables = " + problem.numberOfVariables());
+        System.out.println("Problem numberOfObjectives = " + problem.numberOfObjectives());
 
-    public void run(Environment env) throws JMException, SecurityException,
-            IOException, IllegalArgumentException, IllegalAccessException,
-            ClassNotFoundException {
-        // Runtime.getRuntime().addShutdownHook(new Thread(new
-        // PerformCleanup()));
-        Problem problem; // The problem to solve
-
-        Properties properties;
-        Settings settings = null;
-        String algorithmName = env.getInputDocument().getMetaheuristicName();
-        String problemName = env.getInputDocument().getSimulatorName();
-
-        properties = new Properties();
-        String path = "N/A";
-        String currentDir = System.getProperty("user.dir");
-        System.out.println("Current folder is: "+currentDir);
-        try {
-            path = env.getInputDocument().getMetaheuristicConfigPath();            
-            properties.load(new FileInputStream(currentDir+ File.separator + path));
-        } catch (Exception e) {
-            System.out.println("BAD properties file [" + path + "]. going with default values");
-        }
-        long initTime = System.currentTimeMillis();
-        // Logger object and file to store log messages
-        logger_ = Configuration.logger_;
-        fileHandler_ = new FileHandler(algorithmName + ".log");
-        logger_.addHandler(fileHandler_);
-        SolutionSet population = null;
-        System.out.println(env.getInputDocument().getSimulatorType());
-        if (env.getInputDocument().getSimulatorType().equalsIgnoreCase("synthetic")) {
-            // it is a synthetic problem
-            problem = null;
-            Object[] problemParams = {"Real"};// TODO configure the problem
-            // param type, nr of variables,
-            // nr of objectives
-            if (problemName.startsWith("DTLZ")) {
-                problemParams = new Object[3];
-                problemParams[0] = "Real";
-                problemParams[1] = env.getInputDocument().getParameters().length;
-                problemParams[2] = env.getInputDocument().getObjectives().size();
-            }
-            problem = (new ProblemFactory()).getProblem(problemName,
-                    problemParams);
-        } else {
-            // is a simulator
-            Object[] problemParams = {env};
-            problem = (new ProblemFactory()).getProblem(problemName,
-                    problemParams);
-        }
-        Object[] settingsParams = {problem};
-        settings = (new SettingsFactory()).getSettingsObject(algorithmName,
-                settingsParams);
-        algorithm = settings.configure(properties);
-        try {
-            algorithm.getOperator("mutation").setParameter("environment", env);
-        } catch (Exception e) {
-            System.out.println("MUTATION was not defined");
-        }
-        try {
-            algorithm.getOperator("crossover").setParameter("environment", env);
-        } catch (Exception e) {
-            System.out.println("CROSSOVER was not defined");
-        }
-        // Algorithm parameters htey work only for NSGA-II for other algorithms
-        // we need to define others, we have to see how to do it more easily
-        // probably with configuration files
-        if (env.getCheckpointFileParameter() != null
-                && !env.getCheckpointFileParameter().equals("")) {
-            algorithm.setInputParameter("checkpointFile",
-                    env.getCheckpointFileParameter());
-        }
-        if (env.getInputDocument().getSimulatorParameter(
-                "forceFeasibleFirstGeneration") != null) {
-            algorithm.setInputParameter(
-                    "forceFeasibleFirstGeneration",
-                    env.getInputDocument().getSimulatorParameter(
-                    "forceFeasibleFirstGeneration"));
-        }
-        if (env.getInputDocument().getSimulatorParameter(
-                "forceMinimumPercentageFeasibleIndividuals") != null) {
-            algorithm.setInputParameter(
-                    "forceMinimumPercentageFeasibleIndividuals",
-                    env.getInputDocument().getSimulatorParameter(
-                    "forceMinimumPercentageFeasibleIndividuals"));
-        } else {
-            algorithm.setInputParameter(
-                    "forceMinimumPercentageFeasibleIndividuals", "0");
+        String algorithmName = environment.getInputDocument().getMetaheuristicName();
+        if (!"NSGAII".equalsIgnoreCase(algorithmName)) {
+            // TODO - only NSGA-II is wired to the org.uma.jmetal 6.6 builders so far (matching the
+            // level of completeness of core.application.AlgorithmRunner); other configured
+            // metaheuristics (SPEA2, SMPSO, OMOPSO, ...) still need their own builder wiring.
+            throw new UnsupportedOperationException(
+                    "Metaheuristic '" + algorithmName + "' is not yet wired to the org.uma.jmetal 6.6 path");
         }
 
-        String outputPath = env.getInputDocument().getOutputPath();
-        env.setResultsFolder(outputPath);
+        Properties properties = loadMetaheuristicProperties(environment);
 
-        algorithm.setInputParameter("outputPath", outputPath);
+        double crossoverProbability = Double.parseDouble(properties.getProperty("crossoverProbability_", "0.9"));
+        double crossoverDistributionIndex = Double.parseDouble(properties.getProperty("crossoverDistributionIndex_", "20.0"));
+        CrossoverOperator<DoubleSolution> crossover = new SBXCrossover(crossoverProbability, crossoverDistributionIndex);
 
-        SimulationStatus.getInstance().setAlgorithm(algorithm);
-        SimulationStatus.getInstance().setEnvironment(env);
-        // Execute the Algorithm
-        population = algorithm.execute();
+        double mutationProbability = Double.parseDouble(
+                properties.getProperty("mutationProbability_", String.valueOf(1.0 / problem.numberOfVariables())));
+        double mutationDistributionIndex = Double.parseDouble(properties.getProperty("mutationDistributionIndex_", "20.0"));
+        MutationOperator<DoubleSolution> mutation = new PolynomialMutation(mutationProbability, mutationDistributionIndex);
 
-        population.printObjectivesToFile((new File(outputPath, "FUN")).getPath());
-        population.printVariablesToFile((new File(outputPath, "VAR")).getPath());
-        long estimatedTime = System.currentTimeMillis() - initTime;
-        // Result messages
-        logger_.info("Total execution time: " + estimatedTime + "ms");
-        logger_.info("Objectives values have been writen to file FUN");
-        logger_.info("Variables values have been writen to file VAR");
-    } // main
-} // main
+        SelectionOperator<List<DoubleSolution>, DoubleSolution> selection =
+                new BinaryTournamentSelection<>(new RankingAndCrowdingDistanceComparator<>());
 
+        int populationSize = Integer.parseInt(properties.getProperty("populationSize_", "100"));
+        int maxEvaluations = Integer.parseInt(properties.getProperty("maxEvaluations_", "25000"));
+
+        AbstractEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> algorithm =
+                new NSGAIIBuilder<>(problem, crossover, mutation, populationSize)
+                        .setSelectionOperator(selection)
+                        .setMaxEvaluations(maxEvaluations)
+                        .build();
+
+        LegacyWrappedEvolutionaryAlgorithm<DoubleSolution, List<DoubleSolution>> wrappedEvolutionaryAlgorithm =
+                new LegacyWrappedEvolutionaryAlgorithm<>(algorithm, problem);
+        wrappedEvolutionaryAlgorithm.run();
+
+        List<DoubleSolution> resultPopulation = wrappedEvolutionaryAlgorithm.result();
+        System.out.println("Algorithm has finished with a result population of count -> " + resultPopulation.size());
+    }
+
+    private Properties loadMetaheuristicProperties(Environment environment) {
+        Properties properties = new Properties();
+        String path = environment.getInputDocument().getMetaheuristicConfigPath();
+        try (FileInputStream in = new FileInputStream(System.getProperty("user.dir") + path)) {
+            properties.load(in);
+        } catch (IOException e) {
+            Logger.getLogger(AlgorithmRunner.class.getName()).log(Level.WARNING,
+                    "Could not load metaheuristic properties file [" + path + "], using default values", e);
+        }
+        return properties;
+    }
+}

@@ -7,8 +7,6 @@
 package ro.ulbsibiu.fadse.extended.base.operator.mutation;
 
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import jmetal.base.Solution;
 import jmetal.util.Configuration;
@@ -94,7 +92,7 @@ public class BitFlipMutationRandomDefuzzifier extends Mutation {
 
                         int COG = computeCOG(outputVariable, params[i]);
                         int counter = 0;
-                        while (COG < params[i].getVariable().getLowerBound() || COG > params[i].getVariable().getUpperBound()) {
+                        while (COG < params[i].getLowerBound() || COG > params[i].getUpperBound()) {
                             fis.evaluate();
                             outputVariable = fis.getVariable("out" + params[i].getName());
                             COG = computeCOG(outputVariable, params[i]);
@@ -111,7 +109,7 @@ public class BitFlipMutationRandomDefuzzifier extends Mutation {
 //                        System.out.println(params[i].getVariable().getLowerBound() + " " + params[i].getVariable().getUpperBound() + " " + COG);
                         if (prob < fuzzyMutationProbability) {
                             params[i].setValue(COG);
-                            solution.getDecisionVariables()[i].setValue((double) params[i].getVariable().getValue());
+                            solution.getDecisionVariables()[i].setValue((double) params[i].getValue());
                             STATS_APPLIED_FUZZY++;
                             IND_CHANGED = true;
                         } else {

@@ -5,7 +5,7 @@
 		<param name="number_of_cores" value="1"/>
 		<param name="number_of_L1Directories" value="0"/>
 		<param name="number_of_L2Directories" value="1"/>
-		<param name="number_of_L2s" value="1"/> <!-- This number means how many L2 clusters in each cluster there can be multiple banks/ports -->
+		<param name="number_of_L2s" value="1"/> <!-- This number means how many L2 clusters in each cluster there can be multiple banks/input -->
 		<param name="Private_L2" value="0"/><!--1 Private, 0 shared/coherent -->
 		<param name="number_of_L3s" value="0"/> <!-- This number means how many L3 clusters -->
 		<param name="number_of_NoCs" value="1"/>
@@ -47,21 +47,21 @@
 			<param name="machine_type" value="0"/>
 			<!-- inorder/OoO; 1 inorder; 0 OOO-->
 			<param name="number_hardware_threads" value="1"/>
-			<!-- number_instruction_fetch_ports(icache ports) is always 1 in single-thread processor,
-			it only may be more than one in SMT processors. BTB ports always equals to fetch ports since 
+			<!-- number_instruction_fetch_ports(icache input) is always 1 in single-thread processor,
+			it only may be more than one in SMT processors. BTB input always equals to fetch input since
 			branch information in consective branch instructions in the same fetch group can be read out from BTB once.--> 
 			<param name="fetch_width" value="4"/>
 			<!-- fetch_width determins the size of cachelines of L1 cache block -->
 			<param name="number_instruction_fetch_ports" value="1"/>
 			<param name="decode_width" value="4"/>
-			<!-- decode_width determins the number of ports of the 
+			<!-- decode_width determins the number of input of the
 			renaming table (both RAM and CAM) scheme -->
 			<param name="issue_width" value="4"/>
 			<param name="peak_issue_width" value="6"/>
-			<!-- issue_width determins the number of ports of Issue window and other logic 
+			<!-- issue_width determins the number of input of Issue window and other logic
 			as in the complexity effective proccessors paper; issue_width==dispatch_width -->
 			<param name="commit_width" value="4"/>
-			<!-- commit_width determins the number of ports of register files -->
+			<!-- commit_width determins the number of input of register files -->
 			<param name="fp_issue_width" value="2"/>
 			<param name="prediction_width" value="1"/> 
 			<!-- number of branch instructions can be predicted simultannouesl-->
@@ -111,11 +111,11 @@
 			<param name="store_buffer_size" value="32"/>
 			<!-- By default, in-order cores do not have load buffers -->
 			<param name="load_buffer_size" value="32"/>	
-			<!-- number of ports refer to sustainable concurrent memory accesses --> 
+			<!-- number of input refer to sustainable concurrent memory accesses -->
 			<param name="memory_ports" value="2"/>	
-			<!-- max_allowed_in_flight_memo_instructions determins the # of ports of load and store buffer
-			as well as the ports of Dcache which is connected to LSU -->	
-			<!-- dual-pumped Dcache can be used to save the extra read/write ports -->
+			<!-- max_allowed_in_flight_memo_instructions determins the # of input of load and store buffer
+			as well as the input of Dcache which is connected to LSU -->
+			<!-- dual-pumped Dcache can be used to save the extra read/write input -->
 			<param name="RAS_size" value="32"/>						
 			<!-- general stats, defines simulation periods;require total, idle, and busy cycles for senity check  -->
 			<!-- please note: if target architecture is X86, then all the instrucions refer to (fused) micro-ops -->
@@ -262,8 +262,8 @@
 			    <param name="buffer_sizes" value="8, 8, 8, 8"/>	
 				<!-- all the buffer related are optional -->
 			    <param name="clockrate" value="3400"/>
-				<param name="ports" value="1,1,1"/>
-				<!-- number of r, w, and rw search ports -->
+				<param name="input" value="1,1,1"/>
+				<!-- number of r, w, and rw search input -->
 				<param name="device_type" value="0"/>
 				<!-- altough there are multiple access types, 
 				Performance simulator needs to cast them into reads or writes
@@ -282,8 +282,8 @@
 			    <param name="buffer_sizes" value="16, 16, 16, 16"/>	
 				<!-- all the buffer related are optional -->
 			    <param name="clockrate" value="1200"/>
-				<param name="ports" value="1,1,1"/>
-				<!-- number of r, w, and rw search ports -->
+				<param name="input" value="1,1,1"/>
+				<!-- number of r, w, and rw search input -->
 				<param name="device_type" value="0"/>
 				<!-- altough there are multiple access types, 
 				Performance simulator needs to cast them into reads or writes
@@ -301,8 +301,8 @@
 				<param name="buffer_sizes" value="16, 16, 16, 16"/>
 				<!-- cache controller buffer sizes: miss_buffer_size(MSHR),fill_buffer_size,prefetch_buffer_size,wb_buffer_size-->	
 				<param name="clockrate" value="1200"/>
-				<param name="ports" value="1,1,1"/>
-				<!-- number of r, w, and rw ports -->
+				<param name="input" value="1,1,1"/>
+				<!-- number of r, w, and rw input -->
 				<param name="device_type" value="0"/>
 				<stat name="read_accesses" value="200000"/>
 				<stat name="write_accesses" value="27276"/>
@@ -317,8 +317,8 @@
 				<param name="L3_config" value="16777216,64,16, 16, 16, 100,1"/>
 				<!-- the parameters are capacity,block_width, associativity,bank, throughput w.r.t. core clock, latency w.r.t. core clock,-->
 				<param name="clockrate" value="850"/>
-				<param name="ports" value="1,1,1"/>
-				<!-- number of r, w, and rw ports -->
+				<param name="input" value="1,1,1"/>
+				<!-- number of r, w, and rw input -->
 				<param name="device_type" value="0"/>
 				<param name="buffer_sizes" value="16, 16, 16, 16"/>
 				<!-- cache controller buffer sizes: miss_buffer_size(MSHR),fill_buffer_size,prefetch_buffer_size,wb_buffer_size-->	
@@ -345,7 +345,7 @@
 			<!-- Router architecture -->
 			<param name="input_ports" value="8"/>
 			<param name="output_ports" value="7"/>
-			<!-- For bus the I/O ports should be 1 -->
+			<!-- For bus the I/O input should be 1 -->
 			<param name="virtual_channel_per_port" value="2"/>
 			<param name="input_buffer_entries_per_vc" value="128"/>
 			<param name="flit_bits" value="40"/>

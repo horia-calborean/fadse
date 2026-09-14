@@ -6,12 +6,7 @@ package ro.ulbsibiu.fadse;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import jmetal.metaheuristics.smpso.SMPSO;
-import jmetal.metaheuristics.smpso.SMPSO_main;
 
 /**
  *

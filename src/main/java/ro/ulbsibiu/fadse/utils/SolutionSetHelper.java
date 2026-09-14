@@ -85,7 +85,7 @@ public class SolutionSetHelper {
     }
 
     public static void DumpPopulationToFile(String folderName, String fileName, SolutionSet ss, Environment env) {
-        String result = (new Utils()).generateCSVHeadder(env);
+        String result = (new Utils()).generateCSVHeader(env);
         result += (new Utils()).generateCSV(ss);
         try {
             (new File(folderName)).mkdirs();

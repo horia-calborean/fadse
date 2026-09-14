@@ -4,11 +4,9 @@
  */
 
 package ro.ulbsibiu.fadse.extended.problems.simulators.m5;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import ro.ulbsibiu.fadse.environment.parameters.Parameter;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorBase;
 import ro.ulbsibiu.fadse.extended.problems.simulators.SimulatorRunner;
 import ro.ulbsibiu.fadse.extended.problems.simulators.msim3.Msim3Constants;

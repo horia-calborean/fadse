@@ -5,7 +5,6 @@
 package ro.ulbsibiu.fadse.io;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -44,11 +43,11 @@ import ro.ulbsibiu.fadse.extended.base.relation.RelationTree;
  * @author Horia
  */
 public class XMLInputReader {
-	public final static String metaheuristicConfigBasePath = 
-			System.getProperty("file.separator") + "configs" 
+	public final static String metaheuristicConfigBasePath =
+			System.getProperty("file.separator") + "configs"
     		+ System.getProperty("file.separator") + "metaheuristicConfig"
     		+ System.getProperty("file.separator");
-	
+
     public InputDocument parse(String xmlFilePath) {
         try {
             InputDocument inputDoc = new InputDocument();
@@ -84,7 +83,7 @@ public class XMLInputReader {
             }
 //DATABASE
             //<database ip="127.0.0.1" port="1527" name="FADS_DB" user="fadse" password="fadse"/>
-            NodeList databaseNode = doc.getElementsByTagName("database");            
+            NodeList databaseNode = doc.getElementsByTagName("database");
             NamedNodeMap databaseattributes = databaseNode.item(0).getAttributes();
             String databaseIp = databaseattributes.getNamedItem("ip").getNodeValue();
             String databasePort = databaseattributes.getNamedItem("port").getNodeValue();
@@ -105,8 +104,8 @@ public class XMLInputReader {
             if(Paths.get(metaheuristicConfigPath).isAbsolute()) { //
             	inputDoc.setMetaheuristicConfigPath(metaheuristicConfigPath);
             } else {
-            	inputDoc.setMetaheuristicConfigPath(metaheuristicConfigBasePath + metaheuristicConfigPath);            	
-            }     
+            	inputDoc.setMetaheuristicConfigPath(metaheuristicConfigBasePath + metaheuristicConfigPath);
+            }
 //PARAMETERS
 
             NodeList parameters = ((Element) doc.getElementsByTagName("parameters").item(0)).getElementsByTagName("parameter");
@@ -274,9 +273,9 @@ public class XMLInputReader {
             //OUTPUT
             NodeList outputNode = doc.getElementsByTagName("output");
             NamedNodeMap outputAttributes = outputNode.item(0).getAttributes();
-            String outputPath = outputAttributes.getNamedItem("output_path").getNodeValue();           
-            inputDoc.setOutputPath(outputPath);                        
-            
+            String outputPath = outputAttributes.getNamedItem("output_path").getNodeValue();
+            inputDoc.setOutputPath(outputPath);
+
             return inputDoc;
         } catch (SAXParseException err) {
             System.out.println("** Parsing error" + ", line "
@@ -317,8 +316,8 @@ public class XMLInputReader {
         String minValue = attributes.getNamedItem("min").getNodeValue();
         String maxValue = attributes.getNamedItem("max").getNodeValue();
 
-        p.setMinValue(getValue(minValue, params));
-        p.setMaxValue(getValue(maxValue, params));
+        p.setLowerBound(getValue(minValue, params));
+        p.setUpperBound(getValue(maxValue, params));
 
         int divideBy = 1;
         if (attributes.getNamedItem("divideBy") != null) {
@@ -326,7 +325,7 @@ public class XMLInputReader {
             divideBy = getValue(divide, params);
         }
         p.setDivideBy(divideBy);
-        
+
         return p;
     }
 
@@ -340,8 +339,8 @@ public class XMLInputReader {
      */
     private Parameter createBooleanParameter(String name, String type, String description, Node parameter) {
         IntegerParameter p = new IntegerParameter(name, type, description);
-        p.setMinValue(0);
-        p.setMaxValue(1);
+        p.setLowerBound(0);
+        p.setUpperBound(1);
         p.setStep(1);
         return p;
     }
@@ -396,8 +395,8 @@ public class XMLInputReader {
         NamedNodeMap attributes = parameter.getAttributes();
         String minValue = attributes.getNamedItem("min").getNodeValue();
         String maxValue = attributes.getNamedItem("max").getNodeValue();
-        p.setMinValue(getValue(minValue, params));
-        p.setMaxValue(getValue(maxValue, params));
+        p.setLowerBound(getValue(minValue, params));
+        p.setUpperBound(getValue(maxValue, params));
         return p;
     }
 
@@ -411,8 +410,8 @@ public class XMLInputReader {
 //            String step = attributes.getNamedItem("step").getNodeValue();
 //            stepI = Double.parseDouble(step);
 //        }
-        p.setMinValue(getValue(minValue, params));
-        p.setMaxValue(getValue(maxValue, params));
+        p.setLowerBound(getValue(minValue, params));
+        p.setUpperBound(getValue(maxValue, params));
 //        p.setStep(stepI);
         return p;
     }
