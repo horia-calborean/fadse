@@ -29,7 +29,7 @@ public class SimulatorRunner implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(SimulatorRunner.class.getName());
 
     // Configuration
-    private static final long PROCESS_TIMEOUT_MINUTES = 60;  // 1 hour default
+    protected static final long PROCESS_TIMEOUT_MINUTES = 60;  // 1 hour default
 
     protected Simulator simulator;
     protected LinkedHashMap<String, String> simpleParameters;
@@ -103,6 +103,17 @@ public class SimulatorRunner implements Runnable {
     protected String getParameterPrefix(String parameterName){
         return "-";
     }
+
+    /**
+     * Process timeout in minutes; connectors with a configurable simulation
+     * timeout (e.g. gem5_timeout_seconds) override this so the Java-side kill
+     * never fires before the connector's own timeout handling.
+     */
+    protected long getProcessTimeoutMinutes() {
+        return PROCESS_TIMEOUT_MINUTES;
+    }
+
+    protected void validateProcessExit(int exitCode) { }
 
     protected void prepareParameters() {
         if (this.currentParameters == null) {
@@ -192,14 +203,15 @@ public class SimulatorRunner implements Runnable {
             errorGobbler.start();
 
             // Wait for the simulation to end (with timeout)
-            boolean finished = p.waitFor(PROCESS_TIMEOUT_MINUTES, TimeUnit.MINUTES);
+            long timeoutMinutes = getProcessTimeoutMinutes();
+            boolean finished = p.waitFor(timeoutMinutes, TimeUnit.MINUTES);
 
             if (!finished) {
                 LOGGER.log(Level.SEVERE, String.format(
                     "Simulator [%s] timed out after %d minutes - killing process",
-                    simulatorName, PROCESS_TIMEOUT_MINUTES
+                    simulatorName, timeoutMinutes
                 ));
-                p.destroyForcibly();
+                terminateProcessTree(p);
                 throw new RuntimeException("Simulation timeout");
             }
 
@@ -208,6 +220,7 @@ public class SimulatorRunner implements Runnable {
             errorGobbler.join(5000);
 
             int exitCode = p.exitValue();
+            validateProcessExit(exitCode);
             if (exitCode != 0) {
                 LOGGER.log(Level.WARNING, String.format(
                     "Simulator [%s] exited with non-zero status: %d",
@@ -228,14 +241,14 @@ public class SimulatorRunner implements Runnable {
             throw new RuntimeException("Failed to execute simulator", e);
 
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
             LOGGER.log(Level.SEVERE, String.format(
                 "Simulator [%s] interrupted",
                 simulatorName
             ), e);
             if (p != null) {
-                p.destroyForcibly();
+                terminateProcessTree(p);
             }
+            Thread.currentThread().interrupt();
             throw new RuntimeException("Simulation interrupted", e);
 
         } catch (Exception e) {
@@ -309,7 +322,33 @@ public class SimulatorRunner implements Runnable {
         Process process = p;  // Volatile read
         if (process != null) {
             LOGGER.log(Level.WARNING, "Forcibly terminating simulation process");
+            terminateProcessTree(process);
+        }
+    }
+
+    protected void terminateProcessTree(Process process) {
+        // Request Python's cleanup first; retain handles in case it cannot respond.
+        var descendants = process.descendants().toList();
+        process.destroy();
+        try {
+            if (!process.waitFor(5, TimeUnit.SECONDS)) {
+                descendants = java.util.stream.Stream.concat(descendants.stream(), process.descendants())
+                        .distinct().toList();
+                for (ProcessHandle child : descendants) child.destroyForcibly();
+                for (ProcessHandle child : descendants) {
+                    try { child.onExit().get(5, TimeUnit.SECONDS); }
+                    catch (java.util.concurrent.ExecutionException | java.util.concurrent.TimeoutException ignored) { }
+                }
+                process.destroyForcibly();
+                process.waitFor(5, TimeUnit.SECONDS);
+            }
+        } catch (InterruptedException e) {
+            for (ProcessHandle child : descendants) child.destroyForcibly();
             process.destroyForcibly();
+            Thread.currentThread().interrupt();
+        } finally {
+            // Also clean descendants of non-cooperative or already-exited parents.
+            for (ProcessHandle child : descendants) if (child.isAlive()) child.destroyForcibly();
         }
     }
 
