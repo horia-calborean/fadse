@@ -245,17 +245,22 @@ public abstract class MicroArchitectureProblem extends AbstractIntegerProblem {
                 Objective objective = objectives.get(j);
                 if (objective == null) {
                     LOGGER.log(Level.SEVERE, "Null objective at index " + j);
-                    continue;
+                    setBadObjectiveValues(solution);
+                    return;
                 }
 
                 double value = objective.getValue();
 
                 // Validate value
-                if (Double.isNaN(value) || Double.isInfinite(value)) {
+                if (Double.isNaN(value)
+                        || Double.isInfinite(value)
+                        || value == Double.MAX_VALUE
+                        || value == Double.MIN_VALUE) {
                     LOGGER.log(Level.SEVERE, String.format(
                             "Invalid objective value: %f at index %d", value, j
                     ));
-                    continue;
+                    setBadObjectiveValues(solution);
+                    return;
                 }
 
                 objectiveSums[j] += value;
@@ -272,10 +277,12 @@ public abstract class MicroArchitectureProblem extends AbstractIntegerProblem {
         }
 
         if (validIndividualCount != benchmarkCount) {
-            LOGGER.log(Level.WARNING, String.format(
-                    "Only %d out of %d benchmarks produced valid results",
+            LOGGER.log(Level.SEVERE, String.format(
+                    "Only %d out of %d benchmarks produced valid results; rejecting aggregate",
                     validIndividualCount, benchmarkCount
             ));
+            setBadObjectiveValues(solution);
+            return;
         }
 
         // Set averaged objectives

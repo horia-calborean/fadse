@@ -228,18 +228,7 @@ public class IndividualReceiver implements Runnable {
                 // Process message based on type
                 InputData inputData = receivedMessage.getIndividual().getInputData();
 
-                // Replace placeholder '#' with unique ID for temporary files
-                Map<String, String> problemParameters = (Map<String, String>) inputData.get(CommonSetupParameters.PROBLEM_CONFIG);
-                if (problemParameters != null) {
-                    for (String key : problemParameters.keySet()) {
-                        String value = problemParameters.get(key);
-                        if (value != null && value.contains("#")) {
-                            String uniqueId = System.currentTimeMillis() + "_" + receivedMessage.getMessageId();
-                            problemParameters.put(key, value.replace("#", uniqueId));
-                        }
-                    }
-                }
-
+                SimulatorFactory.resolvePlaceholders(inputData, receivedMessage.getMessageId());
                 // Create simulator
                 simulator = SimulatorFactory.createSimulator(inputData);
 

@@ -1,10 +1,13 @@
 package core.network.client;
 
 import core.network.client.gap.GAPSimulator;
+import core.network.client.gem5.Gem5Simulator;
 import input.model.InputData;
 import input.model.setup.CommonSetupParameters;
 
 import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,13 +44,39 @@ public class SimulatorFactory {
         if ("GAP".equalsIgnoreCase(simulatorName)) {
             return new GAPSimulator(inputData);
         }
+        if ("gem5".equalsIgnoreCase(simulatorName)) {
+            return new Gem5Simulator(inputData);
+        }
 
         // If we reach here, simulator type is not supported
         String errorMsg = String.format(
-            "Unknown simulator type: '%s'. Supported types: GAP",
+            "Unknown simulator type: '%s'. Supported types: GAP, gem5",
             simulatorName
         );
         LOGGER.log(Level.SEVERE, errorMsg);
         throw new IllegalArgumentException(errorMsg);
+    }
+
+    /** Apply connector-specific request placeholder policy before construction. */
+    @SuppressWarnings("unchecked")
+    public static void resolvePlaceholders(InputData inputData, String messageId) {
+        Objects.requireNonNull(inputData, "InputData cannot be null");
+        String simulatorName = (String) inputData.get(CommonSetupParameters.NAME);
+        if ("gem5".equalsIgnoreCase(simulatorName)) {
+            // Candidate IDs, not message IDs, own gem5 output directories.
+            return;
+        }
+        Map<String, String> parameters = (Map<String, String>) inputData.get(
+                CommonSetupParameters.PROBLEM_CONFIG);
+        if (parameters == null) {
+            return;
+        }
+        String uniqueId = System.currentTimeMillis() + "_" + messageId;
+        for (String key : new ArrayList<>(parameters.keySet())) {
+            String value = parameters.get(key);
+            if (value != null && value.contains("#")) {
+                parameters.put(key, value.replace("#", uniqueId));
+            }
+        }
     }
 }

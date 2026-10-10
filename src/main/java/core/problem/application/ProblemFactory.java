@@ -18,6 +18,9 @@ public class ProblemFactory {
         if("GAP".equalsIgnoreCase(name)) {
             return "GAPProblem";
         }
+        if("gem5".equalsIgnoreCase(name)) {
+            return "Gem5Problem";
+        }
 
         throw new RuntimeException("Class name not supported!");
     }
