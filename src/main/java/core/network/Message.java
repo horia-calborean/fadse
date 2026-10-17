@@ -25,8 +25,8 @@ import java.util.Objects;
  */
 public class Message implements Serializable {
 
-    // Critical: serialVersionUID for version compatibility
-    // Change this if you modify the class structure (add/remove/change fields)
+    // Keep the UID stable for backward-compatible additive fields; change it
+    // only for an intentionally incompatible wire-format revision.
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -48,6 +48,8 @@ public class Message implements Serializable {
     private String simulatorName;
     private InetAddress serverIP;
     private int serverListenPort;
+    private boolean retryableFailure;
+    private String failureDescription;
     private int clientListenPort;
 
     /**
@@ -208,6 +210,22 @@ public class Message implements Serializable {
     public void setClientListenPort(int clientListenPort) {
         validatePort(clientListenPort, "Client listen port");
         this.clientListenPort = clientListenPort;
+    }
+
+    public boolean isRetryableFailure() {
+        return retryableFailure;
+    }
+
+    public void setRetryableFailure(boolean retryableFailure) {
+        this.retryableFailure = retryableFailure;
+    }
+
+    public String getFailureDescription() {
+        return failureDescription;
+    }
+
+    public void setFailureDescription(String failureDescription) {
+        this.failureDescription = failureDescription;
     }
 
     /**

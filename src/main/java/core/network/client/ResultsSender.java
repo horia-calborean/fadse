@@ -33,6 +33,13 @@ public class ResultsSender {
     private static final int SOCKET_TIMEOUT_MS = 60000;      // 60 seconds
     private static final int CONNECTION_TIMEOUT_MS = 10000;  // 10 seconds
 
+    public void sendRetryableFailure(
+            FadseIndividual individual, Message message, String description) throws IOException {
+        message.setRetryableFailure(true);
+        message.setFailureDescription(description);
+        send(individual, message);
+    }
+
     /**
      * Sends simulation results to the server with automatic retry on failure.
      *

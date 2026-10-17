@@ -443,6 +443,14 @@ public class ResultsReceiver implements Runnable {
         }
     }
 
+    public List<Message> drainResults() {
+        synchronized (results) {
+            List<Message> drained = new LinkedList<>(results);
+            results.clear();
+            return drained;
+        }
+    }
+
     /**
      * Clears all results.
      * Thread-safe.

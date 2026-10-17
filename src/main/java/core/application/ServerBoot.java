@@ -1,6 +1,7 @@
 package core.application;
 
 import core.model.paths.PathUtils;
+import core.network.client.gem5.Gem5RunContext;
 import input.adapters.collector.gap.GAPInputCollector;
 import input.application.enhancer.InputDataEnhancer;
 import input.application.enhancer.gap.GapInputDataEnhancer;
@@ -28,6 +29,7 @@ public class ServerBoot {
 
             InputDataEnhancer enhancer = new GapInputDataEnhancer();
             enhancer.expandDataFromFiles(inputData);
+            Gem5RunContext.initialize(inputData);
 
             AlgorithmRunner algorithmRunner = new AlgorithmRunner(inputData);
             algorithmRunner.run();

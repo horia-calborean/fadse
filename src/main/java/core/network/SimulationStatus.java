@@ -11,18 +11,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class SimulationStatus {
 
     private static final Logger LOGGER = Logger.getLogger(SimulationStatus.class.getName());
     private static final Object LOCK = new Object();
 
-    // Memory leak prevention: limit history size
+    // Warn about unusually large generations without discarding result correlations.
     private static final int MAX_SIMULATION_HISTORY =
         Integer.getInteger("fadse.simulation.max.history", 10000);
-    private static final int CLEANUP_THRESHOLD =
-        (int)(MAX_SIMULATION_HISTORY * 0.9); // Cleanup at 90% full
+    private static final int HISTORY_WARNING_THRESHOLD =
+        (int)(MAX_SIMULATION_HISTORY * 0.9);
 
     ResultsReceiver receiver;
     private static SimulationStatus instance;
@@ -67,68 +66,17 @@ public class SimulationStatus {
         // FIXED: ConcurrentHashMap is thread-safe, no need for explicit synchronization
         simulations.put(m.getMessageId(), new Simulation(m.getMessageId(), m, s, n));
 
-        long added = totalSimulationsAdded.incrementAndGet();
+        totalSimulationsAdded.incrementAndGet();
 
-        // Memory leak prevention: cleanup old inactive simulations
-        if (simulations.size() > CLEANUP_THRESHOLD) {
+        // Inactive entries are still needed to connect received results to the
+        // authoritative server-side individual and solution. The whole map is
+        // released by clearPerGenerationData() after join() aggregates results.
+        if (simulations.size() == HISTORY_WARNING_THRESHOLD + 1) {
             LOGGER.log(Level.WARNING, String.format(
-                "Simulation history growing large (%d entries), performing cleanup",
+                "Current generation has %d simulations; retaining result correlations until join",
                 simulations.size()
             ));
-            cleanupInactiveSimulations();
         }
-    }
-
-    /**
-     * Removes old inactive simulations to prevent memory leaks.
-     * Keeps only active simulations and recent inactive ones.
-     */
-    private void cleanupInactiveSimulations() {
-        int before = simulations.size();
-        long cutoffTime = System.currentTimeMillis() - (60 * 60 * 1000); // 1 hour ago
-
-        // Remove old inactive simulations
-        simulations.entrySet().removeIf(entry -> {
-            Simulation sim = entry.getValue();
-            return !sim.isActive() &&
-                   sim.getSimulationStartedTime().getTime() < cutoffTime;
-        });
-
-        int removed = before - simulations.size();
-        if (removed > 0) {
-            LOGGER.log(Level.INFO, String.format(
-                "Cleaned up %d old inactive simulations (%d -> %d)",
-                removed, before, simulations.size()
-            ));
-        }
-
-        // If still too large, force cleanup of oldest inactive
-        if (simulations.size() > CLEANUP_THRESHOLD) {
-            LOGGER.log(Level.WARNING, "Forcing cleanup of oldest inactive simulations");
-            forceCleanupOldest();
-        }
-    }
-
-    /**
-     * Force cleanup by removing oldest inactive simulations
-     */
-    private void forceCleanupOldest() {
-        // Get all inactive simulations sorted by age
-        List<Map.Entry<String, Simulation>> inactive = simulations.entrySet().stream()
-            .filter(e -> !e.getValue().isActive())
-            .sorted(Comparator.comparing(e -> e.getValue().getSimulationStartedTime()))
-            .collect(Collectors.toList());
-
-        // Remove oldest half
-        int toRemove = Math.max(inactive.size() / 2, simulations.size() - MAX_SIMULATION_HISTORY / 2);
-        for (int i = 0; i < toRemove && i < inactive.size(); i++) {
-            simulations.remove(inactive.get(i).getKey());
-        }
-
-        LOGGER.log(Level.INFO, String.format(
-            "Force removed %d oldest inactive simulations (size now: %d)",
-            toRemove, simulations.size()
-        ));
     }
 
     public void removeSimulation(String messageId) {

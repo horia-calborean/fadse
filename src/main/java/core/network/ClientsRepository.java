@@ -97,6 +97,8 @@ public class ClientsRepository {
 
         if (fadseClients == null || fadseClients.getSize() == 0) {
             LOGGER.log(Level.SEVERE, "No clients configured");
+            individual.setBadValuesForObjectives();
+            individual.setFeasible(false);
             return;
         }
 
@@ -124,13 +126,18 @@ public class ClientsRepository {
         }
     }
 
-    private void performSimulationOnClient(FadseIndividual ind, Solution<?> solution) {
+    private boolean performSimulationOnClient(FadseIndividual ind, Solution<?> solution) {
         Objects.requireNonNull(ind, "Individual cannot be null");
         Objects.requireNonNull(solution, "Solution cannot be null");
 
+        if (fadseClients == null || fadseClients.getSize() == 0) {
+            individualsToSend.put(ind, solution);
+            return false;
+        }
         boolean individualSent = false;
         int attemptedClients = 0;
-        final int maxAttempts = fadseClients.getSize() * 2; // Try each client twice
+        final int clientCount = fadseClients.getSize();
+        final int maxAttempts = clientCount * 2; // Try each client twice
 
         while (!individualSent && attemptedClients < maxAttempts) {
             FadseClientData client = fadseClients.poll();
@@ -178,7 +185,7 @@ public class ClientsRepository {
             }
 
             // If all clients are full, wait before next iteration
-            if (!individualSent && attemptedClients % fadseClients.getSize() == 0) {
+            if (!individualSent && attemptedClients % clientCount == 0) {
                 sleepSafely(DEFAULT_SLEEP_TIME_MS);
             }
         }
@@ -190,6 +197,7 @@ public class ClientsRepository {
             ));
             individualsToSend.put(ind, solution);
         }
+        return individualSent;
     }
 
     private boolean trySendIndividual(FadseIndividual ind, Solution<?> solution, FadseClientData client) {
@@ -244,12 +252,27 @@ public class ClientsRepository {
     public void join() {
         LOGGER.log(Level.INFO, "Join method called");
 
-        simulationStatus.removeRemainingSimulations();
-        redistributeUnfinishedSimulations();
+        // Individuals that found no free client slot at dispatch time are
+        // parked in individualsToSend; they must be sent before waiting,
+        // otherwise the clear() below silently discards them and their
+        // solutions keep worst objectives without ever simulating.
+        flushPendingIndividuals();
+
+        List<Message> receivedMessages = new ArrayList<>();
+        Map<FadseIndividual, Integer> retryableFailureCounts = new IdentityHashMap<>();
+        boolean retried;
+        do {
+            simulationStatus.removeRemainingSimulations();
+            redistributeUnfinishedSimulations();
+            retried = rescheduleRetryableFailures(
+                    receiver.drainResults(), receivedMessages, retryableFailureCounts);
+            if (retried) {
+                flushPendingIndividuals();
+            }
+        } while (retried);
 
         LOGGER.log(Level.INFO, "All simulations complete, processing results");
 
-        List<Message> receivedMessages = receiver.getResults();
         List<Message> cleanMessages = processReceivedMessages(receivedMessages);
 
         LOGGER.log(Level.INFO, "Clean messages size: " + cleanMessages.size());
@@ -272,6 +295,46 @@ public class ClientsRepository {
         }
 
         LOGGER.log(Level.INFO, "Join method finished");
+    }
+
+    private boolean rescheduleRetryableFailures(
+            List<Message> batch,
+            List<Message> finalResults,
+            Map<FadseIndividual, Integer> failureCounts) {
+        boolean retried = false;
+        for (Message received : batch) {
+            if (received == null || !received.isRetryableFailure()) {
+                if (received != null) {
+                    finalResults.add(received);
+                }
+                continue;
+            }
+
+            Simulation simulation = simulationStatus.getSimulation(received.getMessageId());
+            if (simulation == null) {
+                throw new IllegalStateException(
+                        "Retryable failure has no matching simulation: " + received.getMessageId());
+            }
+            FadseIndividual individual = simulation.getMessage().getIndividual();
+            int failures = failureCounts.getOrDefault(individual, 0);
+            if (failures >= MAX_RETRIES) {
+                individual.setBadValuesForObjectives();
+                individual.setFeasible(false);
+                finalResults.add(simulation.getMessage());
+                LOGGER.log(Level.SEVERE, "Retryable simulation failure exhausted retries: "
+                        + received.getFailureDescription());
+                continue;
+            }
+
+            failureCounts.put(individual, failures + 1);
+            individual.setBadValuesForObjectives();
+            individual.setFeasible(true);
+            performSimulationOnClient(individual, simulation.getSolution());
+            retried = true;
+            LOGGER.log(Level.WARNING, "Retrying client-local simulation failure: "
+                    + received.getFailureDescription());
+        }
+        return retried;
     }
 
     private List<Message> processReceivedMessages(List<Message> receivedMessages) {
@@ -489,6 +552,38 @@ public class ClientsRepository {
 
         // Reset counter
         solution.attributes().put(ATTR_COUNTER, 0);
+    }
+
+    private void flushPendingIndividuals() {
+        if (fadseClients == null || fadseClients.getSize() == 0) {
+            markPendingAsInfeasible("No clients remain; marking %d queued individuals infeasible");
+            return;
+        }
+        PendingSimulationQueue.DrainResult result = PendingSimulationQueue.drain(
+                individualsToSend,
+                this::performSimulationOnClient,
+                () -> {
+                    sleepSafely(DEFAULT_SLEEP_TIME_MS);
+                    detectAndRescheduleCrashedClients();
+                },
+                () -> fadseClients != null && fadseClients.getSize() > 0,
+                System::nanoTime,
+                TimeUnit.MINUTES.toNanos(Math.max(1, getMaxSimulationTime()) * 2L));
+        if (result == PendingSimulationQueue.DrainResult.NO_CAPACITY) {
+            markPendingAsInfeasible("No clients remain; marking %d queued individuals infeasible");
+        } else if (result == PendingSimulationQueue.DrainResult.STALLED) {
+            markPendingAsInfeasible(
+                    "Dispatch made no progress before timeout; marking %d queued individuals infeasible");
+        }
+    }
+
+    private void markPendingAsInfeasible(String message) {
+        LOGGER.log(Level.SEVERE, String.format(message, individualsToSend.size()));
+        for (FadseIndividual individual : individualsToSend.keySet()) {
+            individual.setBadValuesForObjectives();
+            individual.setFeasible(false);
+        }
+        individualsToSend.clear();
     }
 
     private void redistributeUnfinishedSimulations() {
