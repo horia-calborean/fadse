@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "suite": "gapbs",
+  "entries": [
+    {
+      "id": "bfs",
+      "benchmark": "gapbs_bfs",
+      "binary": "workloads/gapbs/bfs",
+      "args": "-g 15 -n 4",
+      "memory_size": "16GB"
+    },
+    {
+      "id": "pr",
+      "benchmark": "gapbs_pr",
+      "binary": "workloads/gapbs/pr",
+      "args": "-g 15 -n 4",
+      "memory_size": "16GB"
+    },
+    {
+      "id": "cc",
+      "benchmark": "gapbs_cc",
+      "binary": "workloads/gapbs/cc",
+      "args": "-g 15 -n 4",
+      "memory_size": "16GB"
+    }
+  ]
+}

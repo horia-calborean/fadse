@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<design_space>
+    <problem_config name="gem5" type="simulator">
+        <parameter name="realSimulator" value="gem5"/>
+        <parameter name="gem5_executable" value="/path/to/gem5/build/X86/gem5.opt"/>
+        <parameter name="gem5_config_script" value="gem5_configs/o3_fadse_se.py"/>
+        <parameter name="gem5_argument_dialect" value="fadse-o3"/>
+        <parameter name="gem5_runner_script" value="scripts/run_gem5_candidate.py"/>
+        <parameter name="gem5_output_dir" value="results/gem5"/>
+        <parameter name="maximumTimeOfASimulation" value="70"/>
+        <parameter name="gem5_timeout_seconds" value="3600"/>
+        <parameter name="gem5_warmup_insts" value="10000000"/>
+        <parameter name="gem5_maxinsts" value="50000000"/>
+        <parameter name="gem5_cacheline_size" value="64"/>
+        <parameter name="gem5_method" value="nsga2"/>
+        <parameter name="gem5_benchmark_name" value="gapbs_cc"/>
+        <parameter name="gem5_benchmark_args" value="-g 15 -n 4"/>
+        <parameter name="gem5_seed" value="0"/>
+        <parameter name="gem5_repairs_log" value="results/datasets/candidate_repairs.csv"/>
+    </problem_config>
+    <parameters>
+        <parameter name="width" description="O3 issue/commit width" type="integer" min="2" max="8" step="2"/>
+        <parameter name="rob_entries" description="ROB entries" type="integer" min="64" max="256" step="64"/>
+        <parameter name="iq_entries" description="IQ entries" type="integer" min="32" max="128" step="32"/>
+        <parameter name="lsq_entries" description="LSQ entries" type="integer" min="32" max="96" step="32"/>
+        <parameter name="l1i_kb" description="L1 instruction cache size" type="exp2" min="16" max="64"/>
+        <parameter name="l1d_kb" description="L1 data cache size" type="exp2" min="16" max="64"/>
+        <parameter name="l2_kb" description="L2 cache size" type="exp2" min="256" max="2048"/>
+        <parameter name="l2_assoc" description="L2 associativity" type="exp2" min="4" max="16"/>
+    </parameters>
+    <benchmarks>
+        <item name="workloads/gapbs/cc"/>
+    </benchmarks>
+    <metaheuristic name="NSGAII" config_path="gem5_nsga2.json"/>
+    <objectives>
+        <objective name="cpi" type="float" unit="" desired="small"/>
+        <objective name="l2_mpki_pos" type="float" unit="" desired="small"/>
+        <objective name="cost_proxy" type="float" unit="" desired="small"/>
+    </objectives>
+    <database ip="127.0.0.1" port="3306" name="fadse" user="root" password="root"/>
+    <clients fileName="clientsConfig.xml"/>
+    <output path="results/fadse/"/>
+</design_space>

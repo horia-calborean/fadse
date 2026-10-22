@@ -1,0 +1,29 @@
+benchmarks:
+  - id: smoke_true
+    suite: smoke
+    name: /bin/true
+    binary: /bin/true
+    args: ""
+    input_description: "Minimal local smoke-test binary for parser and runner checks only."
+  - id: bfs
+    suite: gapbs
+    name: gapbs_bfs
+    binary: workloads/gapbs/bfs
+    args: "-g 15 -n 4"
+    input_description: "GAPBS breadth-first search on a synthetic Kronecker graph (2^15 nodes, 4 trials). Open fallback workload."
+  - id: pr
+    suite: gapbs
+    name: gapbs_pr
+    binary: workloads/gapbs/pr
+    args: "-g 15 -n 4"
+    input_description: "GAPBS PageRank on a synthetic Kronecker graph (2^15 nodes, 4 trials)."
+  - id: cc
+    suite: gapbs
+    name: gapbs_cc
+    binary: workloads/gapbs/cc
+    args: "-g 15 -n 4"
+    input_description: "GAPBS connected components (Shiloach-Vishkin) on a synthetic Kronecker graph (2^15 nodes, 4 trials)."
+# SPEC CPU2017 is commercially licensed and is not installed on this machine.
+# If a licensed installation becomes available, add 602.gcc_s, 605.mcf_s and
+# 623.xalancbmk_s here and do not commit any
+# SPEC binaries or inputs to the repository.

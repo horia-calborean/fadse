@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<design_space>
+    <problem_config name="gem5" type="simulator">
+        <parameter name="realSimulator" value="gem5"/>
+        <parameter name="gem5_executable" value="/opt/gem5/build/X86/gem5.opt"/>
+        <parameter name="gem5_config_script" value="/opt/gem5/configs/deprecated/example/se.py"/>
+        <parameter name="gem5_output_dir" value="/tmp/fadse-gem5-#"/>
+        <parameter name="gem5_stats_file" value="stats.txt"/>
+    </problem_config>
+    <parameters>
+        <parameter name="cpu-clock" description="gem5 script option" type="integer" min="1" max="4"/>
+        <parameter name="num-cpus" description="gem5 script option" type="integer" min="1" max="8"/>
+    </parameters>
+    <benchmarks>
+        <item name="/path/to/benchmark/binary"/>
+    </benchmarks>
+    <metaheuristic name="NSGAII" config_path="nsga2.json"/>
+    <objectives>
+        <objective name="simTicks" type="float" unit="" desired="small"/>
+    </objectives>
+    <database ip="127.0.0.1" port="3306" name="fadse" user="root" password="root"/>
+    <clients fileName="clientsConfig.xml"/>
+    <output path="/tmp/fadse-gem5-output"/>
+</design_space>

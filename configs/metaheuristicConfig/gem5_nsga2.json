@@ -1,0 +1,17 @@
+{
+  "selection": {
+    "operator": "BinaryTournament"
+  },
+  "crossover": {
+    "operator": "IntegerSBXCrossover",
+    "probability": 0.9,
+    "distributionIndex": 20
+  },
+  "mutation": {
+    "operator": "IntegerPolynomialMutation",
+    "probability": 0.16,
+    "distributionIndex": 20
+  },
+  "populationSize": 20,
+  "maxEvaluations": 300
+}
