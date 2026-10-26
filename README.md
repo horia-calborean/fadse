@@ -25,6 +25,8 @@ FADSE is currently able to:
 
 A short tutorial on how to start working with FADSE is avaiable [here](https://github.com/horiacalborean/fadse/blob/master/doc/Working_with_FADSE.md).
 
+For gem5 integration setup, see [gem5 Setup for FADSE](doc/Gem5_Setup_For_FADSE.md).
+
 ## Some papers using/describing FADSE 
 The full list available [here](http://webspace.ulbsibiu.ro/horia.calborean/papers.php):
 * Ralf Jahr, Theo Ungerer, **Horia Calborean** and Lucian Vintan - Automatic Multi-Objective Optimization of Parameters for Hardware and Code Optimizations, The 2011 International Conference on High Performance Computing & Simulation(HPCS 2011), 4 – 8 July, 2011, Istanbul, Turkey. [Paper](https://docs.google.com/a/ulbsibiu.ro/viewer?a=v&pid=sites&srcid=dWxic2liaXUucm98aG9yaWEtY2FsYm9yZWFufGd4OjZlZTg3OTYyZTNkYmRjNWI) selected for **Outstanding paper award**
