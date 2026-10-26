@@ -263,7 +263,9 @@ public abstract class MicroArchitectureProblem extends AbstractIntegerProblem {
                     return;
                 }
 
-                objectiveSums[j] += value;
+                // jMetal minimizes every coordinate. Keep raw measurements on
+                // individuals and convert maximizing objectives at this boundary.
+                objectiveSums[j] += objective.isMinimized() ? value : -value;
             }
 
             validIndividualCount++;
