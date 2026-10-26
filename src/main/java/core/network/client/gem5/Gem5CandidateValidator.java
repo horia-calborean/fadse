@@ -11,6 +11,12 @@ public final class Gem5CandidateValidator {
     }
 
     public static Gem5CandidateValidation validate(Map<String, Integer> architecture) {
+        architecture.forEach((name, value) -> {
+            if (allowedValues(name) != null && (value == null || !isAllowed(name, value))) {
+                throw new IllegalArgumentException(
+                        "gem5 design variable is outside the architecture contract: " + name + "=" + value);
+            }
+        });
         Map<String, Integer> repaired = new LinkedHashMap<>(architecture);
         applyDefaults(repaired, GeneratedGem5Contract.FIXED_PARAMETERS);
         applyDefaults(repaired, GeneratedGem5Contract.OPTIONAL_PARAMETERS);

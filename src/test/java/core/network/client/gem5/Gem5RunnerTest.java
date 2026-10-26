@@ -349,6 +349,25 @@ public class Gem5RunnerTest {
     }
 
     @Test
+    public void fadseO3DirectConnectorRejectsIntegralValuesOutsideTheContract() {
+        InputData input = createInputData(temporaryFolder.getRoot().getAbsolutePath());
+        Map<String, String> config = getProblemConfig(input);
+        config.put(Gem5Config.GEM5_CONFIG_SCRIPT, "gem5_configs/o3_fadse_se.py");
+        Path repairs = temporaryFolder.getRoot().toPath().resolve("invalid-direct-repairs.csv");
+        config.put(Gem5Config.GEM5_REPAIRS_LOG, repairs.toString());
+        TestableGem5Runner runner = new TestableGem5Runner(new Gem5Simulator(input));
+        runner.setIndividual(new FadseIndividual(input, "/bin/true"));
+        ProblemParameter<?>[] parameters = createSpecParameters();
+        parameters[0] = integerParameter("width", 2, 8, 3);
+        runner.setParameters(parameters);
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class, runner::commandLine);
+
+        assertTrue(error.getMessage().contains("width"));
+        assertFalse(Files.exists(repairs));
+    }
+
+    @Test
     public void rejectsUnsupportedPythonObjectiveBeforeCreatingARequest() {
         InputData input = createInputData(temporaryFolder.getRoot().getAbsolutePath());
         getProblemConfig(input).put(Gem5Config.GEM5_RUNNER_SCRIPT, "/repo/scripts/run_gem5_candidate.py");

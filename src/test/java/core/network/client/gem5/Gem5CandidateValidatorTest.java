@@ -7,6 +7,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThrows;
 
 public class Gem5CandidateValidatorTest {
 
@@ -27,6 +28,21 @@ public class Gem5CandidateValidatorTest {
     public void acceptsValidLegacyArchitectureWithoutRepairs() {
         Gem5CandidateValidation validation = Gem5CandidateValidator.validate(baseArchitecture());
         assertTrue(validation.getRepairs().isEmpty());
+    }
+
+    @Test
+    public void rejectsUnsupportedValuesInEverySuppliedContractField() {
+        Map<String, GeneratedGem5Contract.Parameter> definitions = new LinkedHashMap<>();
+        definitions.putAll(GeneratedGem5Contract.REQUIRED_PARAMETERS);
+        definitions.putAll(GeneratedGem5Contract.OPTIONAL_PARAMETERS);
+        definitions.putAll(GeneratedGem5Contract.FIXED_PARAMETERS);
+        for (String name : definitions.keySet()) {
+            Map<String, Integer> architecture = baseArchitecture();
+            architecture.put(name, Integer.MIN_VALUE);
+            IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                    () -> Gem5CandidateValidator.validate(architecture));
+            assertTrue(error.getMessage().contains(name));
+        }
     }
 
     @Test
