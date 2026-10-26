@@ -136,6 +136,12 @@ missing metric in `fadse_result.json`.
 This list is generated into both connectors from
 `configs/gem5/architecture-contract.json`.
 
+Use `desired="large"` to maximize IPC. Result files retain the positive raw
+measurement; FADSE negates maximizing objectives when forming jMetal scores.
+The `host_seconds` and `hostSeconds` objectives use gem5's own `hostSeconds`
+statistic. The top-level `host_seconds` JSON field separately records elapsed
+wrapper time, including workload preparation and cleanup.
+
 `gem5_maxinsts` limits the measured window after warmup. This O3 configuration
 is single-core; accepted architecture options are documented in
 [gem5 configuration options](../gem5_configs/README.md).

@@ -89,6 +89,34 @@ time.sleep(0.3)
 
 
 class RunnerAccountingTest(RunnerFixture):
+    def test_host_time_objectives_preserve_the_gem5_statistic_on_fresh_and_cached_runs(self):
+        stats = STATS.replace("system.cpu.numCycles 1000", "hostSeconds 123.75\nsystem.cpu.numCycles 1000")
+        self.fake.write_text(self.fake.read_text().replace(repr(STATS), repr(stats)))
+        for objective in ("host_seconds", "hostSeconds"):
+            candidate = self.candidate(objective)
+            candidate["objectives"] = [objective]
+            response = self.root / (objective + ".properties")
+            for attempt in range(2):
+                self.finish(self.start(candidate, response))
+                result = self.result(candidate)
+                self.assertEqual("hostSeconds", result["counter_mapping"]["host_seconds"])
+                self.assertEqual(123.75, result["metrics"]["host_seconds"])
+                self.assertNotEqual(123.75, result["host_seconds"])
+                self.assertIn(f"{objective} = 123.75\n", response.read_text())
+            self.assertEqual(1, sum(line == candidate["gem5"]["output_dir"]
+                                    for line in (self.root / "actual-launches").read_text().splitlines()))
+
+    def test_missing_gem5_host_time_is_not_replaced_by_wrapper_time(self):
+        candidate = self.candidate()
+        candidate["objectives"] = ["host_seconds"]
+
+        self.finish(self.start(candidate), 2)
+
+        result = self.result(candidate)
+        self.assertEqual("failed_missing_objective", result["status"])
+        self.assertNotIn("host_seconds", result["metrics"])
+        self.assertGreater(result["host_seconds"], 0)
+
     def test_partial_isolated_workdir_is_removed_when_copy_fails(self):
         candidate = self.candidate()
         source = self.root / "spec-run"
@@ -216,7 +244,7 @@ class RunnerAccountingTest(RunnerFixture):
         self.finish(self.start(candidate))
         path = Path(candidate["gem5"]["output_dir"]) / "fadse_result.json"
         cached = json.loads(path.read_text())
-        with mock.patch("candidate_hash.CACHE_FORMAT", "fadse-gem5-v3"):
+        with mock.patch("candidate_hash.CACHE_FORMAT", "fadse-gem5-v6"):
             cached["fingerprint"] = candidate_id(candidate)
         path.write_text(json.dumps(cached))
         self.finish(self.start(candidate))

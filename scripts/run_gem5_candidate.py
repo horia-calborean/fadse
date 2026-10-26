@@ -486,7 +486,6 @@ def run_locked(args, candidate, original_architecture, repairs, invalid_reasons,
     if cleanup_errors:
         result["cleanup_error"] = "\n".join(cleanup_errors)
     result["host_seconds"] = time.monotonic() - started
-    result["metrics"]["host_seconds"] = result["host_seconds"]
     append_stat_mapping(args.stat_mapping_out, stats_path, result)
     return publish(result)
 
