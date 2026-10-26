@@ -8,7 +8,7 @@ import java.util.Map;
 
 final class GeneratedGem5Contract {
     static final int CONTRACT_VERSION = 2;
-    static final String CACHE_FORMAT = "fadse-gem5-v6";
+    static final String CACHE_FORMAT = "fadse-gem5-v7";
     static final long DRAM_RANK_BYTES = 4294967296L;
     static final Map<String, String> SIMULATION_DEFAULTS = Map.ofEntries(
             Map.entry("method", "nsga2"),
@@ -34,6 +34,7 @@ final class GeneratedGem5Contract {
             new Repair("set_when", "prefetch_degree", null, List.of(), new int[0], new int[] { 0 }, "prefetcher", null, 0, 1, "prefetch_degree_one_with_enabled_prefetcher")
     );
     static final List<String> FINGERPRINT_FIELDS = List.of("cache_format", "method", "benchmark", "seed", "budget_index", "gem5_binary", "config_script", "timeout_seconds", "warmup_insts", "maxinsts", "cacheline_size", "architecture", "benchmark_binary", "benchmark_args", "run_cwd", "stdin", "mem_size", "isolate_cwd", "environment");
+    static final List<String> INTEGER_FINGERPRINT_FIELDS = List.of("seed", "budget_index", "timeout_seconds", "warmup_insts", "maxinsts", "cacheline_size");
 
     record Parameter(int[] values, Integer defaultValue, String invalidReason, double costWeight) { }
 

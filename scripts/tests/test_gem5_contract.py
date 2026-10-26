@@ -27,6 +27,21 @@ BASE_ARCHITECTURE = {
 
 
 class Gem5ContractTest(unittest.TestCase):
+    def test_numeric_spellings_do_not_change_candidate_identity(self):
+        candidate = {
+            "seed": 1, "budget_index": 1, "architecture": dict(BASE_ARCHITECTURE),
+            "gem5": {"timeout_seconds": 3600, "warmup_insts": 0,
+                     "maxinsts": 1000, "cacheline_size": 64},
+        }
+        expected = candidate_id(candidate)
+        for field in ("seed", "budget_index", "timeout_seconds", "warmup_insts",
+                      "maxinsts", "cacheline_size"):
+            with self.subTest(field=field):
+                padded = copy.deepcopy(candidate)
+                target = padded if field in ("seed", "budget_index") else padded["gem5"]
+                target[field] = "+000" + str(target[field])
+                self.assertEqual(expected, candidate_id(padded))
+
     def test_generated_adapters_are_current(self):
         for path, expected in generated_outputs().items():
             self.assertEqual(expected, path.read_text(encoding="utf-8"), str(path))
@@ -131,7 +146,7 @@ class Gem5ContractTest(unittest.TestCase):
             },
         }
         self.assertEqual(
-            "nsga2_bfs_seed0_budget1_aa0eb0f970ed930f7e66d96f",
+            "nsga2_bfs_seed0_budget1_b1050c088c8cc1f000f70e55",
             candidate_id(candidate),
         )
 

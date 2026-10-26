@@ -1,6 +1,7 @@
 package core.network.client.gem5;
 
 import java.nio.charset.StandardCharsets;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
@@ -44,6 +45,12 @@ public final class Gem5CandidateId {
 
     private static Map<String, String> values(Input input) {
         Map<String, String> values = new LinkedHashMap<>(input.fields());
+        for (String name : GeneratedGem5Contract.INTEGER_FINGERPRINT_FIELDS) {
+            String value = values.get(name);
+            if (value != null && value.matches("[+-]?[0-9]+")) {
+                values.put(name, new BigInteger(value).toString());
+            }
+        }
         values.put("cache_format", GeneratedGem5Contract.CACHE_FORMAT);
         values.put("architecture", architectureJson(input.architecture()));
         try {

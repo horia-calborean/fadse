@@ -2,7 +2,7 @@
 
 CONTRACT_VERSION = 2
 
-CACHE_FORMAT = 'fadse-gem5-v6'
+CACHE_FORMAT = 'fadse-gem5-v7'
 
 DRAM_RANK_BYTES = 4294967296
 
@@ -116,3 +116,5 @@ FINGERPRINT_FIELDS = ['cache_format',
  'mem_size',
  'isolate_cwd',
  'environment']
+
+INTEGER_FINGERPRINT_FIELDS = ['seed', 'budget_index', 'timeout_seconds', 'warmup_insts', 'maxinsts', 'cacheline_size']

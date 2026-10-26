@@ -11,6 +11,7 @@ from pathlib import Path
 from generated_gem5_contract import (
     CACHE_FORMAT as GENERATED_CACHE_FORMAT,
     FINGERPRINT_FIELDS,
+    INTEGER_FINGERPRINT_FIELDS,
     SIMULATION_DEFAULTS,
 )
 
@@ -118,10 +119,15 @@ def candidate_id(candidate, budget_index=None):
         "environment": json.dumps(gem5.get("environment", {}), sort_keys=True,
                                   separators=(",", ":"), ensure_ascii=False),
     }
+    for name in INTEGER_FINGERPRINT_FIELDS:
+        value = str(values[name])
+        if re.fullmatch(r"[+-]?[0-9]+", value):
+            values[name] = str(int(value))
     fields = [str(values[name]) for name in FINGERPRINT_FIELDS] + input_hashes(gem5, benchmark)
     fingerprint = "".join(f"{len(value.encode('utf-8'))}:{value}" for value in fields)
     digest = hashlib.sha256(fingerprint.encode("utf-8")).hexdigest()[:24]
-    return f"{sanitize(method)}_{sanitize(benchmark) or 'benchmark'}_seed{sanitize(seed)}_budget{sanitize(budget)}_{digest}"
+    return (f"{sanitize(method)}_{sanitize(benchmark) or 'benchmark'}"
+            f"_seed{sanitize(values['seed'])}_budget{sanitize(values['budget_index'])}_{digest}")
 
 
 def main():

@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -84,7 +85,7 @@ public class Gem5InputFingerprintTest {
         architecture.put("l2_kb", 512);
         architecture.put("l2_assoc", 8);
         architecture.put("num_cores", 1);
-        assertEquals("nsga2_bfs_seed0_budget1_aa0eb0f970ed930f7e66d96f",
+        assertEquals("nsga2_bfs_seed0_budget1_b1050c088c8cc1f000f70e55",
                 Gem5CandidateId.of(new Gem5CandidateId.Input(fields, architecture, Map.of())));
     }
 
@@ -101,6 +102,49 @@ public class Gem5InputFingerprintTest {
                 "run-a", binary.toString(), "", "", "", "")[0]);
         assertNotEquals(first, Gem5InputFingerprint.hashes(
                 "run-b", binary.toString(), "", "", "", "")[0]);
+    }
+
+    @Test
+    public void numericSpellingsHaveOneIdentityAcrossJavaAndSerializedPythonRequests() throws Exception {
+        Map<String, Integer> architecture = Map.of("width", 4, "rob_entries", 128, "iq_entries", 64,
+                "lsq_entries", 32, "l1i_kb", 32, "l1d_kb", 32, "l2_kb", 512, "l2_assoc", 8);
+        Map<String, String> config = new LinkedHashMap<>(Map.of(
+                "gem5_executable", "/missing/gem5", "gem5_config_script", "/missing/config.py",
+                "gem5_seed", "1", "gem5_budget_index", "1", "gem5_timeout_seconds", "3600",
+                "gem5_warmup_insts", "0", "gem5_maxinsts", "1000", "gem5_cacheline_size", "64"));
+        String canonical = Gem5CandidateFactory.create(config, architecture, "bfs").getCandidateId();
+        for (String field : List.of("gem5_seed", "gem5_budget_index", "gem5_timeout_seconds",
+                "gem5_warmup_insts", "gem5_maxinsts", "gem5_cacheline_size")) {
+            Map<String, String> padded = new LinkedHashMap<>(config);
+            padded.put(field, "+000" + config.get(field));
+            Gem5Candidate candidate = Gem5CandidateFactory.create(padded, architecture, "bfs");
+            assertEquals("Numeric spelling must not change identity: " + field,
+                    canonical, candidate.getCandidateId());
+            assertPythonIdentity(candidate, field);
+        }
+        config.put("gem5_seed", "5000000000");
+        config.put("gem5_warmup_insts", "5000000000");
+        Gem5Candidate large = Gem5CandidateFactory.create(config, architecture, "bfs");
+        config.put("gem5_seed", "0005000000000");
+        config.put("gem5_warmup_insts", "0005000000000");
+        Gem5Candidate paddedLarge = Gem5CandidateFactory.create(config, architecture, "bfs");
+        assertEquals(large.getCandidateId(), paddedLarge.getCandidateId());
+        assertPythonIdentity(paddedLarge, "large-numbers");
+    }
+
+    private void assertPythonIdentity(Gem5Candidate candidate, String name) throws Exception {
+        Path request = temporary.getRoot().toPath().resolve(name + ".json");
+        candidate.writeJson(request, List.of("cpi"));
+        Process python = new ProcessBuilder("python3", "scripts/candidate_hash.py",
+                "--candidate-json", request.toString())
+                .redirectError(ProcessBuilder.Redirect.INHERIT).start();
+        try {
+            assertTrue("Python fingerprint computation timed out", python.waitFor(5, TimeUnit.SECONDS));
+            assertEquals(0, python.exitValue());
+            assertEquals(candidate.getCandidateId(), python.inputReader().readLine());
+        } finally {
+            if (python.isAlive()) python.destroyForcibly();
+        }
     }
 
     private String identity(Path root) {

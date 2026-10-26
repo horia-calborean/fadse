@@ -32,6 +32,10 @@ def validate_contract(contract):
     rank_bytes = contract.get("dram", {}).get("rank_bytes")
     if not isinstance(rank_bytes, int) or rank_bytes <= 0:
         raise ValueError("dram.rank_bytes must be a positive integer")
+    integer_fields = contract["integer_fingerprint_fields"]
+    if (len(integer_fields) != len(set(integer_fields))
+            or not set(integer_fields).issubset(contract["fingerprint_fields"])):
+        raise ValueError("integer_fingerprint_fields must name unique fingerprint fields")
     for index, repair in enumerate(contract["repairs"]):
         if "repair_values" in repair and not repair["repair_values"]:
             raise ValueError(f"repair {index} has an empty repair_values list")
@@ -61,6 +65,7 @@ def render_python(contract):
         "COST_WEIGHTS": cost_weights,
         "REPAIRS": contract["repairs"],
         "FINGERPRINT_FIELDS": contract["fingerprint_fields"],
+        "INTEGER_FINGERPRINT_FIELDS": contract["integer_fingerprint_fields"],
     }
     lines = [
         '"""Generated from configs/gem5/architecture-contract.json. Do not edit."""',
@@ -149,6 +154,7 @@ final class GeneratedGem5Contract {{
 {repairs_text}
     );
     static final List<String> FINGERPRINT_FIELDS = {java_string_list(contract["fingerprint_fields"])};
+    static final List<String> INTEGER_FINGERPRINT_FIELDS = {java_string_list(contract["integer_fingerprint_fields"])};
 
     record Parameter(int[] values, Integer defaultValue, String invalidReason, double costWeight) {{ }}
 
