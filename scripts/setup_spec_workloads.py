@@ -76,7 +76,7 @@ XML_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
         <objective name="l2_mpki_pos" type="float" unit="" desired="small"/>
         <objective name="cost_proxy" type="float" unit="" desired="small"/>
     </objectives>
-    <database ip="127.0.0.1" port="3306" name="fadse" user="root" password="root"/>
+    <database ip="127.0.0.1" port="3306" name="fadse" user="test" password="test"/>
     <clients fileName="clientsConfig.xml"/>
     <output path="results/fadse/"/>
 </design_space>

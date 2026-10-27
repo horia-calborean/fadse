@@ -155,7 +155,7 @@ write_fadse_config() {
         <objective name="simTicks" type="float" unit="ticks" desired="small"/>
         <objective name="hostSeconds" type="float" unit="seconds" desired="small"/>
     </objectives>
-    <database ip="127.0.0.1" port="3306" name="fadse" user="root" password="root"/>
+    <database ip="127.0.0.1" port="3306" name="fadse" user="test" password="test"/>
     <clients fileName="clientsConfig.xml"/>
     <output path="/tmp/fadse-gem5-output"/>
 </design_space>
